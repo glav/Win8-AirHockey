@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>TitleControl</title>
+
+    <!-- WinJS references -->
+    <link href="//Microsoft.WinJS.1.0/css/ui-dark.css" rel="stylesheet" />
+    <script src="//Microsoft.WinJS.1.0/js/base.js"></script>
+    <script src="//Microsoft.WinJS.1.0/js/ui.js"></script>
+
+    <link href="TitleControl.css" rel="stylesheet" />
+    <script src="TitleControl.js"></script>
+</head>
+<body>
+    <div id="title-content" class="TitleControl fragment">
+        <header aria-label="Header content" role="banner">
+            <button class="win-backbutton" aria-label="Back" disabled type="button"></button>
+            <h1 class="titlearea win-type-ellipsis">
+                <span class="pagetitle title-heading">Pair Hockey</span>
+            </h1>
+        </header>
+
+        <section aria-label="Main content" role="main">
+            <button id="start-button" class="start-screen-button start-button" type="button">New Game</button>
+        </section>
+
+        <div id="appbar" data-win-control="WinJS.UI.AppBar">
+            <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'cmd', label:'Command', icon:'placeholder'}" type="button"></button>
+        </div>
+    </div>
+</body>
+</html>
