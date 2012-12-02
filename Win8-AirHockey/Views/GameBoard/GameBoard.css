@@ -1,0 +1,37 @@
+﻿.GameBoard p {
+    margin-left: 120px;
+}
+
+#board {
+    background-color: white;
+}
+
+div.player {
+    position:absolute;
+    width:1px;
+    height:1px;
+    z-index: 2;
+    border-radius: 10px;
+}
+
+#player-one {
+    background-color:black;
+    top: 40%;
+    left: 5%;
+}
+#player-two {
+    background-color:green;
+    top: 40%;
+    right: 5%;
+}
+
+#hockey-puck {
+    position:absolute;
+    width: 1px;
+    height: 1px;
+    border-radius: 60px;
+    background-color: green;
+    top: 350px;
+    left: 45%;
+}
+

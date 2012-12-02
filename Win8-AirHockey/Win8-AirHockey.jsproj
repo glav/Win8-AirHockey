@@ -47,9 +47,7 @@
     <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
     <TargetPlatformVersion>8.0</TargetPlatformVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
-    
     <PackageCertificateKeyFile>Win8-AirHockey_TemporaryKey.pfx</PackageCertificateKeyFile>
-    
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="package.appxmanifest">
@@ -60,11 +58,24 @@
     <Content Include="images\smalllogo.png" />
     <Content Include="images\splashscreen.png" />
     <Content Include="images\storelogo.png" />
+    <Content Include="js\Box2D.js" />
+    <Content Include="js\Box2d.min.js" />
+    <Content Include="js\box2dWrapper.js" />
     <Content Include="js\default.js" />
     <Content Include="css\default.css" />
-    
+    <Content Include="js\Entity.js" />
+    <Content Include="js\gestureHandler.js" />
+    <Content Include="js\navigator.js" />
+    <Content Include="Views\GameBoard\GameBoard.css" />
+    <Content Include="Views\GameBoard\GameBoard.html" />
+    <Content Include="Views\GameBoard\GameBoard.js" />
+    <Content Include="Views\GameBoard\gameBoardRenderer.js" />
+    <Content Include="Views\GameBoard\GameWorld.js" />
+    <Content Include="Views\GameBoard\worldConstants.js" />
+    <Content Include="Views\TitleScreen\TitleControl.css" />
+    <Content Include="Views\TitleScreen\TitleControl.html" />
+    <Content Include="Views\TitleScreen\TitleControl.js" />
     <None Include="Win8-AirHockey_TemporaryKey.pfx" />
-    
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.WinJS.1.0, Version=1.0" />

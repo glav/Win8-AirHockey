@@ -1,4 +1,6 @@
 ﻿body {
+    width: 100%;
+    height: 100%;
 }
 
 @media screen and (-ms-view-state: fullscreen-landscape) {
@@ -12,3 +14,37 @@
 
 @media screen and (-ms-view-state: fullscreen-portrait) {
 }
+
+#title-content {
+    
+}
+
+.start-screen-button {
+ 	background-color: #365034;
+	background-position: center 80%;
+	border-style: solid;
+	border-color: #2A9738;
+	border-radius: 3px;
+	font-size: large;
+	text-align: center;
+	width: 20%;
+	height: 50px;
+	box-shadow: 5px 5px #666;
+}
+.start-button {
+	position: absolute;
+	top: 610px;
+	left: 191px;
+	width: 273.2px;
+	height: 50px;
+}
+
+.pagetitle {
+	font-size: 2em;
+	font-family: Arial;
+	text-align: center;
+	color: #5EE57C;
+	text-shadow: 4px 4px #555555;
+}
+
+
