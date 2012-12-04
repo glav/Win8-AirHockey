@@ -22,6 +22,7 @@
             // TODO: Initialize the page here.
             Windows.Graphics.Display.DisplayProperties.autoRotationPreferences = Windows.Graphics.Display.DisplayOrientations.landscape;
             document.getElementById('homeAppButton').addEventListener('click', function () {
+                window.game.world.stopGame();
                 nav.navigate('/Views/TitleScreen/TitleControl.html');
             });
 

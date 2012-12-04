@@ -50,17 +50,17 @@
 
     }
 
-    function createBallInitialSettings() {
+    function createPuckInitialSettings() {
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
         return {
-            id: "ball",
+            id: window.game.worldConstants.PuckId,
             x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
             y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-            radius: 1.7,
+            radius: 1.5,
             isStatic: false,
             density: 1,
-            color: window.game.worldConstants.BallPuckColour,
+            puckcolor: window.game.worldConstants.BallPuckColour,
             fixedRotation: true
         }
     }
@@ -69,14 +69,15 @@
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
         return {
-            id: "bat1",
+            id: window.game.worldConstants.Player1Id,
             x: 5,
             y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
             halfHeight: 2, halfWidth: 0.9, isStatic: false,
             density: 3,
-            radius: 2.2,
-            color: window.game.worldConstants.Player1Colour,
-            useShadow: true
+            radius: 1.9,
+            playercolor: window.game.worldConstants.Player1Colour,
+            useShadow: true,
+            playerName: 'P1'
         }
     }
 
@@ -84,16 +85,17 @@
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
         return {
-            id: "bat2",
+            id: window.game.worldConstants.Player2Id,
             x: 40,
             y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
             halfHeight: 2,
             halfWidth: 0.9,
             isStatic: false,
             density: 3,
-            radius: 2.2,
-            color: window.game.worldConstants.Player2Colour,
-            useShadow: true
+            radius: 1.9,
+            playercolor: window.game.worldConstants.Player2Colour,
+            useShadow: true,
+            playerName: 'P2'
         }
     }
 
@@ -134,11 +136,11 @@
                 halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
                 isStatic: true
             },
-            createBallInitialSettings(),
+            createPuckInitialSettings(),
             createBat1InitialSettings(),
             createBat2InitialSettings(),
             {
-                id: "goal1",
+                id: window.game.worldConstants.player1Goal,
                 x: 1,
                 y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
                 halfHeight: 4.5,
@@ -149,7 +151,7 @@
                 useShadow:true
             },
             {
-                id: "goal2",
+                id: window.game.worldConstants.player2Goal,
                 x: ctx.canvas.width / window.game.worldConstants.Scale - 1,
                 y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
                 halfHeight: 4.5,
@@ -170,7 +172,7 @@
         setupAllWorldBodySettings: setupAllWorldBodySettings,
         createBat1InitialSettings: createBat1InitialSettings,
         createBat2InitialSettings: createBat2InitialSettings,
-        createBallInitialSettings: createBallInitialSettings
+        createPuckInitialSettings: createPuckInitialSettings
     };
 
 }();
