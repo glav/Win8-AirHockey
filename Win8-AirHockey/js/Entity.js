@@ -170,8 +170,8 @@
                 ctx.drawImage(this.image, (this.x - this.radius) * window.game.worldConstants.Scale, (this.y - this.radius) * window.game.worldConstants.Scale, this.radius * 2 * window.game.worldConstants.Scale, this.radius * 2 * window.game.worldConstants.Scale);
             }
             if (this.enableShadow === true) {
-                ctx.shadowOffsetX = 10;
-                ctx.shadowOffsetY = 10;
+                ctx.shadowOffsetX = 20;
+                ctx.shadowOffsetY = 20;
                 ctx.shadowBlur = 4;
                 ctx.shadowColor = 'rgba(190, 190, 190, 0.5)';
             }
@@ -204,7 +204,7 @@
         Entity.prototype.draw.call(this, ctx);
     };
     //*****************************************************
-    // END Puck
+    // END Player
     //*****************************************************
 
     //*****************************************************
@@ -259,6 +259,9 @@
         Entity.prototype.draw.call(this, ctx);
     };
 
+    //***************************
+    // *** Generic Rectange
+    //***************************
     function RectangleEntity(id, x, y, angle, center, color, halfWidth, halfHeight, isStatic, density) {
         Entity.call(this, id, x, y, angle, center, color, isStatic, density);
         this.halfWidth = halfWidth;
@@ -281,7 +284,61 @@
 
         Entity.prototype.draw.call(this, ctx);
     };
+    //***************************
+    // *** END Generic Rectange
+    //***************************
 
+    //***************************
+    // *** GOAL Rectange
+    //***************************
+    // Goals actual body is very thin so however the visible width appears much thicker. This is
+    // so the world simulator will only collide with the thin part but the visible rendering
+    // will appear much larger so the puck will go 'underneath' the visible part before colliding 
+    // with the 'thin' part which gives the impression og going 'in' the goal rather than just 
+    // touching the visible part
+    function GoalEntity(id, x, y, angle, center, color, halfWidth, halfHeight, visibleHalfWidth, visibleHalfHeight, isStatic, density, useLeftShadow,useRightShadow, angularDamping) {
+        var enableShadow = (useLeftShadow === true || useRightShadow === true);
+        Entity.call(this, id, x, y, angle, center, color, isStatic, density, enableShadow, angularDamping);
+        this.halfWidth = halfWidth;
+        this.halfHeight = halfHeight;
+        this.visibleHalfHeight = visibleHalfHeight;
+        this.visibleHalfWidth = visibleHalfWidth;
+        this.useLeftShadow = useLeftShadow;
+        this.useRightShadow = useRightShadow;
+    }
+    GoalEntity.prototype = new Entity();
+    GoalEntity.prototype.constructor = GoalEntity;
+
+    GoalEntity.prototype.draw = function (ctx) {
+        ctx.save();
+
+        if (this.enableShadow === true) {
+            if (this.useLeftShadow === true) {
+                ctx.shadowOffsetX = -5;
+                ctx.shadowOffsetY = 4;
+            } else {
+                ctx.shadowOffsetX = 5;
+                ctx.shadowOffsetY = 4;
+            }
+            ctx.shadowBlur = 3;
+            ctx.shadowColor = 'rgba(10, 10, 10, 0.6)';
+        }
+
+        ctx.translate(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale);
+        ctx.rotate(this.angle);
+        ctx.translate(-(this.x) * window.game.worldConstants.Scale, -(this.y) * window.game.worldConstants.Scale);
+        ctx.fillStyle = this.color;
+        ctx.fillRect((this.x - this.visibleHalfWidth) * window.game.worldConstants.Scale,
+            (this.y - this.visibleHalfHeight) * window.game.worldConstants.Scale,
+            (this.visibleHalfWidth * 2) * window.game.worldConstants.Scale,
+            (this.visibleHalfHeight * 2) * window.game.worldConstants.Scale);
+        ctx.restore();
+
+        Entity.prototype.draw.call(this, ctx);
+    };
+    //***************************
+    // *** END GOAL Rectange
+    //***************************
     function PolygonEntity(id, x, y, angle, center, color, polys, isStatic, density) {
         Entity.call(this, id, x, y, angle, center, color, isStatic, density);
         this.polys = polys;
@@ -318,13 +375,15 @@
     // Assumes an entity is a circle if a 'radius' property is present.
     // Assumes an entity is a polygon if a 'polys' property is present.
     function buildEntity(def) {
-        if (def.playercolor || def.playerName) {
+        if (def.type === window.game.board.entityType.Player) {
             return new PlayerEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.playercolor, def.radius, def.isStatic, def.density, def.useShadow, def.playerName);
-        } else if (def.puckcolor) {
+        } else if (def.type === window.game.board.entityType.Goal) {
+            return new GoalEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.color, def.halfWidth, def.halfHeight, def.visibleHalfWidth, def.visibleHalfHeight, def.isStatic, def.density, def.useLeftShadow,def.useRightShadow, def.angularDamping);
+        } else if (def.type === window.game.board.entityType.Puck) {
             return new PuckEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.puckcolor, def.radius, def.isStatic, def.density, def.useShadow, def.angularDamping);
-        } else if (def.radius) {
+        } else if (def.type === window.game.board.entityType.Circle) {
             return new CircleEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.color, def.radius, def.isStatic, def.density, def.useShadow, def.angularDamping);
-        } else if (def.polys) {
+        } else if (def.type === window.game.board.entityType.Polygon) {
             return new PolygonEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.color, def.polys, def.isStatic, def.density, def.useShadow);
         } else {
             return new RectangleEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.color, def.halfWidth, def.halfHeight, def.isStatic, def.density, def.useShadow);
