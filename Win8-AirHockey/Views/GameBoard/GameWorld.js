@@ -1,14 +1,14 @@
-﻿window.game.world = function () {
+﻿/// <reference path="../../js/Settings.js" />
+window.game.world = function () {
     "use strict";
 
-    //*** From the Number 11 demo ****
     var world = {};
     var bodiesState = null;
     var simulator = null;
     var canvasWidth;
     var canvasHeight;
-    var canvas; // = document.getElementById("c");
-    var ctx; // = canvas.getContext("2d");
+    var canvas;
+    var ctx;
     var initTimeout = null;
     var isMouseDown = false;
     var screenHeight = window.innerHeight;
@@ -33,6 +33,7 @@
         lastEvent: '',
         message: ''
     };
+    var settings;
 
     var scores = {
         player1: 0,
@@ -83,11 +84,14 @@
         //ball.clearForces();
 
         if (ballCollisionState.hasCollided) {
-            //simulator.applyImpulseVector(gameConst.PuckId, { x: ballCollisionState.vX, y: ballCollisionState.vY }, ballCollisionState.power);
             if (ballCollisionState.batIdCollidedWith !== null) {
                 var body = simulator.getBody(ballCollisionState.batIdCollidedWith);
                 simulator.cancelAllMovement(body);
             }
+
+            // Give the puck a little extra kick
+            simulator.applyImpulseVector(gameConst.PuckId, { x: ballCollisionState.vX, y: ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
+
             //simulator.cancelAllMovement(bat);
             ballCollisionState.hasCollided = false;
             ballCollisionState.power = 0;
@@ -113,22 +117,22 @@
         var pos = entity.GetPosition();
 
         if (pos.x <= entity.radius) {
-            entity.SetPosition({x: entity.radius, y:pos.y});
+            entity.SetPosition({ x: entity.radius, y: pos.y });
             return;
         }
         if (pos.y <= entity.radius) {
-            entity.SetPosition({x: pos.x, y:entity.radius});
+            entity.SetPosition({ x: pos.x, y: entity.radius });
             return;
         }
-        var yMax= (screenHeight / gameConst.Scale) - entity.radius;
+        var yMax = (screenHeight / gameConst.Scale) - entity.radius;
         if (pos.y >= yMax) {
-            entity.SetPosition({x:pos.x, y:yMax});
+            entity.SetPosition({ x: pos.x, y: yMax });
             return;
         }
 
-        var xMax= (screenWidth / gameConst.Scale) - radius;
+        var xMax = (screenWidth / gameConst.Scale) - radius;
         if (pos.x >= xMax) {
-            entity.SetPosition({x:xMax, y:pos.y});
+            entity.SetPosition({ x: xMax, y: pos.y });
             return;
         }
     }
@@ -186,9 +190,10 @@
         ctx.fillStyle = '#828282';
         ctx.fillText("BatVX: " + debugData.batXVelocity, startXPos, startYPos);
         ctx.fillText("BatVY: " + debugData.batYVelocity, startXPos, (startYPos += 30));
-        ctx.fillText("PowerApplied: " + debugData.lastPowerApplied, startXPos, (startYPos += 30));
-        ctx.fillText("ActualPowerCalced: " + debugData.lastCalculatedPower, startXPos, (startYPos += 30));
-        ctx.fillText("Impulse: " + debugData.lastImpulse, startXPos, (startYPos += 30));
+        // not really using these values now so dont bother showing them
+        //ctx.fillText("PowerApplied: " + debugData.lastPowerApplied, startXPos, (startYPos += 30));
+        //ctx.fillText("ActualPowerCalced: " + debugData.lastCalculatedPower, startXPos, (startYPos += 30));
+        //ctx.fillText("Impulse: " + debugData.lastImpulse, startXPos, (startYPos += 30));
         ctx.fillText("Player1Selected: " + playerMovementState.isPlayer1Selected, startXPos, (startYPos += 30));
         ctx.fillText("Player2Selected: " + playerMovementState.isPlayer2Selected, startXPos, (startYPos += 30));
         ctx.fillText("LastEvent: " + debugData.lastEvent, startXPos, (startYPos += 30));
@@ -217,6 +222,12 @@
             ctx.font = "30px Arial";
             ctx.strokeStyle = "#000000";
             ctx.fillStyle = '#000000';
+
+            ctx.shadowOffsetX = 7;
+            ctx.shadowOffsetY = 7;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'rgba(10, 10, 10, 0.5)';
+
             if (inGameMessage.xPos === 0) {
                 inGameMessage.xPos = canvasWidth * 0.25;
                 inGameMessage.yPos = canvasHeight / 4;
@@ -230,6 +241,27 @@
         }
     }
 
+    function drawCountDown() {
+        if (countdownState.started) {
+            var centreX = screenWidth / 2 - 15;
+            var centreY = screenHeight / 2 - 15;
+            ctx.save();
+            ctx.font = "80px Arial";
+            ctx.strokeStyle = "red";
+            ctx.fillStyle = "red";
+            ctx.shadowOffsetX = 7;
+            ctx.shadowOffsetY = 7;
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'rgba(10, 10, 10, 0.5)';
+
+            ctx.fillText(countdownState.count, centreX - (centreX / 4), centreY - (centreY / 4));
+            ctx.fillText(countdownState.count, centreX + (centreX / 4), centreY - (centreY / 4));
+            ctx.restore();
+        }
+
+    }
+
+
     function draw() {
         if (quitGame === true) {
             return;
@@ -241,6 +273,7 @@
         window.game.board.drawBoardMarkings();
 
         // Run through our drawing events
+
         drawCollisionDebugData();
         drawScores();
         drawInGameMessage();
@@ -267,21 +300,6 @@
                 }
             }
         }, 1000);
-    }
-
-    function drawCountDown() {
-        if (countdownState.started) {
-            var centreX = screenWidth / 2 - 15;
-            var centreY = screenHeight / 2 - 15;
-            ctx.save();
-            ctx.font = "80px Arial";
-            ctx.strokeStyle = "red";
-            ctx.fillStyle = "red";
-            ctx.fillText(countdownState.count, centreX - (centreX / 4), centreY - (centreY / 4));
-            ctx.fillText(countdownState.count, centreX + (centreX / 4), centreY - (centreY / 4));
-            ctx.restore();
-        }
-
     }
 
     function scoreGoal(idA, idB) {
@@ -353,8 +371,10 @@
         if (haltGame === true || quitGame === true) {
             return;
         }
-        mouseX = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
-        mouseY = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
+
+        var boundingClientRect = canvas.getBoundingClientRect();
+        mouseX = (e.clientX - boundingClientRect.left) / window.game.worldConstants.Scale;
+        mouseY = (e.clientY - boundingClientRect.top) / window.game.worldConstants.Scale;
 
         var selectedBody = simulator.getBodyAt(mouseX, mouseY);
         if (typeof selectedBody !== 'undefined' && selectedBody !== null) {
@@ -378,8 +398,10 @@
                 debugData.message = "setting body position: x:" + mouseX + ", y:" + mouseY;
 
                 selectedBody.SetPosition({ x: mouseX, y: mouseY });
-                var entityState = simulator.getState()[selectedId];
-                entity.update(entityState);
+
+                // Not sure if this required.
+                //var entityState = simulator.getState()[selectedId];
+                //entity.update(entityState);
             }
         }
     };
@@ -453,33 +475,33 @@
 
             //document.removeEventListener("mousemove", handleMouseMove, true);
 
-            var ballBody = simulator.getBody(gameConst.PuckId);
             var centreBallPosition = ballBody.GetWorldCenter();
+            var ballVelocity = ballBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
             var centreBatPosition = bat.GetWorldCenter();
             var batVelocity = bat.GetLinearVelocityFromWorldPoint(centreBatPosition);
-            var ballVelocity = ballBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
 
             // add both X velocity for ball and bat together. They should cancel each other
             // out if going opposite dir. Same for Y dir
-            var aggregateYVelocity = batVelocity.y + ballVelocity.y / 2;
-            var aggregateXVelocity = batVelocity.x + ballVelocity.x / 2;
+            var aggregateYVelocity = batVelocity.y + ballVelocity.y;// / 2;
+            var aggregateXVelocity = batVelocity.x + ballVelocity.x;// / 2;
 
-            var batInertia = bat.GetInertia();
-            debugData.lastCalculatedPower = batInertia;
             // put a cap on the intertia
-            batInertia = batInertia > 5000 ? batInertia = 5000 : batInertia;
+            //var batInertia = bat.GetInertia();
+            //batInertia = batInertia > 5000 ? batInertia = 5000 : batInertia;
 
             ballCollisionState.hasCollided = true;
-            ballCollisionState.power = batInertia;
             ballCollisionState.vX = aggregateXVelocity;
             ballCollisionState.vY = aggregateYVelocity;
 
+            //Since we are not using inertia and power for calculations now, commenting out to improve perf
             // set debug data
+            //ballCollisionState.power = batInertia;
+            //debugData.lastCalculatedPower = batInertia;
+            //if (batInertia !== 0) {
+            //    debugData.lastPowerApplied = batInertia;
+            //}
             debugData.batXVelocity = batVelocity.x;
             debugData.batYVelocity = batVelocity.y;
-            if (batInertia !== 0) {
-                debugData.lastPowerApplied = batInertia;
-            }
             if (impulse !== 0) {
                 debugData.lastImpulse = impulse;
             }
@@ -500,6 +522,9 @@
         ball.SetPosition({ x: ballSettings.x, y: ballSettings.y });
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
         bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
+
+        settings = window.game.settings.getCurrent();
+
 
         update();
         draw();
@@ -552,16 +577,21 @@
             }
         }
 
-        handlePointerInitiatedOrReleased(e, false);
+        // We dont need this routine for now. Retaining just in case we need to know when a player is selected
+        // held
+        //handlePointerInitiatedOrReleased(e, false);
+
         handleMouseMove(e);
     }
     function handleMSPointerUpEvent(e) {
         debugData.lastEvent = 'onMSPointerUp';
-        handlePointerInitiatedOrReleased(e, true);
+        // We dont need this routine for now. Retaining just in case we need to know when a player is selected
+        // held
+        //handlePointerInitiatedOrReleased(e, true);
     }
     function handleMSPointerMoveEvent(e) {
         debugData.lastEvent = 'onMSPointerMove';
-        handleMouseMove(e);
+        //handleMouseMove(e);
     }
     function handleMSPointerCancelEvent(e) {
         debugData.lastEvent = 'onMSPointerCancel';
@@ -592,9 +622,11 @@
     }
     function handleMSInertiaStartEvent(e) {
         debugData.lastEvent = 'onMSInertiaStart';
-        handlePointerInitiatedOrReleased(e, true);
+        // We dont need this routine for now. Retaining just in case we need to know when a player is selected
+        // held
+        //handlePointerInitiatedOrReleased(e, true);
     }
-/***** END MS GESTURE HANDLING ******/
+    /***** END MS GESTURE HANDLING ******/
 
     function initGameBodies() {
         haltGame = false;
@@ -617,36 +649,11 @@
         window.game.entities.setDebugMode(debugData.enabled);
 
 
-        /*********** STANDARD MOUSEDOWN/UP EVENTS - ONLY GOOD FOR 1 ELEMENT AT A TIME 
-        ************/
-
-        //canvas.addEventListener("mousedown", function (e) {
-        //    document.addEventListener("mousemove", handleMouseMove, true);
-        //    setTimeout(function () {
-        //        isMouseDown = true;
-        //        handleMouseMove(e);
-        //    }, 1000/60);
-
-        //}, true);
-
-        //canvas.addEventListener("mouseup", function (e) {
-        //    if (!isMouseDown) return;
-        //    document.removeEventListener("mousemove", handleMouseMove, true);
-        //    handleMouseMove(e);
-        //    isMouseDown = false;
-        //    mouseX = undefined;
-        //    mouseY = undefined;
-        //}, true);
-
-        /***************************************************************/
-
-
-
         gestureHandler.addMovementEventListeners({
             element: canvas,
             onMSPointerDown: handleMSPointerDownEvent,
             onMSPointerUp: handleMSPointerUpEvent,
-            onMSPointerMove:handleMSPointerMoveEvent,
+            onMSPointerMove: handleMSPointerMoveEvent,
             onMSPointerCancel: handleMSPointerCancelEvent,
             onMSLostPointerCapture: handleMSLostPointerCaptureEvent,
             onMSGestureChange: handleMSGestureChangeEvent,
@@ -719,7 +726,4 @@
         stopGame: stopGame
     };
 }();
-
-
-//***** end from number 11 demo ******
 

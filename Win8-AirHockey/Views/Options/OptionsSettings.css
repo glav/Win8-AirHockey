@@ -1,0 +1,54 @@
+﻿.OptionsSettings section[role=main] {
+    margin-left: 120px;
+    margin-right: 120px;
+}
+
+@media screen and (-ms-view-state: snapped) {
+    .OptionsSettings section[role=main] {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+
+@media screen and (-ms-view-state: fullscreen-portrait) {
+    .OptionsSettings section[role=main] {
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+}
+
+body {
+    background-color:lightblue;
+}
+
+.settings.win-toggleswitch .win-title, 
+.settings.win-toggleswitch.win-off .win-label,
+.settings.win-toggleswitch.win-on .win-label {
+    color:black;
+}
+.settings.win-toggleswitch .win-switch::-ms-fill-lower
+{
+    background-color: rgb(191, 85, 0);
+}
+.settings.win-toggleswitch .win-switch::-ms-fill-upper
+{
+    background-color: black;
+}
+.settings.win-toggleswitch .win-switch
+{
+    width: 96px;
+    height: auto;
+}
+.settings.win-toggleswitch .win-switch::-ms-track
+{
+    width: auto;
+    height: 44px;
+    border-color: rgb(100, 100, 100);
+    border-radius: 24px;
+    background-image: linear-gradient(to bottom, rgb(44, 44, 44) 0%, rgb(55, 55, 55) 100%);
+}
+
+.settings.win-toggleswitch
+{
+    height: auto;
+}

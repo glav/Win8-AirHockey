@@ -4,7 +4,7 @@
   <Properties>
     <DisplayName>Win8-AirHockey</DisplayName>
     <PublisherDisplayName>Paul</PublisherDisplayName>
-    <Logo>images\storelogo.png</Logo>
+    <Logo>images\AirHockeyPucksPaddles50x50.png</Logo>
   </Properties>
   <Prerequisites>
     <OSMinVersion>6.2.1</OSMinVersion>
