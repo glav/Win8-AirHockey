@@ -36,6 +36,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>5f776424-8b24-4531-b9b2-ea84530f0a61</ProjectGuid>
+    <ExpressionBlendVersion>5.0.31017.0</ExpressionBlendVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0'">
     <VisualStudioVersion>11.0</VisualStudioVersion>

@@ -144,9 +144,14 @@ window.game.world = function () {
         ensureEntityIsWithinBoundsOfPlayingField(p1);
         ensureEntityIsWithinBoundsOfPlayingField(p2);
 
+        // If user has elected to allow players past halfway line then return
+        // so we dont test for it
+        if (settings.allowPlayersToCrossHalfwayLine === true) {
+            return;
+        }
+
         var p1Pos = p1.GetPosition();
         var p2Pos = p2.GetPosition();
-
 
         // check that each player cannot go past their halfway line limit
         var halfwayLimit = screenWidth / 2 / gameConst.Scale;
@@ -323,8 +328,20 @@ window.game.world = function () {
             scores.player1 += 1;
         }
 
-
-        inGameMessage.displayText = "GOAL! " + message + "scores";
+        if (scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+            // end of the match! Someone has won
+            var msg = "Player ";
+            if (scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+                msg += "1";
+            } else {
+                msg += "2";
+            }
+            msg += " wins! Final Score: Player 1: " + scores.player1 + ", Player 2: " + scores.player2;
+            inGameMessage.displayText = msg;
+        } else {
+            // continue playing....
+            inGameMessage.displayText = "GOAL! " + message + "scores";
+        }
 
         // Do something spectacular to show a goal has been scored
         if (debugData.enabled !== true) {
@@ -338,6 +355,8 @@ window.game.world = function () {
                 inGameMessage.clearMessage();
             }, 3500);
         }
+
+
     }
 
     function handlePointerInitiatedOrReleased(e, isReleased) {
@@ -510,6 +529,9 @@ window.game.world = function () {
     }
 
     function startGameSequence() {
+        if (haltGame === true || quitGame === true) {
+            return;
+        }
         var initialState = window.game.board.setupAllWorldBodySettings();
         var ball = simulator.getBody(gameConst.PuckId);
         var bat1 = simulator.getBody(gameConst.Player1Id);
@@ -523,23 +545,31 @@ window.game.world = function () {
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
         bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
 
-        settings = window.game.settings.getCurrent();
+        scores.player1 = 0;
+        scores.player2 = 0;
 
+        settings = window.game.settings.getCurrent();
 
         update();
         draw();
 
         startCountDown(function () {
+            if (haltGame === true || quitGame === true) {
+                return;
+            }
             // kick off the puck in a random direction and power
-            var power = Math.random() * 100 + 10;
+            var power = Math.random() * 150 + 10;
             var angle = Math.random() * 360;
             setTimeout(function () {
                 //simulator.applyImpulse("ball", parseInt(angleElem.value), parseInt(powerElem.value));
-                simulator.applyImpulse(gameConst.PuckId, parseInt(angle), parseInt(power));
-                haltGame = false;
+                if (simulator !== null) {
+                    simulator.applyImpulse(gameConst.PuckId, parseInt(angle), parseInt(power));
+                    haltGame = false;
+                }
             }, 500);
+
         });
-        if (!haltGame) {
+        if (!haltGame && !quitGame) {
             startAnimationLoop();
         }
     }

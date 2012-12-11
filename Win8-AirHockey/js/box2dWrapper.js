@@ -34,10 +34,13 @@ window.game.simulator = function () {
            , true                 //allow sleep
         );
 
+        var settings = window.game.settings.getCurrent();
+
         this.fixDef = new b2FixtureDef;
         this.fixDef.density = 1.0;
         this.fixDef.friction = 2;
-        this.fixDef.restitution = .6;
+        this.fixDef.restitution = settings.simulatorRestitution;
+        //this.fixDef.restitution = .6;
     }
 
 

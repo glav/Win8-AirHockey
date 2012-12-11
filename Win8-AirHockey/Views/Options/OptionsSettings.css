@@ -1,4 +1,12 @@
-﻿.OptionsSettings section[role=main] {
+﻿body {
+    background-color:#ffffff;
+    font-size: 1.4em;
+    color:#5a99e6;
+    font-family:Verdana, 'Arial Narrow', 'Nimbus Sans L', sans-serif;
+    margin: 40px;
+}
+
+.OptionsSettings section[role=main] {
     margin-left: 120px;
     margin-right: 120px;
 }
@@ -17,22 +25,73 @@
     }
 }
 
-body {
-    background-color:lightblue;
+
+.settings-grid {
+    display:-ms-grid;
+    -ms-grid-columns: 1fr 1fr;
+    -ms-grid-rows: 1fr 1fr 1fr;
+    width:90%;
+    height:300px;
 }
+    .settings-grid div:nth-child(1) {
+        -ms-grid-column: 1;
+        -ms-grid-row: 1;
+        -ms-grid-column-span:2;
+    }
+    .settings-grid div:nth-child(2) {
+        -ms-grid-column: 2;
+        -ms-grid-row: 1;
+    }
+    .settings-grid div:nth-child(3) {
+        -ms-grid-column: 1;
+        -ms-grid-row: 2;
+    }
+    .settings-grid div:nth-child(4) {
+        -ms-grid-column: 2;
+        -ms-grid-row: 2;
+    }
+    .settings-grid div:nth-child(5) {
+        -ms-grid-column: 1;
+        -ms-grid-row: 3;
+    }
+    .settings-grid div:nth-child(6) {
+        -ms-grid-column: 2;
+        -ms-grid-row: 3;
+    }
+    .settings-grid div:nth-child(7) {
+        -ms-grid-column: 1;
+        -ms-grid-row: 4;
+    }
+    .settings-grid div:nth-child(8) {
+        -ms-grid-column: 2;
+        -ms-grid-row: 4;
+    }
+    .settings-grid div:nth-child(9) {
+        -ms-grid-column: 1;
+        -ms-grid-row: 5;
+    }
+    .settings-grid div:nth-child(10) {
+        -ms-grid-column: 2;
+        -ms-grid-row: 5;
+    }
 
 .settings.win-toggleswitch .win-title, 
 .settings.win-toggleswitch.win-off .win-label,
 .settings.win-toggleswitch.win-on .win-label {
-    color:black;
+    color:#5a99e6;
+    font-size:1.0em;
+}
+.settings.win-toggleswitch.win-off .win-label,
+.settings.win-toggleswitch.win-on .win-label {
+    margin-left: 150px;
 }
 .settings.win-toggleswitch .win-switch::-ms-fill-lower
 {
-    background-color: rgb(191, 85, 0);
+    background-color: rgb(250, 70, 58);
 }
 .settings.win-toggleswitch .win-switch::-ms-fill-upper
 {
-    background-color: black;
+    background-color: #a4aaaa;
 }
 .settings.win-toggleswitch .win-switch
 {
@@ -42,13 +101,24 @@ body {
 .settings.win-toggleswitch .win-switch::-ms-track
 {
     width: auto;
-    height: 44px;
+    height: 22px;
     border-color: rgb(100, 100, 100);
-    border-radius: 24px;
-    background-image: linear-gradient(to bottom, rgb(44, 44, 44) 0%, rgb(55, 55, 55) 100%);
+    border-radius: 14px;
+    background-image: linear-gradient(to bottom, rgb(44, 44, 44) 0%, rgb(99, 99, 99) 100%);
 }
 
 .settings.win-toggleswitch
 {
     height: auto;
+}
+.settings.win-toggleswitch .win-switch::-ms-thumb
+{
+    background-color: rgb(220, 220, 220);
+    background-image: linear-gradient(to bottom, rgb(233, 233, 233) 0%, rgb(196, 196, 196) 100%);
+    height: 26px;
+    width: 36px;
+    border-radius: 10px;
+    margin-right: 4px;
+    margin-left: 4px;
+    border: 2px solid rgb(220, 220, 220);
 }
