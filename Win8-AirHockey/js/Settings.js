@@ -31,11 +31,18 @@
         this.updateCurrent(currentSettings);
     }
 
+    function resetToDefault() {
+        var defaultOptions = _newSettings();
+        updateCurrent(defaultOptions);
+    }
+
     function _newSettings() {
         var settingsData = {
             numberTimesAppStarted: 0,
             powerToApplyOnPuckCollision: 1,
-            allowPlayersToCrossHalfwayLine: false
+            allowPlayersToCrossHalfwayLine: false,
+            numberOfGoalsThatSignalsEndOfMatch: 10,
+            simulatorRestitution: 0.6
         };
         return settingsData;
     }
@@ -43,6 +50,7 @@
     return {
         getCurrent: getCurrent,
         updateCurrent: updateCurrent,
-        incrementStartCounter: incrementStartCounter
+        incrementStartCounter: incrementStartCounter,
+        resetToDefault: resetToDefault
     };
 }();

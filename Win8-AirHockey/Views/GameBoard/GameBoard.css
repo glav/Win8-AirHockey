@@ -1,9 +1,10 @@
-﻿.GameBoard p {
-    margin-left: 120px;
-}
-
+﻿
 #board {
     background-color: white;
+    margin: 0;
+    position:fixed;
+    top: 0;
+    left: 0;
 }
 
 div.player {

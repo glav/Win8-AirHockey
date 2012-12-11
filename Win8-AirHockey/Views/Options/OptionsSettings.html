@@ -2,10 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>OptionsSettings</title>
+    <title>Options</title>
 
     <!-- WinJS references -->
-    <link href="//Microsoft.WinJS.1.0/css/ui-dark.css" rel="stylesheet" />
+   <!--<link href="//Microsoft.WinJS.1.0/css/ui-light.css" rel="stylesheet" />-->
     <script src="//Microsoft.WinJS.1.0/js/base.js"></script>
     <script src="//Microsoft.WinJS.1.0/js/ui.js"></script>
 
@@ -25,17 +25,43 @@
             </h1>
         </header>
         <section aria-label="Main content" id="main-content" role="main">
-            <span>1</span>
-                        <div data-win-control="WinJS.UI.ToggleSwitch"  data-win-options="{title: 'Allow Player to Cross Halfway Line?'}" class="settings" >
-                        </div>
-            <span>2</span>
-            <ul>
-                <li>
-                    <!--<span>Allow Player to Cross Halfway Line?</span>-->
-                        <div id="option-player-allow-halfway" data-win-control="WinJS.UI.ToggleSwitch"  data-win-options="{title: 'Allow Player to Cross Halfway Line?'}" >
-                        </div>
-                </li>
-            </ul>
+	        <div class="settings-grid">
+		        <div>
+			        <div id="option-player-allow-halfway" data-win-control="WinJS.UI.ToggleSwitch" class="settings" 
+                             data-win-options="{title:'Allow Player to Cross Halfway Line?'}"
+                             data-win-bind="winControl.checked: allowPlayersToCrossHalfwayLine" >
+			        </div>
+		        </div>
+		
+                <div></div>
+		
+                <div>
+                    <span>Number of goals required to win game?</span>
+		        </div>
+		        <div>
+			        <input id="option-goals-till-endofmatch" type="range" max="50" min="1" data-win-bind="value: numberOfGoalsThatSignalsEndOfMatch" />
+		        </div>
+
+                <div>
+                    <span>Puck "bounciness" or collision power when hit by player?</span>
+                </div>
+                <div>
+                    <input id="option-power-on-puckcollision" type="range" max="100" min="0" data-win-bind="value: powerToApplyOnPuckCollision" />
+                </div>
+
+                <div>
+                    <span>Overall simular "bounciness"?</span>
+                </div>
+                <div>
+                    <input id="option-restitution" type="number" max="50" min="0" step="0.1"  data-win-bind="value: simulatorRestitution" />
+                </div>
+
+                <div>
+                </div>
+                <div>
+                    <button id="options-reset">Reset options to default values</button>
+                </div>
+	        </div>
         </section>
     </div>
 </body>
