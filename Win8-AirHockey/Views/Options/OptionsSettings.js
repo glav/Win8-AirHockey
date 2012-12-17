@@ -5,12 +5,14 @@
     "use strict";
 
     var settings = window.game.settings.getCurrent();
+    var nav = WinJS.Navigation;
 
     function updateSettings() {
         settings.powerToApplyOnPuckCollision = document.getElementById('option-power-on-puckcollision').value;
         settings.numberOfGoalsThatSignalsEndOfMatch = document.getElementById('option-goals-till-endofmatch').value;
         settings.allowPlayersToCrossHalfwayLine = document.getElementById('option-player-allow-halfway').winControl.checked;
         settings.simulatorRestitution = document.getElementById('option-restitution').value;
+        settings.boardFriction = document.getElementById('option-board-friction').value;
         window.game.settings.updateCurrent(settings);
     }
 
@@ -29,7 +31,10 @@
 
             document.getElementById("options-reset").addEventListener("click", function () {
                 resetOptionsToDefault();
-            },false);
+                //setTimeout(function () {
+                //    nav.navigate('/Views/TitleScreen/TitleControl.html');
+                //}, 250);
+            }, false);
         },
 
         unload: function () {

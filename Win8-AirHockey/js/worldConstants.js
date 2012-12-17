@@ -22,3 +22,11 @@ window.game.gestureType = {
     end: 2,
     hold: 3
 }
+
+window.game.gameStateType = {
+    NotStarted: 0,
+    InProgress: 1,
+    Paused: 2,
+    Ended: 3,
+    Quit: 4
+}

@@ -1,4 +1,7 @@
-﻿
+﻿html { 
+    -ms-touch-action: none; /* Direct all pointer events to JavaScript code. */
+  }
+
 #board {
     background-color: white;
     margin: 0;

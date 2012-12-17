@@ -64,6 +64,7 @@
     <Content Include="images\logo.scale-100.png" />
     <Content Include="images\player.png" />
     <Content Include="images\puck.png" />
+    <Content Include="images\PucksAndBatsTitleImage.png" />
     <Content Include="images\smalllogo.png" />
     <Content Include="images\splashscreen.png" />
     <Content Include="images\storelogo.png" />
@@ -83,6 +84,7 @@
     <Content Include="js\navigator.js" />
     <Content Include="js\Settings.js" />
     <Content Include="js\worldConstants.js" />
+    <Content Include="Views\GameBoard\DrawingHelper.js" />
     <Content Include="Views\GameBoard\GameBoard.css" />
     <Content Include="Views\GameBoard\GameBoard.html" />
     <Content Include="Views\GameBoard\GameBoard.js" />
