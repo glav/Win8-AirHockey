@@ -1,4 +1,5 @@
-﻿/// <reference path="../../js/Settings.js" />
+﻿/// <reference path="DrawingHelper.js" />
+/// <reference path="../../js/Settings.js" />
 window.game.world = function () {
     "use strict";
 
@@ -14,8 +15,6 @@ window.game.world = function () {
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
     var mouseX, mouseY;
-    var haltGame = false;
-    var quitGame = false;
     var ballCollisionState = {
         hasCollided: false,
         power: 0,
@@ -23,6 +22,7 @@ window.game.world = function () {
         vY: 0,
         batIdCollidedWith: null
     };
+
     var debugData = {
         enabled: false,
         batXVelocity: 0,
@@ -31,10 +31,19 @@ window.game.world = function () {
         lastPowerApplied: 0,
         lastImpulse: 0,
         lastEvent: '',
-        message: ''
+        message: '',
+        batIdCollidedWith: null
     };
     var settings;
 
+    var gameProgress = {
+        scores: {
+            player1: 0,
+            player2: 0
+        },
+        gameState: window.game.gameStateType.NotStarted
+    };
+    
     var scores = {
         player1: 0,
         player2: 0
@@ -44,19 +53,34 @@ window.game.world = function () {
         count: 0,
         timer: null
     };
+
     var inGameMessage = {
         displayText: null,
         xPos: 0,
         yPos: 0,
+        incrementValue: 1,
         clearMessage: function () {
             this.displayText = null;
             this.xPos = 0;
             this.yPos = 0;
+            this.incrementValue = 1;
         }
     };
+
+
     var playerMovementState = {
-        isPlayer1Selected: false,
-        isPlayer2Selected: false
+        player1: {
+            isSelected: false,
+            whenSelected: null,
+            xPosWhileHeld: [],
+            yPosWhileHeld: []
+        },
+        player2: {
+            isSelected: false,
+            whenSelected: null,
+            xPosWhileHeld: [],
+            yPosWhileHeld: []
+        }
     };
 
     var gameConst = window.game.worldConstants;
@@ -74,23 +98,19 @@ window.game.world = function () {
     })();
 
     function loop(animStart) {
-        if (quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
 
-        //var ball = simulator.getBody('ball'); 
-        //ball.SetAngle(0);
-        //ball.SetAngularVelocity(0);
-        //ball.clearForces();
-
         if (ballCollisionState.hasCollided) {
-            if (ballCollisionState.batIdCollidedWith !== null) {
-                var body = simulator.getBody(ballCollisionState.batIdCollidedWith);
-                simulator.cancelAllMovement(body);
-            }
 
+            debugData.batIdCollidedWith = ballCollisionState.batIdCollidedWith;
             // Give the puck a little extra kick
             simulator.applyImpulseVector(gameConst.PuckId, { x: ballCollisionState.vX, y: ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
+
+            var puck = simulator.getBody(gameConst.PuckId);
+            puck.SetAngle(0);
+            puck.SetAngularVelocity(0);
 
             //simulator.cancelAllMovement(bat);
             ballCollisionState.hasCollided = false;
@@ -99,7 +119,8 @@ window.game.world = function () {
             ballCollisionState.vX = 0;
             ballCollisionState.vY = 0;
         }
-        if (haltGame) {
+        if (gameProgress.gameState === window.game.gameStateType.Paused
+                || gameProgress.gameState === window.game.gameStateType.Ended) {
             simulator.cancelAllMovement(simulator.getBody(gameConst.PuckId));
             simulator.cancelAllMovement(simulator.getBody(gameConst.Player1Id));
             simulator.cancelAllMovement(simulator.getBody(gameConst.Player2Id));
@@ -166,7 +187,7 @@ window.game.world = function () {
     }
 
     function update(animStart) {
-        if (quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
         checkPositionLimits();
@@ -177,98 +198,10 @@ window.game.world = function () {
             var entity = world[id];
             if (entity) entity.update(bodiesState[id]);
         }
-
     }
-
-    function drawCollisionDebugData() {
-        if (debugData.enabled !== true) {
-            return;
-        }
-
-        var startYPos = 50;
-        var startXPos = 110;
-
-        ctx.save();
-        ctx.font = "20px Arial";
-        ctx.clearRect(10, 10, 200, 80);
-        ctx.strokeStyle = "#000000";
-        ctx.fillStyle = '#828282';
-        ctx.fillText("BatVX: " + debugData.batXVelocity, startXPos, startYPos);
-        ctx.fillText("BatVY: " + debugData.batYVelocity, startXPos, (startYPos += 30));
-        // not really using these values now so dont bother showing them
-        //ctx.fillText("PowerApplied: " + debugData.lastPowerApplied, startXPos, (startYPos += 30));
-        //ctx.fillText("ActualPowerCalced: " + debugData.lastCalculatedPower, startXPos, (startYPos += 30));
-        //ctx.fillText("Impulse: " + debugData.lastImpulse, startXPos, (startYPos += 30));
-        ctx.fillText("Player1Selected: " + playerMovementState.isPlayer1Selected, startXPos, (startYPos += 30));
-        ctx.fillText("Player2Selected: " + playerMovementState.isPlayer2Selected, startXPos, (startYPos += 30));
-        ctx.fillText("LastEvent: " + debugData.lastEvent, startXPos, (startYPos += 30));
-        ctx.fillText("HasBallCollided: " + ballCollisionState.hasCollided, startXPos, (startYPos += 30));
-        ctx.fillText("BallCollidedWith: " + ballCollisionState.batIdCollidedWith, startXPos, (startYPos += 30));
-        ctx.fillText("Message: " + debugData.message, startXPos, (startYPos += 30));
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    function drawScores() {
-        ctx.save();
-        ctx.font = "20px Arial";
-        ctx.strokeStyle = "#000000";
-        ctx.fillStyle = '#000000';
-        ctx.fillText("P1: " + scores.player1, 30, 55);
-        ctx.fillText("P2: " + scores.player2, canvasWidth - 80, 55);
-
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    function drawInGameMessage() {
-        if (inGameMessage.displayText !== null) {
-            ctx.save();
-            ctx.font = "30px Arial";
-            ctx.strokeStyle = "#000000";
-            ctx.fillStyle = '#000000';
-
-            ctx.shadowOffsetX = 7;
-            ctx.shadowOffsetY = 7;
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'rgba(10, 10, 10, 0.5)';
-
-            if (inGameMessage.xPos === 0) {
-                inGameMessage.xPos = canvasWidth * 0.25;
-                inGameMessage.yPos = canvasHeight / 4;
-            } else {
-                inGameMessage.xPos += 1;
-            }
-            ctx.fillText(inGameMessage.displayText, inGameMessage.xPos, inGameMessage.yPos);
-            ctx.stroke();
-            ctx.restore();
-
-        }
-    }
-
-    function drawCountDown() {
-        if (countdownState.started) {
-            var centreX = screenWidth / 2 - 15;
-            var centreY = screenHeight / 2 - 15;
-            ctx.save();
-            ctx.font = "80px Arial";
-            ctx.strokeStyle = "red";
-            ctx.fillStyle = "red";
-            ctx.shadowOffsetX = 7;
-            ctx.shadowOffsetY = 7;
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'rgba(10, 10, 10, 0.5)';
-
-            ctx.fillText(countdownState.count, centreX - (centreX / 4), centreY - (centreY / 4));
-            ctx.fillText(countdownState.count, centreX + (centreX / 4), centreY - (centreY / 4));
-            ctx.restore();
-        }
-
-    }
-
 
     function draw() {
-        if (quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
         // Clear the canvas
@@ -278,11 +211,10 @@ window.game.world = function () {
         window.game.board.drawBoardMarkings();
 
         // Run through our drawing events
-
-        drawCollisionDebugData();
-        drawScores();
-        drawInGameMessage();
-        drawCountDown();
+        window.game.drawHelper.drawCollisionDebugData(ctx, debugData, playerMovementState);
+        window.game.drawHelper.drawScores(ctx, gameProgress, canvasWidth);
+        window.game.drawHelper.drawInGameMessage(ctx, inGameMessage, canvasWidth, canvasHeight);
+        window.game.drawHelper.drawCountDown(ctx, countdownState, screenWidth, screenHeight);
 
         //Now update the actual entities in the world
         for (var id in world) {
@@ -291,76 +223,98 @@ window.game.world = function () {
         }
     }
 
-    function startCountDown(completedCallback) {
+    function countdownTickEvent() {
+        countdownState.count -= 1;
+        if (countdownState.count <= 0) {
+            //window.clearInterval(countdownState.timer);
+            countdownState.started = false;
+            countdownState.count = 0;
+            countdownCompletedEvent();
+        } else {
+            // haven't reached the countdown yet so let the timer do another tick
+            window.setTimeout(countdownTickEvent, 1000);
+        }
+    }
+
+    function countdownCompletedEvent() {
+        if (gameProgress.gameState === window.game.gameStateType.Paused
+                || gameProgress.gameState === window.game.gameStateType.Quit
+                || gameProgress.gameState === window.game.gameStateType.Ended) {
+            return;
+        }
+        // kick off the puck in a random direction and power
+        var power = Math.random() * 150 + 10;
+        var angle = Math.random() * 360;
+        setTimeout(function () {
+            //simulator.applyImpulse("ball", parseInt(angleElem.value), parseInt(powerElem.value));
+            if (simulator !== null) {
+                simulator.applyImpulse(gameConst.PuckId, parseInt(angle), parseInt(power));
+                gameProgress.gameState = window.game.gameStateType.InProgress;
+            }
+        }, 500);
+
+    }
+
+    function startCountDown() {
         countdownState.count = 3;
         countdownState.started = true;
-        countdownState.timer = window.setInterval(function () {
-            countdownState.count -= 1;
-            if (countdownState.count <= 0) {
-                window.clearInterval(countdownState.timer);
-                countdownState.started = false;
-                countdownState.count = 0;
-                if (typeof completedCallback !== 'undefined') {
-                    completedCallback();
-                }
-            }
-        }, 1000);
+        window.setTimeout(countdownTickEvent, 1000);
     }
 
     function scoreGoal(idA, idB) {
-        if (quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
 
         if (debugData.enabled !== true) {
-            haltGame = true;
+            gameProgress.gameState = window.game.gameStateType.Paused;
         }
-
 
         // SO who scored?
         var message;
         var goalHitId = idA.indexOf("goal") >= 0 ? idA : idB;
         if (goalHitId === gameConst.player1Goal) {
             message = "Player 2 ";
-            scores.player2 += 1;
+            gameProgress.scores.player2 += 1;
         } else {
             message = "Player 1 ";
-            scores.player1 += 1;
+            gameProgress.scores.player1 += 1;
         }
 
-        if (scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+        if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || gameProgress.scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
             // end of the match! Someone has won
             var msg = "Player ";
-            if (scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+            if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
                 msg += "1";
             } else {
                 msg += "2";
             }
-            msg += " wins! Final Score: Player 1: " + scores.player1 + ", Player 2: " + scores.player2;
+            msg += " wins! Final Score: Player 1: " + gameProgress.scores.player1 + ", Player 2: " + gameProgress.scores.player2;
             inGameMessage.displayText = msg;
+            gameProgress.gameState = window.game.gameStateType.Ended;
         } else {
             // continue playing....
             inGameMessage.displayText = "GOAL! " + message + "scores";
+
+            // Do something spectacular to show a goal has been scored
+            if (debugData.enabled !== true) {
+                setTimeout(function () {
+                    inGameMessage.clearMessage();
+                    gameProgress.gameState = window.game.gameStateType.InProgress;
+                    initStartGameSequence();
+                }, 3500);
+            } else {
+                // If debug is enabled, just clear the message and keep going
+                setTimeout(function () {
+                    gameProgress.gameState = window.game.gameStateType.InProgress;
+                    inGameMessage.clearMessage();
+                }, 3500);
+            }
         }
-
-        // Do something spectacular to show a goal has been scored
-        if (debugData.enabled !== true) {
-            setTimeout(function () {
-                inGameMessage.clearMessage();
-                startGameSequence();
-            }, 3500);
-        } else {
-            // If debug is enabled, just clear the message and keep going
-            setTimeout(function () {
-                inGameMessage.clearMessage();
-            }, 3500);
-        }
-
-
     }
 
     function handlePointerInitiatedOrReleased(e, isReleased) {
-        if (quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
 
@@ -374,20 +328,61 @@ window.game.world = function () {
 
             // Set player movement state if required
             if (doesIdRepresentPlayerBat(selectedId)) {
+                var playerState = playerMovementState.player1;
+                if (selectedId === gameConst.Player2Id) {
+                    playerState = playerMovementState.player2;
+                }
 
                 var newstate = isReleased === true ? false : true;
+                if (playerState.isSelected !== newstate) {
+                    playerState.whenSelected = null;
+                    playerState.xPosWhileHeld = [];
+                    playerState.yPosWhileHeld = [];
 
-                if (selectedId === gameConst.Player1Id) {
-                    playerMovementState.isPlayer1Selected = newstate;
-                } else {
-                    playerMovementState.isPlayer2Selected = newstate;
+                    //?? Should we cancel all body movement here if both players are
+                    // selected and the player has just been selected to prevent weirdness?
+                    if (playerMovementState.player1.isSelected && playerMovementState.player2.isSelected) {
+                        var p = simulator.getBody(selectedId);
+                        simulator.cancelAllMovement(p);
+                    }
                 }
+
+                playerState.isSelected = newstate;
+
+                // If the player is selected, then begin recording its x and y positions
+                // while it is being held down
+                if (playerState.isSelected) {
+                    var maxPositionItems = 5;
+
+                    if (playerState.xPosWhileHeld.length === 0) {
+                        playerState.whenSelected = new Date().getTime();
+                    }
+                    var newXPosInArray = playerState.xPosWhileHeld.length;
+                    if (newXPosInArray > (maxPositionItems - 1)) {
+                        playerState.xPosWhileHeld.shift();
+                        newXPosInArray = (maxPositionItems - 1);
+                    }
+                    var newYPosInArray = playerState.yPosWhileHeld.length;
+                    if (newYPosInArray > (maxPositionItems - 1)) {
+                        playerState.yPosWhileHeld.shift();
+                        newYPosInArray = (maxPositionItems - 1);
+                    }
+                    playerState.xPosWhileHeld.push(mouseX);
+                    playerState.yPosWhileHeld.push(mouseY);
+                } else {
+                    playerState.whenSelected = null;
+                    playerState.xPosWhileHeld = [];
+                    playerState.yPosWhileHeld = [];
+                }
+
             }
         }
     }
 
     function handleMouseMove(e) {
-        if (haltGame === true || quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Paused
+                || gameProgress.gameState === window.game.gameStateType.Quit
+            || gameProgress.gameState === window.game.gameStateType.Ended) {
             return;
         }
 
@@ -416,11 +411,31 @@ window.game.world = function () {
 
                 debugData.message = "setting body position: x:" + mouseX + ", y:" + mouseY;
 
+                // If the user has their touch point held down on the player bat, then we
+                // need to cancel the velocity of the bat otherwise inertia comes into play
+                // and the simulator tries to move the bat via inertia BUT it gets repositioned
+                //as the users touch point may not change or it changes different to inertia so
+                // you get a very jerky effect.In addition, we issue this cancel via a setTimeout
+                // rather than directly so any collisions against the puck can still work and be 
+                // scheduled approriately. Doing it directly in line has the effect of NOT
+                // hitting the puck and causes weird bounce behaviour.
+                if ((selectedId === window.game.worldConstants.Player1Id && playerMovementState.player1.isSelected)
+                        || (selectedId === window.game.worldConstants.Player2Id && playerMovementState.player2.isSelected)) {
+                    setTimeout(function () {
+                        selectedBody.SetLinearVelocity({ x: 0, y: 0 });
+                        selectedBody.SetAngularVelocity(0);
+                    }, 1000 / 60);
+                }
                 selectedBody.SetPosition({ x: mouseX, y: mouseY });
+
+
+
+
 
                 // Not sure if this required.
                 //var entityState = simulator.getState()[selectedId];
                 //entity.update(entityState);
+
             }
         }
     };
@@ -439,7 +454,7 @@ window.game.world = function () {
     }
 
     function handleGestureChangeForPlayerVelocity(e, gestureType) {
-        if (quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
 
@@ -471,7 +486,7 @@ window.game.world = function () {
     }
 
     function handlePostSolveCollision(idA, idB, impulse) {
-        if (quitGame === true) {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
         var ballBody = simulator.getBody(gameConst.PuckId);
@@ -492,17 +507,56 @@ window.game.world = function () {
             bat = simulator.getBody(batId);
             ballCollisionState.batIdCollidedWith = batId;
 
-            //document.removeEventListener("mousemove", handleMouseMove, true);
+            var playerState = playerMovementState.player1;
+            if (batId === window.game.worldConstants.Player2Id) {
+                playerState = playerMovementState.player2;
+            }
 
-            var centreBallPosition = ballBody.GetWorldCenter();
-            var ballVelocity = ballBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
-            var centreBatPosition = bat.GetWorldCenter();
-            var batVelocity = bat.GetLinearVelocityFromWorldPoint(centreBatPosition);
+            var aggregateYVelocity = 0;
+            var aggregateXVelocity = 0;
 
-            // add both X velocity for ball and bat together. They should cancel each other
-            // out if going opposite dir. Same for Y dir
-            var aggregateYVelocity = batVelocity.y + ballVelocity.y;// / 2;
-            var aggregateXVelocity = batVelocity.x + ballVelocity.x;// / 2;
+            // Only do this special condition if both players are selected as we dont get
+            // proper velocity when two pointer events are fired together
+            if (playerMovementState.player1.isSelected && playerMovementState.player2.isSelected) {
+
+                var xLen = playerState.xPosWhileHeld.length;
+                var yLen = playerState.yPosWhileHeld.length;
+                var xVel = 0, yVel = 0;
+                for (var xcnt = 0; xcnt < xLen; xcnt++) {
+                    if (xcnt === 0) {
+                        xVel = playerState.xPosWhileHeld[xcnt];
+                    } else {
+                        var delta = playerState.xPosWhileHeld[xcnt] - playerState.xPosWhileHeld[xcnt - 1];
+                        xVel += delta;
+                    }
+                }
+                for (var ycnt = 0; ycnt < yLen; ycnt++) {
+                    if (ycnt === 0) {
+                        yVel = playerState.yPosWhileHeld[ycnt];
+                    } else {
+                        var delta = playerState.yPosWhileHeld[ycnt] - playerState.xPosWhileHeld[ycnt - 1];
+                        yVel += delta;
+                    }
+                }
+                aggregateXVelocity = yVel;
+                aggregateYVelocity = xVel;
+            } else {
+
+                //document.removeEventListener("mousemove", handleMouseMove, true);
+
+                var centreBallPosition = ballBody.GetWorldCenter();
+                var ballVelocity = ballBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
+                var centreBatPosition = bat.GetWorldCenter();
+                var batVelocity = bat.GetLinearVelocityFromWorldPoint(centreBatPosition);
+
+                // add both X velocity for ball and bat together. They should cancel each other
+                // out if going opposite dir. Same for Y dir
+                aggregateYVelocity = batVelocity.y + ballVelocity.y;// / 2;
+                aggregateXVelocity = batVelocity.x + ballVelocity.x;// / 2;
+
+                debugData.batXVelocity = batVelocity.x;
+                debugData.batYVelocity = batVelocity.y;
+            }
 
             // put a cap on the intertia
             //var batInertia = bat.GetInertia();
@@ -519,8 +573,6 @@ window.game.world = function () {
             //if (batInertia !== 0) {
             //    debugData.lastPowerApplied = batInertia;
             //}
-            debugData.batXVelocity = batVelocity.x;
-            debugData.batYVelocity = batVelocity.y;
             if (impulse !== 0) {
                 debugData.lastImpulse = impulse;
             }
@@ -528,8 +580,15 @@ window.game.world = function () {
         }
     }
 
-    function startGameSequence() {
-        if (haltGame === true || quitGame === true) {
+    function initStartGameSequence() {
+        if (gameProgress.gameState === window.game.gameStateType.Quit) {
+            return;
+        }
+
+        inGameMessage.clearMessage();
+        gameProgress.gameState = window.game.gameStateType.NotStarted;
+
+        if (simulator == null) {
             return;
         }
         var initialState = window.game.board.setupAllWorldBodySettings();
@@ -545,51 +604,25 @@ window.game.world = function () {
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
         bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
 
-        scores.player1 = 0;
-        scores.player2 = 0;
-
         settings = window.game.settings.getCurrent();
 
-        update();
-        draw();
-
-        startCountDown(function () {
-            if (haltGame === true || quitGame === true) {
-                return;
-            }
-            // kick off the puck in a random direction and power
-            var power = Math.random() * 150 + 10;
-            var angle = Math.random() * 360;
-            setTimeout(function () {
-                //simulator.applyImpulse("ball", parseInt(angleElem.value), parseInt(powerElem.value));
-                if (simulator !== null) {
-                    simulator.applyImpulse(gameConst.PuckId, parseInt(angle), parseInt(power));
-                    haltGame = false;
-                }
-            }, 500);
-
-        });
-        if (!haltGame && !quitGame) {
-            startAnimationLoop();
-        }
+        startCountDown();
     }
+
 
     /**************** USING MS GESTURE HANDLING *******************/
 
     function handleMSPointerDownEvent(e) {
         debugData.lastEvent = 'onMSPointerDown';
-        //console.log('pointer down');
         if (e.target === this) {
             //  Attach first contact and track device.
             if (this.gesture.pointerType === null) {
                 this.gesture.addPointer(e.pointerId);
                 this.gesture.pointerType = e.pointerType;
-                //console.log("pointer type: " + e.pointerType);
             }
                 // Attach subsequent contacts from same device.
             else if (e.pointerType === this.gesture.pointerType) {
                 this.gesture.addPointer(e.pointerId);
-                //console.log("pointer type attach : " + e.pointerType);
             }
 
                 //GLAV NOTE: The section below is included with the sample but seems to lose
@@ -603,13 +636,12 @@ window.game.world = function () {
                 e.target.gesture = msGesture;
                 e.target.gesture.pointerType = e.pointerType;
                 e.target.gesture.addPointer(e.pointerId);
-                //console.log("new gesture pointer type: " + e.pointerType);
             }
         }
 
         // We dont need this routine for now. Retaining just in case we need to know when a player is selected
         // held
-        //handlePointerInitiatedOrReleased(e, false);
+        handlePointerInitiatedOrReleased(e, false);
 
         handleMouseMove(e);
     }
@@ -617,11 +649,21 @@ window.game.world = function () {
         debugData.lastEvent = 'onMSPointerUp';
         // We dont need this routine for now. Retaining just in case we need to know when a player is selected
         // held
-        //handlePointerInitiatedOrReleased(e, true);
+        handlePointerInitiatedOrReleased(e, true);
     }
     function handleMSPointerMoveEvent(e) {
         debugData.lastEvent = 'onMSPointerMove';
-        //handleMouseMove(e);
+
+        handlePointerInitiatedOrReleased(e);
+        //Important Note: Handling a mouse move in this event is not strictly correct and causes
+        // the player to move the puck when simply moving the mouse over the puck without holding
+        // down the mouse button.
+        // HOWEVER !!
+        // Without doing this, when 2 players are touching the game board trying to move their
+        // bats around, the movement is jerky and is often lost meaning 2 players cannot really
+        // play very well. Having the mouse movement also handled in here means that 2 player
+        // interaction is much much smoother and plays quite well.
+        handleMouseMove(e);
     }
     function handleMSPointerCancelEvent(e) {
         debugData.lastEvent = 'onMSPointerCancel';
@@ -654,19 +696,22 @@ window.game.world = function () {
         debugData.lastEvent = 'onMSInertiaStart';
         // We dont need this routine for now. Retaining just in case we need to know when a player is selected
         // held
-        //handlePointerInitiatedOrReleased(e, true);
+        handlePointerInitiatedOrReleased(e, true);
+        //handleMouseMove(e);
     }
     /***** END MS GESTURE HANDLING ******/
 
     function initGameBodies() {
-        haltGame = false;
-        quitGame = false;
+        gameProgress.gameState === window.game.gameStateType.NotStarted;
         canvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         ctx = canvas.getContext("2d");
         canvasWidth = ctx.canvas.width;
         canvasHeight = ctx.canvas.height;
 
         var initialState = window.game.board.setupAllWorldBodySettings();
+        gameProgress.scores.player1 = 0;
+        gameProgress.scores.player2 = 0;
+
 
         for (var i = 0; i < initialState.length; i++) {
             var entity = window.game.entities.buildEntity(initialState[i]);
@@ -707,17 +752,16 @@ window.game.world = function () {
                     return;
                 }
 
-                if (haltGame) {
+                if (gameProgress.gameState === window.game.gameStateType.Paused) {
                     return;
                 }
                 handlePostSolveCollision(idA, idB, impulse);
             },
             PreSolve: function (idA, idB, oldManifold) {
-                //console.log("pre solve");
             }
         });
 
-        startGameSequence();
+        initStartGameSequence();
     }
 
     function startAnimationLoop() {
@@ -725,7 +769,7 @@ window.game.world = function () {
     }
 
     function stopGame() {
-        quitGame = true;
+        gameProgress.gameState = window.game.gameStateType.Quit;
         gestureHandler.clearMovementEventListeners({
             element: canvas,
             onMSPointerDown: handleMSPointerDownEvent,
@@ -753,6 +797,7 @@ window.game.world = function () {
     return {
         initGameBodies: initGameBodies,
         startAnimationLoop: startAnimationLoop,
+        initStartGameSequence: initStartGameSequence,
         stopGame: stopGame
     };
 }();

@@ -7,6 +7,12 @@ body {
     margin: 40px;
 }
 
+.title-img1 {
+    margin: 0;
+    max-height: 303px;
+    height: 45%;
+}
+
 .title-grid {
     display:-ms-grid;
     -ms-grid-columns: 1fr 1fr 1fr;

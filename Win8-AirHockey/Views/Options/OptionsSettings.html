@@ -21,7 +21,7 @@
         <header aria-label="Header content" role="banner">
             <button class="win-backbutton" aria-label="Back" type="button"></button>
             <h1 class="titlearea win-type-ellipsis">
-                <span class="pagetitle">Options</span>
+                <span class="win-title">Options</span>
             </h1>
         </header>
         <section aria-label="Main content" id="main-content" role="main">
@@ -50,10 +50,18 @@
                 </div>
 
                 <div>
-                    <span>Overall simular "bounciness"?</span>
+                    <span>Game board friction?</span>
                 </div>
                 <div>
-                    <input id="option-restitution" type="number" max="50" min="0" step="0.1"  data-win-bind="value: simulatorRestitution" />
+                    <input id="option-board-friction" type="range" max="100" min="0" data-win-bind="value: boardFriction" />
+                    <span data-win-bind="innerText: boardFriction"></span>
+                </div>
+
+                <div>
+                    <span>Overall simulator "bounciness"?</span>
+                </div>
+                <div>
+                    <input id="option-restitution" type="range" max="100" min="0" data-win-bind="value: simulatorRestitution" />
                 </div>
 
                 <div>

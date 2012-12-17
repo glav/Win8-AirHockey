@@ -23,35 +23,17 @@
     
 }
 
-.start-screen-button {
- 	background-color: #365034;
-	background-position: center 80%;
-	border-style: solid;
-	border-color: #2A9738;
-	border-radius: 3px;
-	font-size: large;
-	text-align: center;
-	width: 50%;
-	height: 50px;
-	box-shadow: 5px 5px #666;
-    color:#ffffff;
-}
-
-.start-screen-button:hover, .start-screen-button:hover:active {
-    background-color:#5a99e6;
-}
-
 .win-backbutton {
     color:black;
 }
 
 
-.pagetitle {
+/*.pagetitle {
 	font-size: 1.8em;
 	font-family: Arial;
 	text-align: center;
 	color: #5EE57C;
 	text-shadow: 4px 4px #555555;
-}
+}*/
 
 

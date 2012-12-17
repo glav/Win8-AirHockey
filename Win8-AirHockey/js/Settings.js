@@ -41,8 +41,9 @@
             numberTimesAppStarted: 0,
             powerToApplyOnPuckCollision: 1,
             allowPlayersToCrossHalfwayLine: false,
-            numberOfGoalsThatSignalsEndOfMatch: 10,
-            simulatorRestitution: 0.6
+            numberOfGoalsThatSignalsEndOfMatch: 6,
+            simulatorRestitution: 60,  // Note: This value is divided by 100 when applied to simulator restitituion
+            boardFriction: 2
         };
         return settingsData;
     }

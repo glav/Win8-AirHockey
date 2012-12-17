@@ -38,8 +38,8 @@ window.game.simulator = function () {
 
         this.fixDef = new b2FixtureDef;
         this.fixDef.density = 1.0;
-        this.fixDef.friction = 2;
-        this.fixDef.restitution = settings.simulatorRestitution;
+        this.fixDef.friction = settings.boardFriction;
+        this.fixDef.restitution = settings.simulatorRestitution / 100;
         //this.fixDef.restitution = .6;
     }
 

@@ -4,7 +4,7 @@
     "use strict";
 
     var nav = WinJS.Navigation;
-    
+
     WinJS.UI.Pages.define("/Views/TitleScreen/TitleControl.html", {
         // This function is called whenever a user navigates to this page. It
         // populates the page elements with the app's data.
