@@ -1,5 +1,7 @@
 ﻿/// <reference path="DrawingHelper.js" />
+/// <reference path="positionBoundsManager.js" />
 /// <reference path="../../js/Settings.js" />
+
 window.game.world = function () {
     "use strict";
 
@@ -20,7 +22,13 @@ window.game.world = function () {
         power: 0,
         vX: 0,
         vY: 0,
-        batIdCollidedWith: null
+        batIdCollidedWith: null,
+        clear: function () {
+            this.hasCollided = false;
+            this.power = 0;
+            this.vX = 0;
+            this.batIdCollidedWith = null;
+        }
     };
 
     var debugData = {
@@ -113,11 +121,7 @@ window.game.world = function () {
             puck.SetAngularVelocity(0);
 
             //simulator.cancelAllMovement(bat);
-            ballCollisionState.hasCollided = false;
-            ballCollisionState.power = 0;
-            ballCollisionState.batIdCollidedWith = null;
-            ballCollisionState.vX = 0;
-            ballCollisionState.vY = 0;
+            ballCollisionState.clear();
         }
         if (gameProgress.gameState === window.game.gameStateType.Paused
                 || gameProgress.gameState === window.game.gameStateType.Ended) {
@@ -131,66 +135,13 @@ window.game.world = function () {
         requestAnimFrame(loop);
     }
 
-    function ensureEntityIsWithinBoundsOfPlayingField(entity) {
-        if (!entity.radius) {
-            return;
-        }
-        var pos = entity.GetPosition();
-
-        if (pos.x <= entity.radius) {
-            entity.SetPosition({ x: entity.radius, y: pos.y });
-            return;
-        }
-        if (pos.y <= entity.radius) {
-            entity.SetPosition({ x: pos.x, y: entity.radius });
-            return;
-        }
-        var yMax = (screenHeight / gameConst.Scale) - entity.radius;
-        if (pos.y >= yMax) {
-            entity.SetPosition({ x: pos.x, y: yMax });
-            return;
-        }
-
-        var xMax = (screenWidth / gameConst.Scale) - radius;
-        if (pos.x >= xMax) {
-            entity.SetPosition({ x: xMax, y: pos.y });
-            return;
-        }
-    }
-
-    function checkPositionLimits() {
-
-        var p1 = simulator.getBody(gameConst.Player1Id);
-        var p2 = simulator.getBody(gameConst.Player2Id);
-        ensureEntityIsWithinBoundsOfPlayingField(p1);
-        ensureEntityIsWithinBoundsOfPlayingField(p2);
-
-        // If user has elected to allow players past halfway line then return
-        // so we dont test for it
-        if (settings.allowPlayersToCrossHalfwayLine === true) {
-            return;
-        }
-
-        var p1Pos = p1.GetPosition();
-        var p2Pos = p2.GetPosition();
-
-        // check that each player cannot go past their halfway line limit
-        var halfwayLimit = screenWidth / 2 / gameConst.Scale;
-
-
-        if (p1Pos.x >= halfwayLimit) {
-            p1.SetPosition({ x: halfwayLimit, y: p1Pos.y });
-        }
-        if (p2Pos.x <= halfwayLimit) {
-            p2.SetPosition({ x: halfwayLimit, y: p2Pos.y });
-        }
-    }
-
     function update(animStart) {
         if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
-        checkPositionLimits();
+
+        window.game.positionBoundsManager.checkPositionLimits(simulator, screenWidth, screenHeight);
+
         simulator.update();
         bodiesState = simulator.getState();
 
@@ -246,7 +197,6 @@ window.game.world = function () {
         var power = Math.random() * 150 + 10;
         var angle = Math.random() * 360;
         setTimeout(function () {
-            //simulator.applyImpulse("ball", parseInt(angleElem.value), parseInt(powerElem.value));
             if (simulator !== null) {
                 simulator.applyImpulse(gameConst.PuckId, parseInt(angle), parseInt(power));
                 gameProgress.gameState = window.game.gameStateType.InProgress;
