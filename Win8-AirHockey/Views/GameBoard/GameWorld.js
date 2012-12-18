@@ -702,7 +702,7 @@ window.game.world = function () {
     /***** END MS GESTURE HANDLING ******/
 
     function initGameBodies() {
-        gameProgress.gameState === window.game.gameStateType.NotStarted;
+        gameProgress.gameState = window.game.gameStateType.NotStarted;
         canvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         ctx = canvas.getContext("2d");
         canvasWidth = ctx.canvas.width;
@@ -761,7 +761,7 @@ window.game.world = function () {
             }
         });
 
-        initStartGameSequence();
+        //initStartGameSequence();
     }
 
     function startAnimationLoop() {

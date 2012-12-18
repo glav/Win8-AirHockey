@@ -10,6 +10,10 @@
     left: 0;
 }
 
+#appbar {
+    background-color:#a1c9fa;
+}
+
 div.player {
     position:absolute;
     width:1px;
