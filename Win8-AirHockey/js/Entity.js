@@ -55,13 +55,30 @@
             ctx.fill();
         }
 
-        if (this.innerText.text !== null) {
+        if (typeof this.innerText !== 'undefined') {
+            if (this.innerText.text !== null) {
 
-            ctx.font = this.innerText.font !== null ? this.innerText.font : "30px Arial";
-            ctx.strokeStyle = this.innerText.color !== null ? this.innerText.color : "white";
-            ctx.fillStyle = ctx.strokeStyle;
-            ctx.fillText(this.innerText.text, this.center.x * window.game.worldConstants.Scale - (this.innerText.inset * window.game.worldConstants.Scale), this.center.y * window.game.worldConstants.Scale);
+                ctx.font = this.innerText.font !== null ? this.innerText.font : "24px Arial";
+                ctx.strokeStyle = this.innerText.color !== null ? this.innerText.color : "white";
+                ctx.fillStyle = ctx.strokeStyle;
+                var xPos = this.center.x * window.game.worldConstants.Scale - (this.innerText.inset * window.game.worldConstants.Scale)+5;
+                var yPos = this.center.y * window.game.worldConstants.Scale-5;
+                ctx.fillText(this.innerText.text, xPos ,yPos );
+            }
+            if (typeof this.innerText.score !== 'undefined') {
+                ctx.font = this.innerText.font !== null ? this.innerText.font : "24px Arial";
+                ctx.strokeStyle = this.innerText.color !== null ? this.innerText.color : "white";
+                ctx.fillStyle = ctx.strokeStyle;
+                var xPos = this.center.x * window.game.worldConstants.Scale - 5;
+                var yPos = this.center.y * window.game.worldConstants.Scale + 15;
+                ctx.fillText(this.innerText.score, xPos ,yPos );
+
+            }
         }
+    };
+
+    Entity.prototype.setScore = function (score) {
+        this.innerText.score = score;
     };
 
     //*****************************************************
@@ -152,6 +169,7 @@
         this.radius = radius;
         this.innerText.text = playerName;
         this.innerText.inset = 0.6;
+        this.innerText.score = 0;  //extra prop
 
     }
     PlayerEntity.prototype = new Entity();

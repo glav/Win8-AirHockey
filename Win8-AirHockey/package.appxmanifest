@@ -4,7 +4,7 @@
   <Properties>
     <DisplayName>Win8-AirHockey</DisplayName>
     <PublisherDisplayName>Paul</PublisherDisplayName>
-    <Logo>images\AirHockeyPucksPaddles50x50.png</Logo>
+    <Logo>images/PucksAndBatsTitleImage_50x50.png</Logo>
   </Properties>
   <Prerequisites>
     <OSMinVersion>6.2.1</OSMinVersion>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" StartPage="default.html">
-      <VisualElements DisplayName="Win8-AirHockey" Logo="images\Table-150x150.png" SmallLogo="images\smalllogo.png" Description="Win8-AirHockey" ForegroundText="light" BackgroundColor="#464646">
+      <VisualElements DisplayName="Win8-AirHockey" Logo="images\Table-150x150.png" SmallLogo="images/PucksAndBatsTitleImage_30x30.png" Description="Win8-AirHockey" ForegroundText="light" BackgroundColor="#464646">
         <DefaultTile ShowName="allLogos" />
         <SplashScreen Image="images\Table-620x300.png" BackgroundColor="#ffffff" />
         <InitialRotationPreference>

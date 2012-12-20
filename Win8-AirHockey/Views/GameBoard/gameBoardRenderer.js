@@ -125,82 +125,142 @@
         }
     }
 
-    function setupAllWorldBodySettings() {
+    function setupAllWorldBodySettings(gameMode) {
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
 
-        return [
-            {
-                id: "ground",
-                x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                y: ctx.canvas.height / window.game.worldConstants.Scale,
-                halfHeight: 0.5,
-                halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
-                color: window.game.worldConstants.BoardEdgeColour,
-                isStatic: true,
-                type: entityType.Rectangle
-            },
-            {
-                id: "groundTop",
-                x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                y: 0.5, halfHeight: 0.5,
-                halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
-                color: window.game.worldConstants.BoardEdgeColour,
-                isStatic: true,
-                type: entityType.Rectangle
-            },
-            {
-                id: "groundLeft",
-                x: 0.5, y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
-                halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
-                isStatic: true,
-                type: entityType.Rectangle
-            },
-            {
-                id: "groundRight",
-                x: (ctx.canvas.width / window.game.worldConstants.Scale) - 0.5,
-                y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
-                halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
-                isStatic: true,
-                type: entityType.Rectangle
-            },
-            createPuckInitialSettings(),
-            createBat1InitialSettings(),
-            createBat2InitialSettings(),
-            {
-                id: window.game.worldConstants.player1Goal,
-                x: 1,
-                y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                halfHeight: 4.0,
-                halfWidth: 0.1,
-                isStatic: true,
-                density: 1,
-                color: window.game.worldConstants.GoalColour,
-                useLeftShadow: false,
-                useRightShadow: true,
-                type: entityType.Goal,
-                visibleHalfHeight: 4.5,
-                visibleHalfWidth: 0.8
-            },
-            {
-                id: window.game.worldConstants.player2Goal,
-                x: ctx.canvas.width / window.game.worldConstants.Scale - 1,
-                y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                halfHeight: 4.0,
-                halfWidth: 0.1,
-                isStatic: true,
-                density: 1,
-                color: window.game.worldConstants.GoalColour,
-                useLeftShadow: true,
-                useRightShadow: false,
-                type: entityType.Goal,
-                visibleHalfHeight: 4.5,
-                visibleHalfWidth: 0.8
-            }
+        if (gameMode === window.game.gameType.singlePlayer) {
+            return [
+                {
+                    id: "ground",
+                    x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
+                    y: ctx.canvas.height / window.game.worldConstants.Scale,
+                    halfHeight: 0.5,
+                    halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
+                    color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                {
+                    id: "groundTop",
+                    x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
+                    y: 0.5, halfHeight: 0.5,
+                    halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
+                    color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                {
+                    id: "groundLeft",
+                    x: 0.5, y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
+                    halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                {
+                    id: "groundRight",
+                    x: (ctx.canvas.width / window.game.worldConstants.Scale) - 0.5,
+                    y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
+                    halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                createPuckInitialSettings(),
+                createBat1InitialSettings(),
+                {
+                    id: window.game.worldConstants.player1Goal,
+                    x: 1,
+                    y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                    halfHeight: 4.0,
+                    halfWidth: 0.1,
+                    isStatic: true,
+                    density: 1,
+                    color: window.game.worldConstants.GoalColour,
+                    useLeftShadow: false,
+                    useRightShadow: true,
+                    type: entityType.Goal,
+                    visibleHalfHeight: 4.5,
+                    visibleHalfWidth: 0.8
+                }
 
-        ];
+            ];
+
+        } else {
+            return [
+                {
+                    id: "ground",
+                    x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
+                    y: ctx.canvas.height / window.game.worldConstants.Scale,
+                    halfHeight: 0.5,
+                    halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
+                    color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                {
+                    id: "groundTop",
+                    x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
+                    y: 0.5, halfHeight: 0.5,
+                    halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
+                    color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                {
+                    id: "groundLeft",
+                    x: 0.5, y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
+                    halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                {
+                    id: "groundRight",
+                    x: (ctx.canvas.width / window.game.worldConstants.Scale) - 0.5,
+                    y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
+                    halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    isStatic: true,
+                    type: entityType.Rectangle
+                },
+                createPuckInitialSettings(),
+                createBat1InitialSettings(),
+                createBat2InitialSettings(),
+                {
+                    id: window.game.worldConstants.player1Goal,
+                    x: 1,
+                    y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                    halfHeight: 4.0,
+                    halfWidth: 0.1,
+                    isStatic: true,
+                    density: 1,
+                    color: window.game.worldConstants.GoalColour,
+                    useLeftShadow: false,
+                    useRightShadow: true,
+                    type: entityType.Goal,
+                    visibleHalfHeight: 4.5,
+                    visibleHalfWidth: 0.8
+                },
+                {
+                    id: window.game.worldConstants.player2Goal,
+                    x: ctx.canvas.width / window.game.worldConstants.Scale - 1,
+                    y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                    halfHeight: 4.0,
+                    halfWidth: 0.1,
+                    isStatic: true,
+                    density: 1,
+                    color: window.game.worldConstants.GoalColour,
+                    useLeftShadow: true,
+                    useRightShadow: false,
+                    type: entityType.Goal,
+                    visibleHalfHeight: 4.5,
+                    visibleHalfWidth: 0.8
+                }
+
+            ];
+        }
 
     }
 

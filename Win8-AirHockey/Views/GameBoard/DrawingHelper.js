@@ -39,12 +39,23 @@
     function drawScores(ctx, gameProgress, canvasWidth) {
         ctx.save();
         ctx.font = "20px Arial";
-        ctx.strokeStyle = "#000000";
+        ctx.strokeStyle = "#000000";4
         ctx.fillStyle = '#000000';
         ctx.fillText("P1: " + gameProgress.scores.player1, 30, 55);
         ctx.fillText("P2: " + gameProgress.scores.player2, canvasWidth - 80, 55);
 
         ctx.stroke();
+
+        ctx.save();
+        ctx.moveTo(0, 0);
+        ctx.rotate(180);
+        ctx.lineTo(200, 300);
+        ctx.font = "40px Arial";
+
+        ctx.fillText("P1: " + gameProgress.scores.player1, 100, 100);
+        ctx.stroke();
+        ctx.restore();
+
         ctx.restore();
     }
 
@@ -60,19 +71,11 @@
             ctx.shadowBlur = 8;
             ctx.shadowColor = 'rgba(10, 10, 10, 0.5)';
 
-            if (inGameMessage.xPos > (canvasWidth * 0.33)) {
-                inGameMessage.incrementValue = -1;
-            }
-            if (inGameMessage.xPos < (canvasWidth * 0.25)) {
-                inGameMessage.incrementValue = 1;
-            }
+            var msgLen = inGameMessage.displayText.length;
+            var xPos = (canvasWidth / 2) - (msgLen/4 * 30);
 
-            if (inGameMessage.xPos === 0) {
-                inGameMessage.xPos = canvasWidth * 0.25;
-                inGameMessage.yPos = canvasHeight / 4;
-            } else {
-                inGameMessage.xPos += inGameMessage.incrementValue;
-            }
+            inGameMessage.xPos = xPos;
+            inGameMessage.yPos = canvasHeight / 4;
 
             ctx.fillText(inGameMessage.displayText, inGameMessage.xPos, inGameMessage.yPos);
             ctx.stroke();
