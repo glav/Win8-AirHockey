@@ -9,9 +9,9 @@
 
     var nav = WinJS.Navigation;
 
-    function startGame() {
+    function startGame(gameType) {
         /** Requires GameWorld.js to be included *****/
-        window.game.world.initGameBodies();  // for Box 2d impulse/gameworld
+        window.game.world.initGameBodies(gameType);  // for Box 2d impulse/gameworld
         window.game.world.initStartGameSequence();
         window.game.world.startAnimationLoop();
         //window.game.world.startAnimationLoop();  // for Box 2d impulse/gameworld
@@ -33,7 +33,7 @@
             });
 
             window.game.board.resizePlayingField(true, true);
-            startGame();
+            startGame(options);
         },
 
         unload: function () {

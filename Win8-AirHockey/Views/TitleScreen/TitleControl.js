@@ -10,9 +10,13 @@
         // populates the page elements with the app's data.
         ready: function (element, options) {
             // TODO: Initialize the page here.
-            document.getElementById("start-button").addEventListener("click", function () {
+            document.getElementById("start-button-twoplayer").addEventListener("click", function () {
                 var host = document.getElementById("body");
-                nav.navigate("/Views/GameBoard/GameBoard.html");
+                nav.navigate("/Views/GameBoard/GameBoard.html",window.game.gameType.twoPlayer);
+            }, false);
+            document.getElementById("start-button-singleplayer").addEventListener("click", function () {
+                var host = document.getElementById("body");
+                nav.navigate("/Views/GameBoard/GameBoard.html",window.game.gameType.singlePlayer);
             }, false);
             document.getElementById("settings-button").addEventListener("click", function () {
                 var host = document.getElementById("body");

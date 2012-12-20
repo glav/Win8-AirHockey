@@ -5,6 +5,8 @@
 window.game.world = function () {
     "use strict";
 
+    var gameMode = window.game.gameType.twoPlayer;
+
     var world = {};
     var bodiesState = null;
     var simulator = null;
@@ -127,7 +129,9 @@ window.game.world = function () {
                 || gameProgress.gameState === window.game.gameStateType.Ended) {
             simulator.cancelAllMovement(simulator.getBody(gameConst.PuckId));
             simulator.cancelAllMovement(simulator.getBody(gameConst.Player1Id));
-            simulator.cancelAllMovement(simulator.getBody(gameConst.Player2Id));
+            if (gameMode === window.game.gameType.twoPlayer) {
+                simulator.cancelAllMovement(simulator.getBody(gameConst.Player2Id));
+            }
             simulator.clearForces();
         }
         update(animStart);
@@ -140,7 +144,7 @@ window.game.world = function () {
             return;
         }
 
-        window.game.positionBoundsManager.checkPositionLimits(simulator, screenWidth, screenHeight);
+        window.game.positionBoundsManager.checkPositionLimits(simulator, screenWidth, screenHeight, gameMode);
 
         simulator.update();
         bodiesState = simulator.getState();
@@ -163,7 +167,10 @@ window.game.world = function () {
 
         // Run through our drawing events
         window.game.drawHelper.drawCollisionDebugData(ctx, debugData, playerMovementState);
-        window.game.drawHelper.drawScores(ctx, gameProgress, canvasWidth);
+
+        // This now done within the entity and drawn on the player bats
+        //window.game.drawHelper.drawScores(ctx, gameProgress, canvasWidth);
+
         window.game.drawHelper.drawInGameMessage(ctx, inGameMessage, canvasWidth, canvasHeight);
         window.game.drawHelper.drawCountDown(ctx, countdownState, screenWidth, screenHeight);
 
@@ -222,13 +229,22 @@ window.game.world = function () {
 
         // SO who scored?
         var message;
-        var goalHitId = idA.indexOf("goal") >= 0 ? idA : idB;
-        if (goalHitId === gameConst.player1Goal) {
-            message = "Player 2 ";
-            gameProgress.scores.player2 += 1;
+        if (gameMode === window.game.gameType.twoPlayer) {
+            var goalHitId = idA.indexOf("goal") >= 0 ? idA : idB;
+            if (goalHitId === gameConst.player1Goal) {
+                message = "Player 2 ";
+                gameProgress.scores.player2 += 1;
+            } else {
+                message = "Player 1 ";
+                gameProgress.scores.player1 += 1;
+            }
         } else {
-            message = "Player 1 ";
-            gameProgress.scores.player1 += 1;
+            message = "Woops! Computer scored.";
+        }
+
+        world[gameConst.Player1Id].setScore(gameProgress.scores.player1);
+        if (gameMode === window.game.gameType.twoPlayer) {
+            world[gameConst.Player2Id].setScore(gameProgress.scores.player2);
         }
 
         if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || gameProgress.scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
@@ -244,7 +260,11 @@ window.game.world = function () {
             gameProgress.gameState = window.game.gameStateType.Ended;
         } else {
             // continue playing....
-            inGameMessage.displayText = "GOAL! " + message + "scores";
+            if (gameMode === window.game.gameType.twoPlayer) {
+                inGameMessage.displayText = "GOAL! " + message + "scores";
+            } else {
+                inGameMessage.displayText = message;
+            }
 
             // Do something spectacular to show a goal has been scored
             if (debugData.enabled !== true) {
@@ -291,10 +311,10 @@ window.game.world = function () {
 
                     //?? Should we cancel all body movement here if both players are
                     // selected and the player has just been selected to prevent weirdness?
-                    if (playerMovementState.player1.isSelected && playerMovementState.player2.isSelected) {
-                        var p = simulator.getBody(selectedId);
-                        simulator.cancelAllMovement(p);
-                    }
+                    //if (playerMovementState.player1.isSelected && playerMovementState.player2.isSelected) {
+                    //    var p = simulator.getBody(selectedId);
+                    //    simulator.cancelAllMovement(p);
+                    //}
                 }
 
                 playerState.isSelected = newstate;
@@ -544,15 +564,18 @@ window.game.world = function () {
         var initialState = window.game.board.setupAllWorldBodySettings();
         var ball = simulator.getBody(gameConst.PuckId);
         var bat1 = simulator.getBody(gameConst.Player1Id);
-        var bat2 = simulator.getBody(gameConst.Player2Id);
 
         var ballSettings = window.game.board.createPuckInitialSettings();
         var b1Settings = window.game.board.createBat1InitialSettings();
-        var b2Settings = window.game.board.createBat2InitialSettings();
 
         ball.SetPosition({ x: ballSettings.x, y: ballSettings.y });
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
-        bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
+
+        if (gameMode === window.game.gameType.twoPlayer) {
+            var bat2 = simulator.getBody(gameConst.Player2Id);
+            var b2Settings = window.game.board.createBat2InitialSettings();
+            bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
+        }
 
         settings = window.game.settings.getCurrent();
 
@@ -651,14 +674,19 @@ window.game.world = function () {
     }
     /***** END MS GESTURE HANDLING ******/
 
-    function initGameBodies() {
+    function initGameBodies(gameType) {
+        if (typeof gameType !== 'undefined') {
+            gameMode = gameType;
+        }
+
         gameProgress.gameState = window.game.gameStateType.NotStarted;
         canvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         ctx = canvas.getContext("2d");
+
         canvasWidth = ctx.canvas.width;
         canvasHeight = ctx.canvas.height;
 
-        var initialState = window.game.board.setupAllWorldBodySettings();
+        var initialState = window.game.board.setupAllWorldBodySettings(gameMode);
         gameProgress.scores.player1 = 0;
         gameProgress.scores.player2 = 0;
 

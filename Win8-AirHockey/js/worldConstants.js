@@ -1,5 +1,10 @@
 ﻿window.game = {};  // setup our container namespace
 
+window.game.gameType = {
+    singlePlayer: 0,
+    twoPlayer: 1
+};
+
 window.game.worldConstants = {
     Scale: 30,
     NullCenter: { x: null, y: null },
