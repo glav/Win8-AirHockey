@@ -1,24 +1,29 @@
 ﻿/// <reference path="DrawingHelper.js" />
 /// <reference path="positionBoundsManager.js" />
 /// <reference path="../../js/Settings.js" />
+/// <reference path="../../js/highScoreHandler.js" />
+/// <reference path="singlePlayerHandler.js" />
 
 window.game.world = function () {
     "use strict";
 
     var gameMode = window.game.gameType.twoPlayer;
-
+    var hasBoardBeenInitiallyDrawn = false;  // true once thee board has been drawn at least once
     var world = {};
     var bodiesState = null;
     var simulator = null;
-    var canvasWidth;
-    var canvasHeight;
-    var canvas;
-    var ctx;
+    var canvasWidth, canvasHeight, canvas, ctx;
     var initTimeout = null;
     var isMouseDown = false;
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
     var mouseX, mouseY;
+    var canvasUpdateArea = {
+        topPos: 0,
+        leftPos: 0,
+        width: 0,
+        height: 0
+    };
     var ballCollisionState = {
         hasCollided: false,
         power: 0,
@@ -53,10 +58,13 @@ window.game.world = function () {
         },
         gameState: window.game.gameStateType.NotStarted
     };
-    
+
     var scores = {
         player1: 0,
-        player2: 0
+        player2: 0,
+        singlePlayerStartTime: null,
+        singlePlayerEndTime: null,
+        highScores: null
     };
     var countdownState = {
         started: false,
@@ -76,7 +84,6 @@ window.game.world = function () {
             this.incrementValue = 1;
         }
     };
-
 
     var playerMovementState = {
         player1: {
@@ -120,7 +127,7 @@ window.game.world = function () {
 
             var puck = simulator.getBody(gameConst.PuckId);
             puck.SetAngle(0);
-            puck.SetAngularVelocity(0);
+            //puck.SetAngularVelocity(0);
 
             //simulator.cancelAllMovement(bat);
             ballCollisionState.clear();
@@ -160,13 +167,14 @@ window.game.world = function () {
             return;
         }
         // Clear the canvas
-        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        // Draw the basic boardelements like halfway line and other things that dont interact
+        ctx.clearRect(canvasUpdateArea.leftPos, canvasUpdateArea.topPos, canvasUpdateArea.width, canvasUpdateArea.height);
+
+        // Draw the basic board elements like halfway line and other things that dont interact
         // with the world
         window.game.board.drawBoardMarkings();
 
         // Run through our drawing events
-        window.game.drawHelper.drawCollisionDebugData(ctx, debugData, playerMovementState);
+        window.game.drawHelper.drawCollisionDebugData(ctx, debugData, playerMovementState, ballCollisionState);
 
         // This now done within the entity and drawn on the player bats
         //window.game.drawHelper.drawScores(ctx, gameProgress, canvasWidth);
@@ -177,8 +185,12 @@ window.game.world = function () {
         //Now update the actual entities in the world
         for (var id in world) {
             var entity = world[id];
-            entity.draw(ctx);
+            if (entity.requiresRedrawing === true || hasBoardBeenInitiallyDrawn === false) {
+                entity.draw(ctx);
+            }
         }
+
+        hasBoardBeenInitiallyDrawn = true;
     }
 
     function countdownTickEvent() {
@@ -201,8 +213,16 @@ window.game.world = function () {
             return;
         }
         // kick off the puck in a random direction and power
-        var power = Math.random() * 150 + 10;
-        var angle = Math.random() * 360;
+        var power = 0;
+        var angle = 0;
+        if (gameMode === window.game.gameType.singlePlayer) {
+            power = Math.random() * (settings.singlePlayerDifficulty * 500) + 500;
+            angle = (Math.random() * 90) + 120;
+            scores.singlePlayerStartTime = new Date();
+        } else {
+            power = Math.random() * 150 + 10;
+            angle = Math.random() * 360;
+        }
         setTimeout(function () {
             if (simulator !== null) {
                 simulator.applyImpulse(gameConst.PuckId, parseInt(angle), parseInt(power));
@@ -238,48 +258,49 @@ window.game.world = function () {
                 message = "Player 1 ";
                 gameProgress.scores.player1 += 1;
             }
-        } else {
-            message = "Woops! Computer scored.";
-        }
 
-        world[gameConst.Player1Id].setScore(gameProgress.scores.player1);
-        if (gameMode === window.game.gameType.twoPlayer) {
-            world[gameConst.Player2Id].setScore(gameProgress.scores.player2);
-        }
-
-        if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || gameProgress.scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
-            // end of the match! Someone has won
-            var msg = "Player ";
-            if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
-                msg += "1";
+            if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || gameProgress.scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+                // end of the match! Someone has won
+                var msg = "Player ";
+                if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+                    msg += "1";
+                } else {
+                    msg += "2";
+                }
+                msg += " wins! Final Score: Player 1: " + gameProgress.scores.player1 + ", Player 2: " + gameProgress.scores.player2;
+                inGameMessage.displayText = msg;
+                gameProgress.gameState = window.game.gameStateType.Ended;
             } else {
-                msg += "2";
-            }
-            msg += " wins! Final Score: Player 1: " + gameProgress.scores.player1 + ", Player 2: " + gameProgress.scores.player2;
-            inGameMessage.displayText = msg;
-            gameProgress.gameState = window.game.gameStateType.Ended;
-        } else {
-            // continue playing....
-            if (gameMode === window.game.gameType.twoPlayer) {
+                // continue playing....
                 inGameMessage.displayText = "GOAL! " + message + "scores";
-            } else {
-                inGameMessage.displayText = message;
             }
 
-            // Do something spectacular to show a goal has been scored
-            if (debugData.enabled !== true) {
-                setTimeout(function () {
-                    inGameMessage.clearMessage();
-                    gameProgress.gameState = window.game.gameStateType.InProgress;
-                    initStartGameSequence();
-                }, 3500);
-            } else {
-                // If debug is enabled, just clear the message and keep going
-                setTimeout(function () {
-                    gameProgress.gameState = window.game.gameStateType.InProgress;
-                    inGameMessage.clearMessage();
-                }, 3500);
+            world[gameConst.Player1Id].setScore(gameProgress.scores.player1);
+            world[gameConst.Player2Id].setScore(gameProgress.scores.player2);
+
+        } else {
+            scores.singlePlayerEndTime = new Date();
+            var singlePlayerLastedDuration = window.game.singlePlayerHandler.handlePlayerDuration(scores.singlePlayerStartTime, scores.singlePlayerEndTime);
+            message = "Computer scored! You lasted " + singlePlayerLastedDuration.durationDescription;
+            if (singlePlayerLastedDuration.durationInMilliseconds > scores.highScores.singlePlayerLocalDurationLasted || typeof scores.highScores.singlePlayerLocalDurationLasted === 'undefined') {
+                message += " New High Score!";
             }
+            scores.highScores = window.game.highScoreHandler.updateHighScores(singlePlayerLastedDuration.durationInMilliseconds);
+            inGameMessage.displayText = message;
+        }
+
+        if (debugData.enabled !== true) {
+            setTimeout(function () {
+                inGameMessage.clearMessage();
+                gameProgress.gameState = window.game.gameStateType.InProgress;
+                initStartGameSequence();
+            }, 3500);
+        } else {
+            // If debug is enabled, just clear the message and keep going
+            setTimeout(function () {
+                gameProgress.gameState = window.game.gameStateType.InProgress;
+                inGameMessage.clearMessage();
+            }, 3500);
         }
     }
 
@@ -308,13 +329,6 @@ window.game.world = function () {
                     playerState.whenSelected = null;
                     playerState.xPosWhileHeld = [];
                     playerState.yPosWhileHeld = [];
-
-                    //?? Should we cancel all body movement here if both players are
-                    // selected and the player has just been selected to prevent weirdness?
-                    //if (playerMovementState.player1.isSelected && playerMovementState.player2.isSelected) {
-                    //    var p = simulator.getBody(selectedId);
-                    //    simulator.cancelAllMovement(p);
-                    //}
                 }
 
                 playerState.isSelected = newstate;
@@ -459,7 +473,6 @@ window.game.world = function () {
         if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
-        var ballBody = simulator.getBody(gameConst.PuckId);
 
         if ((doesIdRepresentGoal(idA) || doesIdRepresentGoal(idB)) &&
                (idA.indexOf(gameConst.PuckId) >= 0 || idB.indexOf(gameConst.PuckId) >= 0)) {
@@ -511,8 +524,8 @@ window.game.world = function () {
                 aggregateXVelocity = yVel;
                 aggregateYVelocity = xVel;
             } else {
+                var ballBody = simulator.getBody(gameConst.PuckId);
 
-                //document.removeEventListener("mousemove", handleMouseMove, true);
 
                 var centreBallPosition = ballBody.GetWorldCenter();
                 var ballVelocity = ballBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
@@ -555,6 +568,7 @@ window.game.world = function () {
             return;
         }
 
+        hasBoardBeenInitiallyDrawn = false;
         inGameMessage.clearMessage();
         gameProgress.gameState = window.game.gameStateType.NotStarted;
 
@@ -565,19 +579,33 @@ window.game.world = function () {
         var ball = simulator.getBody(gameConst.PuckId);
         var bat1 = simulator.getBody(gameConst.Player1Id);
 
-        var ballSettings = window.game.board.createPuckInitialSettings();
+        var ballSettings = window.game.board.createPuckInitialSettings(gameMode);
         var b1Settings = window.game.board.createBat1InitialSettings();
 
         ball.SetPosition({ x: ballSettings.x, y: ballSettings.y });
+        // ball.SetPosition({ x: 25, y: ballSettings.y });
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
 
         if (gameMode === window.game.gameType.twoPlayer) {
             var bat2 = simulator.getBody(gameConst.Player2Id);
             var b2Settings = window.game.board.createBat2InitialSettings();
             bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
+        } else {
+            window.game.singlePlayerHandler.initialiseSinglePlayerState(gameProgress, simulator);
         }
 
         settings = window.game.settings.getCurrent();
+        scores.highScores = window.game.highScoreHandler.getHighScores();
+
+        // Pre-calculate the area on the canvas that we need to clear and
+        // update frequently to draw upon
+        canvasUpdateArea.leftPos = world[gameConst.groundLeftId].halfWidth * 2 * gameConst.Scale;
+        canvasUpdateArea.topPos = world[gameConst.groundTopId].halfHeight * 2 * gameConst.Scale;
+        var rightBorderWidth = world[gameConst.groundRightId].halfWidth * 2 * gameConst.Scale;
+        var bottomBorderHeight = world[gameConst.groundBottomId].halfHeight * 2 * gameConst.Scale;
+
+        canvasUpdateArea.width = canvasWidth - (canvasUpdateArea.leftPos + rightBorderWidth);
+        canvasUpdateArea.height = canvasHeight - (canvasUpdateArea.topPos + bottomBorderHeight);
 
         startCountDown();
     }
@@ -694,9 +722,14 @@ window.game.world = function () {
         for (var i = 0; i < initialState.length; i++) {
             var entity = window.game.entities.buildEntity(initialState[i]);
             world[initialState[i].id] = entity;
+
+            if (typeof initialState[i].requiresRedraw !== 'undefined' && initialState[i].requiresRedraw === false) {
+                entity.requiresRedrawing = false;
+            }
         }
 
-        simulator = new window.game.simulator.box2dWrapper(60, false, canvasWidth, canvasHeight, window.game.worldConstants.Scale);
+        // Interval rate is set to 30 instead of the typical 60 to improve responsiveness
+        simulator = new window.game.simulator.box2dWrapper(30, false, canvasWidth, canvasHeight, window.game.worldConstants.Scale, gameMode);
         simulator.setBodies(world, true);
 
         window.game.entities.setDebugMode(debugData.enabled);

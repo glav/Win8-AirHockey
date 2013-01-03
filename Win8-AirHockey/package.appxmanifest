@@ -20,6 +20,7 @@
         <SplashScreen Image="images\Table-620x300.png" BackgroundColor="#ffffff" />
         <InitialRotationPreference>
           <Rotation Preference="landscape" />
+          <Rotation Preference="landscapeFlipped" />
         </InitialRotationPreference>
       </VisualElements>
     </Application>

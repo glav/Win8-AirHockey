@@ -31,6 +31,11 @@
         };
 
         this.enableShadow = (useShadow === true);
+        this.yScale = this.y * window.game.worldConstants.Scale;
+
+        // Indicates that this entity requires a redrawon each frame
+        // refresh
+        this.requiresRedrawing = true;
     }
 
     Entity.prototype.update = function (state) {
@@ -55,15 +60,19 @@
             ctx.fill();
         }
 
+        Entity.prototype.drawInnerText.call(this,ctx);
+    };
+
+    Entity.prototype.drawInnerText = function (ctx) {
         if (typeof this.innerText !== 'undefined') {
             if (this.innerText.text !== null) {
 
                 ctx.font = this.innerText.font !== null ? this.innerText.font : "24px Arial";
                 ctx.strokeStyle = this.innerText.color !== null ? this.innerText.color : "white";
                 ctx.fillStyle = ctx.strokeStyle;
-                var xPos = this.center.x * window.game.worldConstants.Scale - (this.innerText.inset * window.game.worldConstants.Scale)+5;
-                var yPos = this.center.y * window.game.worldConstants.Scale-5;
-                ctx.fillText(this.innerText.text, xPos ,yPos );
+                var xPos = this.center.x * window.game.worldConstants.Scale - (this.innerText.inset * window.game.worldConstants.Scale) + 5;
+                var yPos = this.center.y * window.game.worldConstants.Scale - 5;
+                ctx.fillText(this.innerText.text, xPos, yPos);
             }
             if (typeof this.innerText.score !== 'undefined') {
                 ctx.font = this.innerText.font !== null ? this.innerText.font : "24px Arial";
@@ -71,12 +80,12 @@
                 ctx.fillStyle = ctx.strokeStyle;
                 var xPos = this.center.x * window.game.worldConstants.Scale - 5;
                 var yPos = this.center.y * window.game.worldConstants.Scale + 15;
-                ctx.fillText(this.innerText.score, xPos ,yPos );
+                ctx.fillText(this.innerText.score, xPos, yPos);
 
             }
         }
-    };
 
+    };
     Entity.prototype.setScore = function (score) {
         this.innerText.score = score;
     };
@@ -97,6 +106,12 @@
         this.angle = angle;
         this.radius = radius;
 
+        // These properties are calculated ones so we do it here and store as member
+        // variables so we dont have to keep doing it later
+        this.imageXCentre = (this.x - this.radius) * window.game.worldConstants.Scale;
+        this.imageYCentre = (this.y - this.radius) * window.game.worldConstants.Scale;
+        this.imageWidth = this.radius * 2 * window.game.worldConstants.Scale;
+        this.imageHeight = this.radius * 2 * window.game.worldConstants.Scale;
     }
     PuckEntity.prototype = new Entity();
     PuckEntity.prototype.constructor = PuckEntity;
@@ -105,13 +120,18 @@
         this.y = state.y;
         this.center = state.c;
         this.angle = state.a;
+
+        // These properties are calculated ones so we do it here and store as member
+        // variables so we dont have to keep doing it later
+        this.imageXCentre = (this.x - this.radius) * window.game.worldConstants.Scale;
+        this.imageYCentre = (this.y - this.radius) * window.game.worldConstants.Scale;
     };
     PuckEntity.prototype.draw = function (ctx) {
         ctx.save();
 
         if (debugMode !== true) {
             if (this.imageLoaded === true) {
-                ctx.drawImage(this.image, (this.x - this.radius) * window.game.worldConstants.Scale, (this.y - this.radius) * window.game.worldConstants.Scale, this.radius * 2 * window.game.worldConstants.Scale, this.radius * 2 * window.game.worldConstants.Scale);
+                ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
             }
             if (this.enableShadow === true) {
                 ctx.shadowOffsetX = 10;
@@ -143,10 +163,10 @@
             ctx.arc(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale, (this.radius - (this.radius / 6)) * window.game.worldConstants.Scale, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.stroke();
+            Entity.prototype.draw.call(this, ctx);
         }
 
         ctx.restore();
-        Entity.prototype.draw.call(this, ctx);
     };
     //*****************************************************
     // END Puck
@@ -171,6 +191,12 @@
         this.innerText.inset = 0.6;
         this.innerText.score = 0;  //extra prop
 
+        // These properties are calculated ones so we do it here and store as member
+        // variables so we dont have to keep doing it later
+        this.imageXCentre = (this.x - this.radius) * window.game.worldConstants.Scale;
+        this.imageYCentre = (this.y - this.radius) * window.game.worldConstants.Scale;
+        this.imageWidth = this.radius * 2 * window.game.worldConstants.Scale;
+        this.imageHeight = this.radius * 2 * window.game.worldConstants.Scale;
     }
     PlayerEntity.prototype = new Entity();
     PlayerEntity.prototype.constructor = PuckEntity;
@@ -179,13 +205,17 @@
         this.y = state.y;
         this.center = state.c;
         this.angle = state.a;
+
+        this.imageXCentre = (this.x - this.radius) * window.game.worldConstants.Scale;
+        this.imageYCentre = (this.y - this.radius) * window.game.worldConstants.Scale;
+
     };
     PlayerEntity.prototype.draw = function (ctx) {
         ctx.save();
 
         if (debugMode !== true) {
             if (this.imageLoaded === true) {
-                ctx.drawImage(this.image, (this.x - this.radius) * window.game.worldConstants.Scale, (this.y - this.radius) * window.game.worldConstants.Scale, this.radius * 2 * window.game.worldConstants.Scale, this.radius * 2 * window.game.worldConstants.Scale);
+                ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
             }
             if (this.enableShadow === true) {
                 ctx.shadowOffsetX = 20;
@@ -216,10 +246,11 @@
             ctx.arc(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale, (this.radius - (this.radius / 6)) * window.game.worldConstants.Scale, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.stroke();
+            Entity.prototype.draw.call(this, ctx);
         }
 
         ctx.restore();
-        Entity.prototype.draw.call(this, ctx);
+        Entity.prototype.drawInnerText.call(this,ctx);
     };
     //*****************************************************
     // END Player
@@ -284,20 +315,25 @@
         Entity.call(this, id, x, y, angle, center, color, isStatic, density);
         this.halfWidth = halfWidth;
         this.halfHeight = halfHeight;
+        // These properties are calculated ones so we do it here and store as member
+        // variables so we dont have to keep doing it later
+        this.translateXScale = -(this.x) * window.game.worldConstants.Scale;
+        this.translateYScale =  -(this.y) * window.game.worldConstants.Scale;
+        this.fillRectXPos = (this.x - this.halfWidth) * window.game.worldConstants.Scale;
+        this.fillRectYPos = (this.y - this.halfHeight) * window.game.worldConstants.Scale;
+        this.fillXScale = (this.halfWidth * 2) * window.game.worldConstants.Scale;
+        this.fillYScale = (this.halfHeight * 2) * window.game.worldConstants.Scale;
     }
     RectangleEntity.prototype = new Entity();
     RectangleEntity.prototype.constructor = RectangleEntity;
 
     RectangleEntity.prototype.draw = function (ctx) {
         ctx.save();
-        ctx.translate(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale);
+        ctx.translate(this.x * window.game.worldConstants.Scale, this.yScale);
         ctx.rotate(this.angle);
-        ctx.translate(-(this.x) * window.game.worldConstants.Scale, -(this.y) * window.game.worldConstants.Scale);
+        ctx.translate(this.translateXScale, this.translateYScale);
         ctx.fillStyle = this.color;
-        ctx.fillRect((this.x - this.halfWidth) * window.game.worldConstants.Scale,
-            (this.y - this.halfHeight) * window.game.worldConstants.Scale,
-            (this.halfWidth * 2) * window.game.worldConstants.Scale,
-            (this.halfHeight * 2) * window.game.worldConstants.Scale);
+        ctx.fillRect(this.fillRectXPos, this.fillRectYPos, this.fillXScale, this.fillYScale);
         ctx.restore();
 
         Entity.prototype.draw.call(this, ctx);
@@ -323,6 +359,14 @@
         this.visibleHalfWidth = visibleHalfWidth;
         this.useLeftShadow = useLeftShadow;
         this.useRightShadow = useRightShadow;
+
+        this.translateXRect = -(this.x) * window.game.worldConstants.Scale;
+        this.translateYRect = -(this.y) * window.game.worldConstants.Scale;
+        this.fillCentreX = (this.x - this.visibleHalfWidth) * window.game.worldConstants.Scale;
+        this.fillCentreY = (this.y - this.visibleHalfHeight) * window.game.worldConstants.Scale;
+        this.fillAmountX = (this.visibleHalfWidth * 2) * window.game.worldConstants.Scale;
+        this.fillAmountY = (this.visibleHalfHeight * 2) * window.game.worldConstants.Scale;
+
     }
     GoalEntity.prototype = new Entity();
     GoalEntity.prototype.constructor = GoalEntity;
@@ -342,14 +386,12 @@
             ctx.shadowColor = 'rgba(10, 10, 10, 0.6)';
         }
 
-        ctx.translate(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale);
+        ctx.translate(this.x * window.game.worldConstants.Scale, this.yScale);
         ctx.rotate(this.angle);
-        ctx.translate(-(this.x) * window.game.worldConstants.Scale, -(this.y) * window.game.worldConstants.Scale);
+        ctx.translate(this.translateXRect, this.translateYRect);
         ctx.fillStyle = this.color;
-        ctx.fillRect((this.x - this.visibleHalfWidth) * window.game.worldConstants.Scale,
-            (this.y - this.visibleHalfHeight) * window.game.worldConstants.Scale,
-            (this.visibleHalfWidth * 2) * window.game.worldConstants.Scale,
-            (this.visibleHalfHeight * 2) * window.game.worldConstants.Scale);
+        ctx.fillRect(this.fillCentreX,this.fillCentreY,
+            this.fillAmountX, this.fillAmountY);
         ctx.restore();
 
         Entity.prototype.draw.call(this, ctx);

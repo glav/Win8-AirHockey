@@ -13,6 +13,7 @@
         settings.allowPlayersToCrossHalfwayLine = document.getElementById('option-player-allow-halfway').winControl.checked;
         settings.simulatorRestitution = document.getElementById('option-restitution').value;
         settings.boardFriction = document.getElementById('option-board-friction').value;
+        settings.singlePlayerDifficulty = document.getElementById('option-singlepower-difficulty').value
         window.game.settings.updateCurrent(settings);
     }
 
@@ -20,6 +21,28 @@
         window.game.settings.resetToDefault();
         settings = window.game.settings.getCurrent();
         WinJS.Binding.processAll(document.getElementById('main-content'), settings);
+    }
+
+    function onChangeRange(e) {
+        var labelId = e.target.getAttribute('data-update-label');
+        if (labelId && labelId !== null && labelId !== '') {
+            var label = document.getElementById(labelId);
+            label.innerText = e.target.value;
+        }
+    }
+
+    function manageInputRangeEvents(subscribeToEvents) {
+        var allRangeControls = document.getElementsByClassName('slider');
+        var numControls = allRangeControls.length;
+        for (var cnt = 0; cnt < numControls; cnt++) {
+            var el = allRangeControls[cnt];
+            if (subscribeToEvents === true) {
+                el.addEventListener("change", onChangeRange);
+            } else {
+                el.removeEventListener("change", onChangeRange);
+            }
+        }
+
     }
 
     WinJS.UI.Pages.define("/Views/Options/OptionsSettings.html", {
@@ -31,14 +54,14 @@
 
             document.getElementById("options-reset").addEventListener("click", function () {
                 resetOptionsToDefault();
-                //setTimeout(function () {
-                //    nav.navigate('/Views/TitleScreen/TitleControl.html');
-                //}, 250);
             }, false);
+
+            manageInputRangeEvents(true);
         },
 
         unload: function () {
             updateSettings();
+            manageInputRangeEvents(false);
             // TODO: Respond to navigations away from this page.
         },
 
@@ -50,3 +73,4 @@
         }
     });
 })();
+
