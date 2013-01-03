@@ -2,7 +2,8 @@
 
 window.game.gameType = {
     singlePlayer: 0,
-    twoPlayer: 1
+    twoPlayer: 1,
+    singlePlayerMultiPuck: 2
 };
 
 window.game.worldConstants = {
@@ -15,6 +16,7 @@ window.game.worldConstants = {
     BallPuckColour: "#3ED337",
     GoalColour: "#E0302A",
     PuckId: 'puck',
+    PuckSecondaryId: 'puck2',
     Player1Id: 'bat1',
     Player2Id: 'bat2',
     player1Goal: 'goal1',

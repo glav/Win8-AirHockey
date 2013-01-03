@@ -44,7 +44,7 @@ window.game.positionBoundsManager = function () {
 
         // If user has elected to allow players past halfway line then return
         // so we dont test for it
-        if (settings.allowPlayersToCrossHalfwayLine === true || gameMode === window.game.gameType.singlePlayer) {
+        if (settings.allowPlayersToCrossHalfwayLine === true || gameMode === window.game.gameType.singlePlayer || gameMode === window.game.gameType.singlePlayerMultiPuck) {
             return;
         }
 

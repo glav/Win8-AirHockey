@@ -215,7 +215,7 @@ window.game.world = function () {
         // kick off the puck in a random direction and power
         var power = 0;
         var angle = 0;
-        if (gameMode === window.game.gameType.singlePlayer) {
+        if (gameMode === window.game.gameType.singlePlayer || gameMode === window.game.gameType.singlePlayerMultiPuck) {
             power = Math.random() * (settings.singlePlayerDifficulty * 500) + 500;
             angle = (Math.random() * 90) + 120;
             scores.singlePlayerStartTime = new Date();
@@ -226,6 +226,10 @@ window.game.world = function () {
         setTimeout(function () {
             if (simulator !== null) {
                 simulator.applyImpulse(gameConst.PuckId, parseInt(angle), parseInt(power));
+                if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
+                    var angle2 = (Math.random() * 90) + 120;
+                    simulator.applyImpulse(gameConst.PuckSecondaryId, parseInt(angle2), parseInt(power))
+                }
                 gameProgress.gameState = window.game.gameStateType.InProgress;
             }
         }, 500);
@@ -576,13 +580,21 @@ window.game.world = function () {
             return;
         }
         var initialState = window.game.board.setupAllWorldBodySettings();
-        var ball = simulator.getBody(gameConst.PuckId);
         var bat1 = simulator.getBody(gameConst.Player1Id);
 
-        var ballSettings = window.game.board.createPuckInitialSettings(gameMode);
         var b1Settings = window.game.board.createBat1InitialSettings();
 
-        ball.SetPosition({ x: ballSettings.x, y: ballSettings.y });
+        if (gameMode == window.game.gameType.singlePlayerMultiPuck) {
+            var ballSettings = window.game.board.createPuckInitialSettings(gameMode);
+            var ball = simulator.getBody(gameConst.PuckId);
+            ball.SetPosition({ x: ballSettings.x, y: ctx.canvas.height / 4 / window.game.worldConstants.Scale });
+            var ball2 = simulator.getBody(gameConst.PuckSecondaryId);
+            ball2.SetPosition({ x: ballSettings.x, y: ctx.canvas.height / 1.25 / window.game.worldConstants.Scale });
+        } else {
+            var ballSettings = window.game.board.createPuckInitialSettings(gameMode);
+            var ball = simulator.getBody(gameConst.PuckId);
+            ball.SetPosition({ x: ballSettings.x, y: ballSettings.y });
+        }
         // ball.SetPosition({ x: 25, y: ballSettings.y });
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
 
