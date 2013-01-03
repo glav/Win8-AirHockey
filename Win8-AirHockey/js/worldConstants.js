@@ -18,7 +18,11 @@ window.game.worldConstants = {
     Player1Id: 'bat1',
     Player2Id: 'bat2',
     player1Goal: 'goal1',
-    player2Goal: 'goal2'
+    player2Goal: 'goal2',
+    groundLeftId: 'groundLeft',
+    groundRightId: 'groundRight',
+    groundTopId: 'groundTop',
+    groundBottomId: 'ground'
 };
 
 window.game.gestureType = {

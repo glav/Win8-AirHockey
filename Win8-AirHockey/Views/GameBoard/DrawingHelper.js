@@ -1,7 +1,7 @@
 ﻿window.game.drawHelper = function () {
     "use strict";
 
-    function drawCollisionDebugData(ctx, debugData, playerMovementState) {
+    function drawCollisionDebugData(ctx, debugData, playerMovementState, ballCollisionState) {
         if (debugData.enabled !== true) {
             return;
         }

@@ -43,7 +43,8 @@
             allowPlayersToCrossHalfwayLine: false,
             numberOfGoalsThatSignalsEndOfMatch: 6,
             simulatorRestitution: 60,  // Note: This value is divided by 100 when applied to simulator restitituion
-            boardFriction: 2
+            boardFriction: 2,
+            singlePlayerDifficulty: 2
         };
         return settingsData;
     }

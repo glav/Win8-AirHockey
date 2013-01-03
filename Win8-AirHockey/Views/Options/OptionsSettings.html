@@ -5,7 +5,7 @@
     <title>Options</title>
 
     <!-- WinJS references -->
-   <!--<link href="//Microsoft.WinJS.1.0/css/ui-light.css" rel="stylesheet" />-->
+    <!--<link href="//Microsoft.WinJS.1.0/css/ui-light.css" rel="stylesheet" />-->
     <script src="//Microsoft.WinJS.1.0/js/base.js"></script>
     <script src="//Microsoft.WinJS.1.0/js/ui.js"></script>
 
@@ -25,51 +25,85 @@
             </h1>
         </header>
         <section aria-label="Main content" id="main-content" role="main">
-	        <div class="settings-grid">
-		        <div>
-			        <div id="option-player-allow-halfway" data-win-control="WinJS.UI.ToggleSwitch" class="settings" 
-                             data-win-options="{title:'Allow Player to Cross Halfway Line?'}"
-                             data-win-bind="winControl.checked: allowPlayersToCrossHalfwayLine" >
-			        </div>
-		        </div>
-		
-                <div></div>
-		
-                <div>
-                    <span>Number of goals required to win game?</span>
-		        </div>
-		        <div>
-			        <input id="option-goals-till-endofmatch" type="range" max="50" min="1" data-win-bind="value: numberOfGoalsThatSignalsEndOfMatch" />
-		        </div>
+            <fieldset>
+                <legend>2 Player settings</legend>
+                <div class="settings-grid">
+                    <div class="column">
+                        <div id="option-player-allow-halfway" data-win-control="WinJS.UI.ToggleSwitch" class="settings"
+                            data-win-options="{title:'Allow Player to Cross Halfway Line?'}"
+                            data-win-bind="winControl.checked: allowPlayersToCrossHalfwayLine">
+                        </div>
+                    </div>
 
-                <div>
-                    <span>Puck "bounciness" or collision power when hit by player?</span>
-                </div>
-                <div>
-                    <input id="option-power-on-puckcollision" type="range" max="100" min="0" data-win-bind="value: powerToApplyOnPuckCollision" />
-                </div>
+                    <div class="column"></div>
 
-                <div>
-                    <span>Game board friction?</span>
-                </div>
-                <div>
-                    <input id="option-board-friction" type="range" max="100" min="0" data-win-bind="value: boardFriction" />
-                    <span data-win-bind="innerText: boardFriction"></span>
-                </div>
+                    <div class="column">
+                        <span>Number of goals required to win game?</span>
+                        <input id="option-goals-till-endofmatch" class="slider" type="range" max="50" min="1" data-update-label="option-goals-till-endofmatch-label" data-win-bind="value: numberOfGoalsThatSignalsEndOfMatch" />
+                        <span id="option-goals-till-endofmatch-label" class="range-label" data-win-bind="innerText: numberOfGoalsThatSignalsEndOfMatch"></span>
+                    </div>
+                    <div class="column">
+                    </div>
 
-                <div>
-                    <span>Overall simulator "bounciness"?</span>
-                </div>
-                <div>
-                    <input id="option-restitution" type="range" max="100" min="0" data-win-bind="value: simulatorRestitution" />
-                </div>
+                    <div class="column">
+                        <span>Puck "bounciness" when hit by player?</span>
+                        <input id="option-power-on-puckcollision" class="slider" type="range" max="100" min="0" data-update-label="option-power-on-puckcollision-label" data-win-bind="value: powerToApplyOnPuckCollision" />
+                        <span id="option-power-on-puckcollision-label" class="range-label" data-win-bind="innerText: powerToApplyOnPuckCollision"></span>
+                    </div>
+                    <div class="column">
+                    </div>
 
-                <div>
+                    <div class="column">
+                        <span>Game board friction?</span>
+                        <input id="option-board-friction" type="range" class="slider" max="100" min="0" data-update-label="option-board-friction-label" data-win-bind="value: boardFriction" />
+                        <span id="option-board-friction-label" class="range-label" data-win-bind="innerText: boardFriction"></span>
+                    </div>
+                    <div class="column">
+                    </div>
+
+                    <div class="column">
+                        <span>Overall simulator "bounciness"?</span>
+                        <input id="option-restitution" type="range" class="slider" max="100" min="0" data-update-label="option-restitution-label" data-win-bind="value: simulatorRestitution"  />
+                        <span id="option-restitution-label" class="range-label" data-win-bind="innerText: simulatorRestitution"></span>
+                    </div>
+                    <div class="column">
+                    </div>
+
+                    <div class="column">
+                    </div>
+
+                    <div class="column">
+                    </div>
                 </div>
-                <div>
-                    <button id="options-reset">Reset options to default values</button>
-                </div>
-	        </div>
+            </fieldset>
+            <fieldset>
+                <legend>
+                    Single Player options
+                </legend>
+                <div class="settings-grid">
+                    <div class="column">
+                        <span>Difficulty Level?</span>
+                        <input id="option-singlepower-difficulty" class="slider" type="range" max="3" min="1" data-update-label="option-singlepower-difficulty-label" data-win-bind="value: singlePlayerDifficulty" />
+                        <span id="option-singlepower-difficulty-label" class="range-label" data-win-bind="innerText: singlePlayerDifficulty"></span>
+                    </div>
+
+                    <div class="column"></div>
+
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+                    <div class="column"></div>
+
+            </fieldset>
+            <button id="options-reset">Reset options to default values</button>
+
+
         </section>
     </div>
 </body>

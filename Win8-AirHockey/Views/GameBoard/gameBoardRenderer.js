@@ -5,6 +5,9 @@
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
 
+    var boardEdgeHalfWidth = 0.5;
+    var boardEdgeWidthInPixels = (boardEdgeHalfWidth * 2) * window.game.worldConstants.Scale;
+
     var entityType = {
         Generic: 0,
         Player: 1,
@@ -52,8 +55,8 @@
 
 
         // Halfway line        
-        ctx.moveTo(middleX, 0);
-        ctx.lineTo(middleX, screenHeight);
+        ctx.moveTo(middleX, boardEdgeWidthInPixels);
+        ctx.lineTo(middleX, screenHeight - boardEdgeWidthInPixels);
         ctx.stroke();
 
         //ctx.lineWidth = 2;
@@ -71,9 +74,25 @@
 
     }
 
-    function createPuckInitialSettings() {
+    function createPuckInitialSettings(gameMode) {
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
+        if (gameMode === window.game.gameType.singlePlayer) {
+            return {
+                id: window.game.worldConstants.PuckId,
+                x: ctx.canvas.width * 0.8 / window.game.worldConstants.Scale,
+                y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                radius: 1.5,
+                isStatic: false,
+                density: 1,
+                puckcolor: window.game.worldConstants.BallPuckColour,
+                fixedRotation: true,
+                type: entityType.Puck
+            }
+
+        }
+
+        // std two player setup
         return {
             id: window.game.worldConstants.PuckId,
             x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
@@ -97,7 +116,7 @@
             halfHeight: 2,
             halfWidth: 0.9,
             isStatic: false,
-            density: 3,
+            density: 10,
             radius: 1.9,
             playercolor: window.game.worldConstants.Player1Colour,
             useShadow: true,
@@ -116,7 +135,7 @@
             halfHeight: 2,
             halfWidth: 0.9,
             isStatic: false,
-            density: 3,
+            density: 10,
             radius: 1.9,
             playercolor: window.game.worldConstants.Player2Colour,
             useShadow: true,
@@ -128,46 +147,50 @@
     function setupAllWorldBodySettings(gameMode) {
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
-
+        
         if (gameMode === window.game.gameType.singlePlayer) {
             return [
                 {
-                    id: "ground",
+                    id: window.game.worldConstants.groundBottomId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                    y: ctx.canvas.height / window.game.worldConstants.Scale,
-                    halfHeight: 0.5,
+                    y: ctx.canvas.height / window.game.worldConstants.Scale-0.5,
+                    halfHeight: boardEdgeHalfWidth,
                     halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
                     color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
                 {
-                    id: "groundTop",
+                    id: window.game.worldConstants.groundTopId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                    y: 0.5, halfHeight: 0.5,
+                    y: 0.5, halfHeight: boardEdgeHalfWidth,
                     halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
                     color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
                 {
-                    id: "groundLeft",
+                    id: window.game.worldConstants.groundLeftId,
                     x: 0.5, y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
                     halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    halfWidth: boardEdgeHalfWidth, color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
                 {
-                    id: "groundRight",
+                    id: window.game.worldConstants.groundRightId,
                     x: (ctx.canvas.width / window.game.worldConstants.Scale) - 0.5,
                     y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
                     halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    halfWidth: boardEdgeHalfWidth, color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
-                createPuckInitialSettings(),
+                createPuckInitialSettings(gameMode),
                 createBat1InitialSettings(),
                 {
                     id: window.game.worldConstants.player1Goal,
@@ -190,42 +213,46 @@
         } else {
             return [
                 {
-                    id: "ground",
+                    id: window.game.worldConstants.groundBottomId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                    y: ctx.canvas.height / window.game.worldConstants.Scale,
-                    halfHeight: 0.5,
+                    y: ctx.canvas.height / window.game.worldConstants.Scale-0.5,
+                    halfHeight: boardEdgeHalfWidth,
                     halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
                     color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
                 {
-                    id: "groundTop",
+                    id: window.game.worldConstants.groundTopId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                    y: 0.5, halfHeight: 0.5,
+                    y: 0.5, halfHeight: boardEdgeHalfWidth,
                     halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
                     color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
                 {
-                    id: "groundLeft",
+                    id: window.game.worldConstants.groundLeftId,
                     x: 0.5, y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
                     halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    halfWidth: boardEdgeHalfWidth, color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
                 {
-                    id: "groundRight",
+                    id: window.game.worldConstants.groundRightId,
                     x: (ctx.canvas.width / window.game.worldConstants.Scale) - 0.5,
                     y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
                     halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfWidth: 0.5, color: window.game.worldConstants.BoardEdgeColour,
+                    halfWidth: boardEdgeHalfWidth, color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
-                    type: entityType.Rectangle
+                    type: entityType.Rectangle,
+                    requiresRedraw: false
                 },
-                createPuckInitialSettings(),
+                createPuckInitialSettings(gameMode),
                 createBat1InitialSettings(),
                 createBat2InitialSettings(),
                 {

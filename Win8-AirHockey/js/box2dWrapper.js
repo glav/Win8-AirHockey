@@ -16,7 +16,11 @@ window.game.simulator = function () {
      , b2PulleyJointDef = Box2D.Dynamics.Joints.b2PulleyJointDef
     ;
 
-    function box2dWrapper(intervalRate, adaptive, width, height, scale) {
+    function box2dWrapper(intervalRate, adaptive, width, height, scale, gameType) {
+        this.gameMode = window.game.gameType.twoPlayer;
+        if (typeof gameType !== 'undefined') {
+            this.gameMode = gameType;
+        }
         this.intervalRate = parseInt(intervalRate);
         this.adaptive = adaptive;
         this.width = width;
@@ -37,10 +41,18 @@ window.game.simulator = function () {
         var settings = window.game.settings.getCurrent();
 
         this.fixDef = new b2FixtureDef;
-        this.fixDef.density = 1.0;
-        this.fixDef.friction = settings.boardFriction;
-        this.fixDef.restitution = settings.simulatorRestitution / 100;
-        //this.fixDef.restitution = .6;
+        if (this.gameMode === window.game.gameType.singlePlayer) {
+            // For one player game, we setup the friction/restitution to be really fast
+            this.fixDef.density = 1;
+            this.fixDef.friction = 0 + ((settings.singlePlayerDifficulty ^ 3) * 0.30);
+            this.fixDef.restitution = 1 - ((settings.singlePlayerDifficulty ^ 3) * 0.30);
+        } else {
+            // For two player game, we use the settings.
+            this.fixDef.density = 1.0;
+            this.fixDef.friction = settings.boardFriction;
+            this.fixDef.restitution = settings.simulatorRestitution / 100;
+            //this.fixDef.restitution = .6;
+        }
     }
 
 
@@ -60,8 +72,8 @@ window.game.simulator = function () {
         var stepRate = (this.adaptive) ? (now - this.lastTimestamp) / 1000 : (1 / this.intervalRate);
         this.world.Step(
                stepRate   //frame-rate
-            , 20       //velocity iterations
-            , 20       //position iterations
+            , 10       //velocity iterations
+            , 10       //position iterations
          );
         this.world.ClearForces();
         return (Date.now() - start);
