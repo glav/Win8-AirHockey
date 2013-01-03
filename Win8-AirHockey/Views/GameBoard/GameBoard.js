@@ -11,6 +11,12 @@
 
     function startGame(gameType) {
         /** Requires GameWorld.js to be included *****/
+        if (gameType === window.game.gameType.singlePlayer) {
+            var settings = window.game.settings.getCurrent();
+            if (typeof settings.multiPuckEnabled !== 'undefined' && settings.multiPuckEnabled === true) {
+                gameType = window.game.gameType.singlePlayerMultiPuck;
+            }
+        }
         window.game.world.initGameBodies(gameType);  // for Box 2d impulse/gameworld
         window.game.world.initStartGameSequence();
         window.game.world.startAnimationLoop();

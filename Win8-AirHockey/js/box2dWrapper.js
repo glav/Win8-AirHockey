@@ -41,7 +41,7 @@ window.game.simulator = function () {
         var settings = window.game.settings.getCurrent();
 
         this.fixDef = new b2FixtureDef;
-        if (this.gameMode === window.game.gameType.singlePlayer) {
+        if (this.gameMode === window.game.gameType.singlePlayer || this.gameMode === window.game.gameType.singlePlayerMultiPuck) {
             // For one player game, we setup the friction/restitution to be really fast
             this.fixDef.density = 1;
             this.fixDef.friction = 0 + ((settings.singlePlayerDifficulty ^ 3) * 0.30);

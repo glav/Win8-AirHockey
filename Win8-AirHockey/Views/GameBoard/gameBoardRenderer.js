@@ -1,4 +1,6 @@
-﻿window.game.board = function () {
+﻿/// <reference path="../../js/worldConstants.js" />
+
+window.game.board = function () {
     "use strict";
 
     // Setup our common variables
@@ -77,7 +79,7 @@
     function createPuckInitialSettings(gameMode) {
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
-        if (gameMode === window.game.gameType.singlePlayer) {
+        if (gameMode === window.game.gameType.singlePlayer || gameMode === window.game.gameType.singlePlayerMultiPuck) {
             return {
                 id: window.game.worldConstants.PuckId,
                 x: ctx.canvas.width * 0.8 / window.game.worldConstants.Scale,
@@ -148,8 +150,8 @@
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
         
-        if (gameMode === window.game.gameType.singlePlayer) {
-            return [
+        if (gameMode === window.game.gameType.singlePlayer || gameMode === window.game.gameType.singlePlayerMultiPuck) {
+            var entities = [
                 {
                     id: window.game.worldConstants.groundBottomId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
@@ -190,7 +192,6 @@
                     type: entityType.Rectangle,
                     requiresRedraw: false
                 },
-                createPuckInitialSettings(gameMode),
                 createBat1InitialSettings(),
                 {
                     id: window.game.worldConstants.player1Goal,
@@ -209,6 +210,21 @@
                 }
 
             ];
+
+            if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
+                var puck1 = createPuckInitialSettings(gameMode);
+                puck1.y = ctx.canvas.height / 4 / window.game.worldConstants.Scale;
+                var puck2 = createPuckInitialSettings(gameMode);
+
+                puck2.y = ctx.canvas.height / 1.25 / window.game.worldConstants.Scale;
+                puck2.id = window.game.worldConstants.PuckSecondaryId;
+                entities.push(puck1);
+                entities.push(puck2);
+
+            } else {
+                entities.push(createPuckInitialSettings(gameMode));
+            }
+            return entities;
 
         } else {
             return [
