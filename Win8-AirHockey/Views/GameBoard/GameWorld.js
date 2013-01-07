@@ -29,6 +29,7 @@ window.game.world = function () {
         power: 0,
         vX: 0,
         vY: 0,
+        puckIdThatCollided: window.game.worldConstants.PuckId,
         batIdCollidedWith: null,
         clear: function () {
             this.hasCollided = false;
@@ -123,9 +124,9 @@ window.game.world = function () {
 
             debugData.batIdCollidedWith = ballCollisionState.batIdCollidedWith;
             // Give the puck a little extra kick
-            simulator.applyImpulseVector(gameConst.PuckId, { x: ballCollisionState.vX, y: ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
+            simulator.applyImpulseVector(ballCollisionState.puckIdThatCollided, { x: ballCollisionState.vX, y: ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
 
-            var puck = simulator.getBody(gameConst.PuckId);
+            var puck = simulator.getBody(ballCollisionState.puckIdThatCollided);
             puck.SetAngle(0);
             //puck.SetAngularVelocity(0);
 
@@ -135,6 +136,9 @@ window.game.world = function () {
         if (gameProgress.gameState === window.game.gameStateType.Paused
                 || gameProgress.gameState === window.game.gameStateType.Ended) {
             simulator.cancelAllMovement(simulator.getBody(gameConst.PuckId));
+            if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
+                simulator.cancelAllMovement(simulator.getBody(gameConst.PuckSecondaryId));
+            }
             simulator.cancelAllMovement(simulator.getBody(gameConst.Player1Id));
             if (gameMode === window.game.gameType.twoPlayer) {
                 simulator.cancelAllMovement(simulator.getBody(gameConst.Player2Id));
@@ -383,7 +387,7 @@ window.game.world = function () {
 
             var selectedId = selectedBody.GetUserData();
 
-            if (selectedId !== gameConst.PuckId) {
+            if ( !doesIdRepresentAPuck(selectedId)) {
 
                 var entity = world[selectedId];
                 var radius = 0;
@@ -473,18 +477,24 @@ window.game.world = function () {
         }
     }
 
+    function doesIdRepresentAPuck(idToCheck) {
+        if (idToCheck && (idToCheck === window.game.worldConstants.PuckId || idToCheck === window.game.worldConstants.PuckSecondaryId)) {
+            return true;
+        }
+        return false;
+    }
+
     function handlePostSolveCollision(idA, idB, impulse) {
         if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
 
-        if ((doesIdRepresentGoal(idA) || doesIdRepresentGoal(idB)) &&
-               (idA.indexOf(gameConst.PuckId) >= 0 || idB.indexOf(gameConst.PuckId) >= 0)) {
+        if ((doesIdRepresentGoal(idA) || doesIdRepresentGoal(idB)) && (doesIdRepresentAPuck(idA) || doesIdRepresentAPuck(idB))) {
             scoreGoal(idA, idB);
         }
 
-        if ((idA === gameConst.PuckId || idB === gameConst.PuckId) && (doesIdRepresentPlayerBat(idA) || doesIdRepresentPlayerBat(idB))) {
-
+        //if ((idA === gameConst.PuckId || idB === gameConst.PuckId) && (doesIdRepresentPlayerBat(idA) || doesIdRepresentPlayerBat(idB))) {
+        if ((doesIdRepresentAPuck(idA) || doesIdRepresentAPuck(idB)) && (doesIdRepresentPlayerBat(idA) || doesIdRepresentPlayerBat(idB))) {
             var bat, batId;
             if (doesIdRepresentPlayerBat(idA)) {
                 batId = idA;
@@ -501,6 +511,13 @@ window.game.world = function () {
 
             var aggregateYVelocity = 0;
             var aggregateXVelocity = 0;
+
+            var puckIdThatCollided = gameConst.PuckId;
+            if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
+                if (idA === window.game.worldConstants.PuckSecondaryId || idB === window.game.worldConstants.PuckSecondaryId) {
+                    puckIdThatCollided = window.game.worldConstants.PuckSecondaryId;
+                }
+            }
 
             // Only do this special condition if both players are selected as we dont get
             // proper velocity when two pointer events are fired together
@@ -528,8 +545,8 @@ window.game.world = function () {
                 aggregateXVelocity = yVel;
                 aggregateYVelocity = xVel;
             } else {
-                var ballBody = simulator.getBody(gameConst.PuckId);
 
+                var ballBody = simulator.getBody(puckIdThatCollided);
 
                 var centreBallPosition = ballBody.GetWorldCenter();
                 var ballVelocity = ballBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
@@ -550,6 +567,7 @@ window.game.world = function () {
             //batInertia = batInertia > 5000 ? batInertia = 5000 : batInertia;
 
             ballCollisionState.hasCollided = true;
+            ballCollisionState.puckIdThatCollided = puckIdThatCollided;
             ballCollisionState.vX = aggregateXVelocity;
             ballCollisionState.vY = aggregateYVelocity;
 
