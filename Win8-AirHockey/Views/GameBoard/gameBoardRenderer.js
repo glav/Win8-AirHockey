@@ -192,25 +192,7 @@ window.game.board = function () {
                     type: entityType.Rectangle,
                     requiresRedraw: false
                 },
-                createBat1InitialSettings(),
-                {
-                    id: window.game.worldConstants.player1Goal,
-                    x: 1,
-                    y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfHeight: 4.0,
-                    halfWidth: 0.1,
-                    isStatic: true,
-                    density: 1,
-                    color: window.game.worldConstants.GoalColour,
-                    useLeftShadow: false,
-                    useRightShadow: true,
-                    type: entityType.Goal,
-                    visibleHalfHeight: 4.5,
-                    visibleHalfWidth: 0.8
-                }
-
-            ];
-
+                createBat1InitialSettings()];
             if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
                 var puck1 = createPuckInitialSettings(gameMode);
                 puck1.y = ctx.canvas.height / 4 / window.game.worldConstants.Scale;
@@ -224,6 +206,25 @@ window.game.board = function () {
             } else {
                 entities.push(createPuckInitialSettings(gameMode));
             }
+
+            // We ensure we put the goal as the last entity so that it is drawn last and is therefore drawn
+            // over the top of the puck. Sort of a cheapo z-index
+            entities.push({
+                id: window.game.worldConstants.player1Goal,
+                x: 1,
+                y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                halfHeight: 4.0,
+                halfWidth: 0.1,
+                isStatic: true,
+                density: 1,
+                color: window.game.worldConstants.GoalColour,
+                useLeftShadow: false,
+                useRightShadow: true,
+                type: entityType.Goal,
+                visibleHalfHeight: 4.5,
+                visibleHalfWidth: 0.8
+            });
+
             return entities;
 
         } else {
