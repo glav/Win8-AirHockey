@@ -18,9 +18,9 @@
     /*******************************************************/
     var highScores = {
         singlePlayerLocalDurationLasted: [
-            { 'singlePuck': 0, 'multiPuck': 0 },  // level 1
-            { 'singlePuck': 0, 'multiPuck': 0 },  // level 2
-            { 'singlePuck': 0, 'multiPuck': 0 }  // level 3
+            { 'singlePuck': { 'score': 0, 'who': 'Nobody' }, 'multiPuck': { 'score': 0, 'who': 'Nobody' } },  // level 1
+            { 'singlePuck': { 'score': 0, 'who': 'Nobody' }, 'multiPuck': { 'score': 0, 'who': 'Nobody' } },  // level 2
+            { 'singlePuck': { 'score': 0, 'who': 'Nobody' }, 'multiPuck': { 'score': 0, 'who': 'Nobody' } }  // level 3
         ],
         singlePlayerGlobalDurationLasted: []  // for when the scores are stored in the cloud for all players
     };
@@ -58,7 +58,7 @@
         // Now get the score from the score object dependencing on whether multi puck is enabled or not
         var scoreToCompare = currentSettings.multiPuckEnabled === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
 
-        if (singlePlayerLocalDurationLasted > scoreToCompare) {
+        if (singlePlayerDuration > scoreToCompare.score) {
             return true;
         }
         return false;
@@ -82,13 +82,12 @@
             // Grab the score object from the array
             var highScoreEntry = currentScores.singlePlayerLocalDurationLasted[highScoreTableIndex];
             // Now get the score from the score object dependencing on whether multi puck is enabled or not
-            var scoreToCompare = currentSettings.multiPuckEnabled === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
+            
+            var scoreEntry = currentSettings.multiPuckEnabled === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
 
-            if (currentSettings.multiPuckEnabled) {
-                highScoreEntry.multiPuck = scoreToCompare;
-            } else {
-                highScoreEntry.singlePuck = scoreToCompare;
-            }
+            scoreEntry.score = singlePlayerLocalDurationLasted;
+            scoreEntry.who = 'User';
+            
             currentScores.singlePlayerLocalDurationLasted[highScoreTableIndex] = highScoreEntry;
             myStore.values.insert("localScores", JSON.stringify(currentScores));
             //TODO: Here we can update the high scores in the cloud too

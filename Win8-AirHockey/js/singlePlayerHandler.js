@@ -22,6 +22,28 @@ window.game.singlePlayerHandler = function () {
         }
     }
 
+    function getDurationDescription(duration) {
+        var description = '';
+        var intPart;
+        if (duration === 0) {
+            description = "No time recorded";
+        } else if (duration > 0 && duration < 1000) {
+            description = "Less than a second!";
+        } else if (duration < 60000) {
+            intPart = parseInt(duration / 1000, 10);
+            if (intPart === 1) {
+                description = intPart + " second";
+            } else {
+                description = intPart + " seconds";
+            }
+        } else {
+            intPart = parseInt(duration / (1000 * 60), 10);
+            var fraction = (duration - intPart) / 1000;
+            description = intPart + " minutes and " + fraction + " seconds";
+        }
+        return description;
+    }
+    
     // Calculates the duration that the player lasted in the game given the start and end
     // times, and will eventually store these in the high score table if applicable
     function handlePlayerDuration(startTime, endTime) {
@@ -30,25 +52,12 @@ window.game.singlePlayerHandler = function () {
         var result = {
             durationInMilliseconds: duration,
             durationDescription: null
-        }
+        };
 
-        if (duration < 1000) {
-            result.durationDescription = "Less than a second!";
-        } else if (duration < 60000) {
-            var intPart = parseInt(duration / 1000, 10);
-            if (intPart === 1) {
-                result.durationDescription = intPart + " second!";
-            } else {
-                result.durationDescription = intPart + " seconds!";
-            }
-        } else {
-            var intPart = parseInt(duration/(1000 * 60),10);
-            var fraction = (result.durationInSeconds - intPart)/1000;
-            result.durationDescription = intPart + " minutes and " + fraction + " seconds!";
-        }
+        result.durationDescription = getDurationDescription(duration);
         return result;
     }
-
+    
     function initialiseSinglePlayerState(gameProgressState, simulatorEngine) {
         gameProgress = gameProgressState;
         simulator = simulatorEngine;
@@ -58,7 +67,8 @@ window.game.singlePlayerHandler = function () {
 
     return {
         initialiseSinglePlayerState: initialiseSinglePlayerState,
-        handlePlayerDuration: handlePlayerDuration
+        handlePlayerDuration: handlePlayerDuration,
+        getDurationDescription: getDurationDescription
     };
 
 
