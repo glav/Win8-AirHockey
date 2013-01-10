@@ -7,6 +7,7 @@
 window.game.world = function () {
     "use strict";
 
+    var nav = WinJS.Navigation;
     var gameMode = window.game.gameType.twoPlayer;
     var hasBoardBeenInitiallyDrawn = false;  // true once thee board has been drawn at least once
     var world = {};
@@ -290,25 +291,31 @@ window.game.world = function () {
             scores.singlePlayerEndTime = new Date();
             var singlePlayerLastedDuration = window.game.singlePlayerHandler.handlePlayerDuration(scores.singlePlayerStartTime, scores.singlePlayerEndTime);
             message = "Computer scored! You lasted " + singlePlayerLastedDuration.durationDescription;
-            if (singlePlayerLastedDuration.durationInMilliseconds > scores.highScores.singlePlayerLocalDurationLasted || typeof scores.highScores.singlePlayerLocalDurationLasted === 'undefined') {
+            if (window.game.highScoreHandler.isHighScore(singlePlayerLastedDuration.durationInMilliseconds,settings) {
                 message += " New High Score!";
+                scores.highScores = window.game.highScoreHandler.updateHighScores(singlePlayerLastedDuration.durationInMilliseconds, settings);
             }
-            scores.highScores = window.game.highScoreHandler.updateHighScores(singlePlayerLastedDuration.durationInMilliseconds);
             inGameMessage.displayText = message;
+
+            // Show the options to restart the game or end it when in single player mode
+            var buttonContainer = document.getElementById("single-player-play-again");
+            buttonContainer.style.display = "block";
         }
 
         if (debugData.enabled !== true) {
-            setTimeout(function () {
-                inGameMessage.clearMessage();
-                gameProgress.gameState = window.game.gameStateType.InProgress;
-                initStartGameSequence();
-            }, 3500);
+            if (gameMode === window.game.gameType.twoPlayer) {
+                setTimeout(function () {
+                    inGameMessage.clearMessage();
+                    gameProgress.gameState = window.game.gameStateType.InProgress;
+                    initStartGameSequence();
+                }, 3500);
+            }
         } else {
-            // If debug is enabled, just clear the message and keep going
-            setTimeout(function () {
-                gameProgress.gameState = window.game.gameStateType.InProgress;
-                inGameMessage.clearMessage();
-            }, 3500);
+                // If debug is enabled, just clear the message and keep going
+                setTimeout(function () {
+                    gameProgress.gameState = window.game.gameStateType.InProgress;
+                    inGameMessage.clearMessage();
+                }, 3500);
         }
     }
 
@@ -764,6 +771,18 @@ window.game.world = function () {
 
         window.game.entities.setDebugMode(debugData.enabled);
 
+        // Bind our single player yes/no buttons
+        if (gameMode !== window.game.gameType.twoPlayer) {
+            document.getElementById("single-play-yes").addEventListener('click', function () {
+                document.getElementById("single-player-play-again").style.display = "none";
+                initStartGameSequence();
+            }, false);
+            document.getElementById("single-play-no").addEventListener('click', function () {
+                document.getElementById("single-player-play-again").style.display = "none";
+                stopGame();
+                nav.navigate('/Views/TitleScreen/TitleControl.html');
+            }, false);
+        }
 
         gestureHandler.addMovementEventListeners({
             element: canvas,

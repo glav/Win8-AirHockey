@@ -78,6 +78,7 @@
     <Content Include="css\default.css" />
     <Content Include="js\Entity.js" />
     <Content Include="js\gestureHandler.js" />
+    <Content Include="js\licenceManager.js" />
     <Content Include="js\threadWorker.js" />
     <Content Include="js\highScoreHandler.js" />
     <Content Include="js\navigator.js" />
