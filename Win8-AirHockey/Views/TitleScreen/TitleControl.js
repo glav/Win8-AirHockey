@@ -1,4 +1,5 @@
 ﻿/// <reference path="../../js/licenceManager.js" />
+/// <reference path="../../js/jquery-1.7.1-vsdoc.js" />
 /// <reference path="../../js/highScoreHandler.js" />
 
 // For an introduction to the Page Control template, see the following documentation:
@@ -19,11 +20,85 @@
             document.getElementById("licence-indicator").innerText = "No licence/Unpaid (Time Limited)";
         }
     }
-    
+
     function setResetScoresButtonToNormal() {
         var button = document.getElementById("reset-high-scores");
         button.innerText = "Reset High Scores";
         button.style.color = "#7a7eb2";
+        button.style.opacity = 0.6;
+    }
+
+    function bindButtonsHandlers() {
+        document.getElementById("start-button-twoplayer").addEventListener("click", function () {
+            var host = document.getElementById("body");
+            nav.navigate("/Views/GameBoard/GameBoard.html", window.game.gameType.twoPlayer);
+        }, false);
+        document.getElementById("start-button-singleplayer").addEventListener("click", function () {
+            var host = document.getElementById("body");
+            nav.navigate("/Views/GameBoard/GameBoard.html", window.game.gameType.singlePlayer);
+        }, false);
+        document.getElementById("settings-button").addEventListener("click", function () {
+            var host = document.getElementById("body");
+            nav.navigate("/Views/Options/OptionsSettings.html");
+        }, false);
+        document.getElementById("reset-high-scores").addEventListener("click", function () {
+            var button = this;
+            if (resetScoresOptionPressedOnce === true) {
+                // reset high scores
+                if (resetScoreTimer !== null) {
+                    clearTimeout(resetScoreTimer);
+                    resetScoreTimer = null;
+                }
+                window.game.highScoreHandler.resetHighScores();
+                setResetScoresButtonToNormal();
+                resetScoresOptionPressedOnce = false;
+                updateHighScoreTable();
+            } else {
+                // present warning to use
+                button.innerText = "Are you sure?";
+                button.style.color = "red";
+                button.style.opacity = 1;
+                // Give the user 5 seconds to press the button again
+                resetScoreTimer = setTimeout(function () {
+                    resetScoresOptionPressedOnce = false;
+                    setResetScoresButtonToNormal();
+                }, 5000);
+                resetScoresOptionPressedOnce = true;
+            }
+
+        }, false);
+
+    }
+
+    function updateHighScoreTable() {
+        var highScores = window.game.highScoreHandler.getHighScores();
+        var scoreLen = highScores.singlePlayerLocalDurationLasted.length;
+        var table = $("#high-scores");
+        for (var cnt = 0; cnt < scoreLen; cnt++) {
+            var highScoreEntry = highScores.singlePlayerLocalDurationLasted[cnt];
+
+            var trElement = $("tbody tr", table).eq(cnt);
+            $("td", trElement).each(function () {
+                var scoreTime = 0;
+                var scoreWho = '';
+                var td = $(this);
+                if (td.hasClass('multi-puck')) {
+                    scoreTime = window.game.singlePlayerHandler.getDurationDescription(highScoreEntry.multiPuck.score);
+                    scoreWho = highScoreEntry.multiPuck.who;
+                } else {
+                    scoreTime = window.game.singlePlayerHandler.getDurationDescription(highScoreEntry.singlePuck.score);
+                    scoreWho = highScoreEntry.singlePuck.who;
+                }
+                $("span", td).each(function () {
+                    var span = $(this);
+                    if (span.hasClass('time')) {
+                        span.text(scoreTime);
+                    } else {
+                        span.text(scoreWho);
+                    }
+                });
+            });
+        }
     }
 
     WinJS.UI.Pages.define("/Views/TitleScreen/TitleControl.html", {
@@ -31,49 +106,15 @@
         // populates the page elements with the app's data.
         ready: function (element, options) {
             // TODO: Initialize the page here.
-            document.getElementById("start-button-twoplayer").addEventListener("click", function () {
-                var host = document.getElementById("body");
-                nav.navigate("/Views/GameBoard/GameBoard.html",window.game.gameType.twoPlayer);
-            }, false);
-            document.getElementById("start-button-singleplayer").addEventListener("click", function () {
-                var host = document.getElementById("body");
-                nav.navigate("/Views/GameBoard/GameBoard.html",window.game.gameType.singlePlayer);
-            }, false);
-            document.getElementById("settings-button").addEventListener("click", function () {
-                var host = document.getElementById("body");
-                nav.navigate("/Views/Options/OptionsSettings.html");
-            }, false);
-            document.getElementById("reset-high-scores").addEventListener("click", function () {
-                var button = this;
-                if (resetScoresOptionPressedOnce === true) {
-                    // reset high scores
-                    if (resetScoreTimer !== null) {
-                        clearTimeout(resetScoreTimer);
-                        resetScoreTimer = null;
-                    }
-                    window.game.highScoreHandler.resetHighScores();
-                    setResetScoresButtonToNormal();
-                    resetScoresOptionPressedOnce = false;
-                } else {
-                    // present warning to use
-                    button.innerText = "Are you sure?";
-                    button.style.color = "red";
-                    // Give the user 5 seconds to press the button again
-                    resetScoreTimer = setTimeout(function () {
-                        resetScoresOptionPressedOnce = false;
-                        setResetScoresButtonToNormal();
-                    }, 5000);
-                    resetScoresOptionPressedOnce = true;
-                }
 
-            }, false);
-            
             var settings = window.game.settings;
             settings.incrementStartCounter();
 
+            bindButtonsHandlers();
             updateLicenceInformation();
             window.game.licenceManager.setLicenceChangedHandler(updateLicenceInformation);
 
+            updateHighScoreTable();
         },
 
         unload: function () {

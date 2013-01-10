@@ -291,7 +291,7 @@ window.game.world = function () {
             scores.singlePlayerEndTime = new Date();
             var singlePlayerLastedDuration = window.game.singlePlayerHandler.handlePlayerDuration(scores.singlePlayerStartTime, scores.singlePlayerEndTime);
             message = "Computer scored! You lasted " + singlePlayerLastedDuration.durationDescription;
-            if (window.game.highScoreHandler.isHighScore(singlePlayerLastedDuration.durationInMilliseconds,settings) {
+            if (window.game.highScoreHandler.isHighScore(singlePlayerLastedDuration.durationInMilliseconds,settings)) {
                 message += " New High Score!";
                 scores.highScores = window.game.highScoreHandler.updateHighScores(singlePlayerLastedDuration.durationInMilliseconds, settings);
             }

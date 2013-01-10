@@ -78,13 +78,15 @@
     <Content Include="css\default.css" />
     <Content Include="js\Entity.js" />
     <Content Include="js\gestureHandler.js" />
+    <Content Include="js\jquery-1.7.1-vsdoc.js" />
+    <Content Include="js\jquery-1.8.3.min.js" />
     <Content Include="js\licenceManager.js" />
+    <Content Include="js\singlePlayerHandler.js" />
     <Content Include="js\threadWorker.js" />
     <Content Include="js\highScoreHandler.js" />
     <Content Include="js\navigator.js" />
     <Content Include="js\Settings.js" />
     <Content Include="js\worldConstants.js" />
-    <Content Include="Views\GameBoard\singlePlayerHandler.js" />
     <Content Include="Views\GameBoard\DrawingHelper.js" />
     <Content Include="Views\GameBoard\GameBoard.css" />
     <Content Include="Views\GameBoard\GameBoard.html" />
