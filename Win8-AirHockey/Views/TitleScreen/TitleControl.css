@@ -16,10 +16,12 @@ body {
 .title-grid {
     display:-ms-grid;
     -ms-grid-columns: 1fr 1fr 1fr;
-    -ms-grid-rows: 1fr 1fr;
+    -ms-grid-rows: 2em 1fr 3em;
     width:90%;
-    height:300px;
 }
+    /* just for debugging so I can see where the grid is
+        .title-grid div { border: 1px solid grey;}
+    */
     .title-grid div:nth-child(1) {
         -ms-grid-column: 1;
         -ms-grid-row: 1;
@@ -35,6 +37,7 @@ body {
     .title-grid div:nth-child(4) {
         -ms-grid-column: 1;
         -ms-grid-row: 2;
+        -ms-grid-column-span: 3;
     }
     .title-grid div:nth-child(5) {
         -ms-grid-column: 2;
@@ -44,6 +47,65 @@ body {
         -ms-grid-column: 3;
         -ms-grid-row: 2;
     }
+    .title-grid div:nth-child(7) {
+        -ms-grid-column: 1;
+        -ms-grid-row: 3;
+        -ms-grid-column-span: 3;
+    }
+    .title-grid div:nth-child(8) {
+        -ms-grid-column: 2;
+        -ms-grid-row: 3;
+    }
+    .title-grid div:nth-child(9) {
+        -ms-grid-column: 3;
+        -ms-grid-row: 3;
+    }
 
+#licence-section {
+    margin: 2%;
+    font-size: 0.6em;
+}
 
+#high-scores {
+    width: 80%;
+}
 
+#high-scores .label-title {
+    font-size:0.7em;
+    color: #f6893a;
+    font-weight:bold;
+    border-right: 1px solid #d4d2d2;
+}
+
+    #high-scores thead tr th {
+        font-size: 0.7em;
+        font-weight:lighter;
+        text-align:center;
+        color: #f79f60;
+        border-bottom: 1px solid #d4d2d2;
+    }
+
+    #high-scores tbody tr td {
+        font-size: 0.7em;
+        color:#52b048;
+        text-align:center;
+    }
+
+        #high-scores tbody tr td span.time {
+            margin-right: 5px;
+        }
+        #high-scores tbody tr td span.who {
+            margin-left: 5px;
+        }
+
+    #high-scores .label-column {
+        color: #f79f60;
+        border-right: 1px solid #d4d2d2;
+    }
+
+#reset-high-scores {
+    font-size: 0.60em;
+    opacity: 0.6;
+    color: #7a7eb2;
+    height: 40%;
+}

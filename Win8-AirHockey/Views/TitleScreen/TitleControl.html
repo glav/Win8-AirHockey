@@ -13,6 +13,8 @@
 
     <script src="../../js/worldConstants.js"></script>
     <script src="../../js/Settings.js"></script>
+    <script src="../../js/licenceManager.js"></script>
+    <script src="../../js/highScoreHandler.js"></script>
     <script src="TitleControl.js"></script>
 </head>
 <body>
@@ -37,7 +39,51 @@
                 <div>
                     <button id="settings-button" class="start-screen-button settings-button" type="button">Options</button>
                 </div>
+
+                <div>
+                    <table id="high-scores">
+                        <thead>
+                            <tr>
+                                <th class="label-title">High Scores</th><th>Normal Game</th><th>Multi-Puck Game</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="label-column">Level 1</td>
+                                <td><span class="time">1 Second</span>by<span class="who">Glav</span></td>
+                                <td>None</td>
+                            </tr>
+                            <tr>
+                                <td class="label-column">Level 2</td>
+                                <td><span class="time">10 Seconds</span>by<span class="who">Joe</span></td>
+                                <td><span class="time">1minute, 52 Seconds</span>by<span class="who">Glav</span></td>
+                            </tr>
+                            <tr>
+                                <td class="label-column">Level 3</td>
+                                <td><span class="time">10 Seconds</span>by<span class="who">Glav</span></td>
+                                <td><span class="time">4 Seconds</span>by<span class="who">Andrew</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                </div>
+                <div>
+                </div>
+
+                <div>
+                    <section id="licence-section">
+                        <label>Licencing Information:</label>
+                        <span id="licence-indicator">No licence/Unpaid (Time Limited)</span>
+                    </section>
+                </div>
+                <div>
+                </div>
+                <div>
+                    <button id="reset-high-scores" class="small-button">Reset High Scores</button>
+                </div>
             </div>
+
 
 
         </section>

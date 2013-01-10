@@ -1,6 +1,5 @@
 ﻿body {
     background-color:#ffffff;
-    font-size: 1em;
     color:#5a99e6;
     font-family:Verdana, 'Arial Narrow', 'Nimbus Sans L', sans-serif;
     margin: 4%;
@@ -26,11 +25,16 @@
 }
 
 fieldset {
+    font-size: 1em;
     float:left;
     margin-right: 3%;
     width: 44%;
     margin-bottom: 2%;
     padding: .5%;
+}
+
+fieldset legend {
+    font-size: 1em;
 }
 
 
@@ -39,7 +43,7 @@ fieldset {
     -ms-grid-columns: 1fr;
     -ms-grid-rows: 1fr 1fr 1fr 1fr;
     width:95%;
-    height:65%;
+    height:60%;
     padding: .4em;
 }
 
@@ -144,7 +148,7 @@ fieldset {
     background-color: rgb(220, 220, 220);
     background-image: linear-gradient(to bottom, rgb(233, 233, 233) 0%, rgb(196, 196, 196) 100%);
     height: 1.2em;
-    width: 100%;
+    width: 95%;
     margin-right: 4px;
     margin-left: 4px;
     border: 2px solid rgb(220, 220, 220);
@@ -153,11 +157,13 @@ fieldset {
 div.settings-grid div.column span {
     display:block;
     height:.5em;
+    font-size: 1em;
 }
 
 div.settings-grid div.column span.range-label {
     display:inline;
     height:.4em;
+    font-size: 1em;
 }
 
 #option-singlepower-difficulty.slider {
@@ -194,7 +200,7 @@ div.settings-grid input[type=range] {
         color:yellow;
     }
     div.settings-grid div.column span.range-label {
-        font-size:0.8em;
+        font-size:1em;
         vertical-align:text-top;
         margin-left:5px;
     }

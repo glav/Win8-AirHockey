@@ -5,7 +5,7 @@
     <title>GameBoard</title>
 
     <!-- WinJS references -->
-<!--    <link href="//Microsoft.WinJS.1.0/css/ui-dark.css" rel="stylesheet" />-->
+    <link href="//Microsoft.WinJS.1.0/css/ui-light.css" rel="stylesheet" />
     <script src="//Microsoft.WinJS.1.0/js/base.js"></script>
     <script src="//Microsoft.WinJS.1.0/js/ui.js"></script>
 
@@ -36,8 +36,16 @@
                 <canvas id="board" style="z-index: 1;"></canvas>
 
             </div>
+                <div id="single-player-play-again">
+                    <span>Want to play again?</span>
+                    <div>
+                        <button id="single-play-yes">Yes</button>
+                        <button id="single-play-no">No</button>
+                    </div>
+                </div>
 
         </div>
+
         <div id="appbar" data-win-control="WinJS.UI.AppBar">
             <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'homeAppButton', label:'Home', icon:'&#xE10F;'}" type="button"></button>
             <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'restartAppButton', label:'Restart', icon:'&#xE117;'}" type="button"></button>
