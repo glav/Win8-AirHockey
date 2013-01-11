@@ -79,22 +79,36 @@
 
             var trElement = $("tbody tr", table).eq(cnt);
             $("td", trElement).each(function () {
-                var scoreTime = 0;
+                var scoreTimeDesc = '';
+                var scoreTimeVal = 0;
                 var scoreWho = '';
                 var td = $(this);
                 if (td.hasClass('multi-puck')) {
-                    scoreTime = window.game.singlePlayerHandler.getDurationDescription(highScoreEntry.multiPuck.score);
+                    scoreTimeVal = highScoreEntry.multiPuck.score;
+                    scoreTimeDesc = window.game.singlePlayerHandler.getDurationDescription(highScoreEntry.multiPuck.score);
                     scoreWho = highScoreEntry.multiPuck.who;
                 } else {
-                    scoreTime = window.game.singlePlayerHandler.getDurationDescription(highScoreEntry.singlePuck.score);
+                    scoreTimeVal = highScoreEntry.singlePuck.score;
+                    scoreTimeDesc = window.game.singlePlayerHandler.getDurationDescription(highScoreEntry.singlePuck.score);
                     scoreWho = highScoreEntry.singlePuck.who;
                 }
                 $("span", td).each(function () {
                     var span = $(this);
                     if (span.hasClass('time')) {
-                        span.text(scoreTime);
-                    } else {
-                        span.text(scoreWho);
+                        span.text(scoreTimeDesc);
+                    } else if (span.hasClass('who')) {
+                        if (scoreTimeVal === 0) {
+                            span.hide();
+                        } else {
+                            span.text(scoreWho);
+                            span.show();
+                        }
+                    } else if (span.hasClass('separator')) {
+                        if (scoreTimeVal === 0) {
+                            span.hide();
+                        } else {
+                            span.show();
+                        }
                     }
                 });
             });
