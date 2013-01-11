@@ -86,8 +86,8 @@
             var scoreEntry = currentSettings.multiPuckEnabled === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
 
             scoreEntry.score = singlePlayerLocalDurationLasted;
-            scoreEntry.who = 'User';
-            
+            scoreEntry.who = window.game.singlePlayerHandler.playerName;
+
             currentScores.singlePlayerLocalDurationLasted[highScoreTableIndex] = highScoreEntry;
             myStore.values.insert("localScores", JSON.stringify(currentScores));
             //TODO: Here we can update the high scores in the cloud too

@@ -8,7 +8,8 @@ window.game.singlePlayerHandler = function () {
     var gameProgress, simulator;
     var settings;
     var timerPeriod = 3000;  // 3 seconds
-
+    var playerName = 'Player';
+    
     function pulseTimerHandler() {
         if (gameProgress.gameState === window.game.gameStateType.InProgress) {
             var power = Math.random() * (settings.singlePlayerDifficulty * 500) + 500;
@@ -64,11 +65,21 @@ window.game.singlePlayerHandler = function () {
         settings = window.game.settings.getCurrent();
         setTimeout(pulseTimerHandler, timerPeriod);
     }
+    
+    function getPlayerName() {
+        Windows.System.UserProfile.UserInformation.getDisplayNameAsync().done(function (data) {
+            playerName = data;
+        });
 
+    }
+
+    getPlayerName();
+    
     return {
         initialiseSinglePlayerState: initialiseSinglePlayerState,
         handlePlayerDuration: handlePlayerDuration,
-        getDurationDescription: getDurationDescription
+        getDurationDescription: getDurationDescription,
+        playerName: playerName
     };
 
 
