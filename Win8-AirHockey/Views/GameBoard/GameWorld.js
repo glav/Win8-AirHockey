@@ -41,7 +41,7 @@ window.game.world = function () {
     };
 
     var debugData = {
-        enabled: false,
+        enabled: true,
         batXVelocity: 0,
         batYVelocity: 0,
         lastCalculatedPower: 0,
@@ -120,6 +120,12 @@ window.game.world = function () {
         if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
+        // Cancelany rotation and angular velocity as a puck typically does not
+        // exhibit this behaviour
+        if (gameMode === window.game.gameType.twoPlayer) {
+            var puck = simulator.getBody(window.game.worldConstants.PuckId);
+            puck.SetAngularVelocity(0);
+        }
 
         if (ballCollisionState.hasCollided) {
 
@@ -127,13 +133,10 @@ window.game.world = function () {
             // Give the puck a little extra kick
             simulator.applyImpulseVector(ballCollisionState.puckIdThatCollided, { x: ballCollisionState.vX, y: ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
 
-            var puck = simulator.getBody(ballCollisionState.puckIdThatCollided);
-            puck.SetAngle(0);
-            //puck.SetAngularVelocity(0);
-
             //simulator.cancelAllMovement(bat);
             ballCollisionState.clear();
         }
+
         if (gameProgress.gameState === window.game.gameStateType.Paused
                 || gameProgress.gameState === window.game.gameStateType.Ended) {
             simulator.cancelAllMovement(simulator.getBody(gameConst.PuckId));
@@ -291,7 +294,7 @@ window.game.world = function () {
             scores.singlePlayerEndTime = new Date();
             var singlePlayerLastedDuration = window.game.singlePlayerHandler.handlePlayerDuration(scores.singlePlayerStartTime, scores.singlePlayerEndTime);
             message = "Computer scored! You lasted " + singlePlayerLastedDuration.durationDescription;
-            if (window.game.highScoreHandler.isHighScore(singlePlayerLastedDuration.durationInMilliseconds,settings)) {
+            if (window.game.highScoreHandler.isHighScore(singlePlayerLastedDuration.durationInMilliseconds, settings)) {
                 message += " New High Score!";
                 scores.highScores = window.game.highScoreHandler.updateHighScores(singlePlayerLastedDuration.durationInMilliseconds, settings);
             }
@@ -311,11 +314,11 @@ window.game.world = function () {
                 }, 3500);
             }
         } else {
-                // If debug is enabled, just clear the message and keep going
-                setTimeout(function () {
-                    gameProgress.gameState = window.game.gameStateType.InProgress;
-                    inGameMessage.clearMessage();
-                }, 3500);
+            // If debug is enabled, just clear the message and keep going
+            setTimeout(function () {
+                gameProgress.gameState = window.game.gameStateType.InProgress;
+                inGameMessage.clearMessage();
+            }, 3500);
         }
     }
 
@@ -394,7 +397,7 @@ window.game.world = function () {
 
             var selectedId = selectedBody.GetUserData();
 
-            if ( !doesIdRepresentAPuck(selectedId)) {
+            if (!doesIdRepresentAPuck(selectedId)) {
 
                 var entity = world[selectedId];
                 var radius = 0;
@@ -426,10 +429,6 @@ window.game.world = function () {
                     }, 1000 / 60);
                 }
                 selectedBody.SetPosition({ x: mouseX, y: mouseY });
-
-
-
-
 
                 // Not sure if this required.
                 //var entityState = simulator.getState()[selectedId];
@@ -502,6 +501,7 @@ window.game.world = function () {
 
         //if ((idA === gameConst.PuckId || idB === gameConst.PuckId) && (doesIdRepresentPlayerBat(idA) || doesIdRepresentPlayerBat(idB))) {
         if ((doesIdRepresentAPuck(idA) || doesIdRepresentAPuck(idB)) && (doesIdRepresentPlayerBat(idA) || doesIdRepresentPlayerBat(idB))) {
+
             var bat, batId;
             if (doesIdRepresentPlayerBat(idA)) {
                 batId = idA;
@@ -520,24 +520,33 @@ window.game.world = function () {
             var aggregateXVelocity = 0;
 
             var puckIdThatCollided = gameConst.PuckId;
+
             if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
                 if (idA === window.game.worldConstants.PuckSecondaryId || idB === window.game.worldConstants.PuckSecondaryId) {
                     puckIdThatCollided = window.game.worldConstants.PuckSecondaryId;
                 }
             }
 
+            var puckBody = simulator.getBody(puckIdThatCollided);
+            //puckBody.SetAngularVelocity(0);
+
             // Only do this special condition if both players are selected as we dont get
             // proper velocity when two pointer events are fired together
             if (playerMovementState.player1.isSelected && playerMovementState.player2.isSelected) {
 
+                var delta;
+
                 var xLen = playerState.xPosWhileHeld.length;
                 var yLen = playerState.yPosWhileHeld.length;
                 var xVel = 0, yVel = 0;
+                // Figure out the total velocity and difference in velocity changes for the X axis and
+                // the Y axis by going through all items in the array and adding in the delta diff
+                // between each one.
                 for (var xcnt = 0; xcnt < xLen; xcnt++) {
                     if (xcnt === 0) {
                         xVel = playerState.xPosWhileHeld[xcnt];
                     } else {
-                        var delta = playerState.xPosWhileHeld[xcnt] - playerState.xPosWhileHeld[xcnt - 1];
+                        delta = playerState.xPosWhileHeld[xcnt] - playerState.xPosWhileHeld[xcnt - 1];
                         xVel += delta;
                     }
                 }
@@ -545,18 +554,16 @@ window.game.world = function () {
                     if (ycnt === 0) {
                         yVel = playerState.yPosWhileHeld[ycnt];
                     } else {
-                        var delta = playerState.yPosWhileHeld[ycnt] - playerState.xPosWhileHeld[ycnt - 1];
+                        delta = playerState.yPosWhileHeld[ycnt] - playerState.xPosWhileHeld[ycnt - 1];
                         yVel += delta;
                     }
                 }
-                aggregateXVelocity = yVel;
-                aggregateYVelocity = xVel;
+                aggregateXVelocity = xVel;
+                aggregateYVelocity = yVel;
             } else {
 
-                var ballBody = simulator.getBody(puckIdThatCollided);
-
-                var centreBallPosition = ballBody.GetWorldCenter();
-                var ballVelocity = ballBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
+                var centreBallPosition = puckBody.GetWorldCenter();
+                var ballVelocity = puckBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
                 var centreBatPosition = bat.GetWorldCenter();
                 var batVelocity = bat.GetLinearVelocityFromWorldPoint(centreBatPosition);
 
@@ -564,7 +571,6 @@ window.game.world = function () {
                 // out if going opposite dir. Same for Y dir
                 aggregateYVelocity = batVelocity.y + ballVelocity.y;// / 2;
                 aggregateXVelocity = batVelocity.x + ballVelocity.x;// / 2;
-
                 debugData.batXVelocity = batVelocity.x;
                 debugData.batYVelocity = batVelocity.y;
             }
@@ -737,6 +743,7 @@ window.game.world = function () {
         handlePointerInitiatedOrReleased(e, true);
         //handleMouseMove(e);
     }
+
     /***** END MS GESTURE HANDLING ******/
 
     function initGameBodies(gameType) {
