@@ -41,7 +41,7 @@ window.game.world = function () {
     };
 
     var debugData = {
-        enabled: true,
+        enabled: false,
         batXVelocity: 0,
         batYVelocity: 0,
         lastCalculatedPower: 0,
@@ -528,17 +528,14 @@ window.game.world = function () {
             }
 
             var puckBody = simulator.getBody(puckIdThatCollided);
-            //puckBody.SetAngularVelocity(0);
 
             // Only do this special condition if both players are selected as we dont get
             // proper velocity when two pointer events are fired together
             if (playerMovementState.player1.isSelected && playerMovementState.player2.isSelected) {
 
-                var delta;
-
                 var xLen = playerState.xPosWhileHeld.length;
                 var yLen = playerState.yPosWhileHeld.length;
-                var xVel = 0, yVel = 0;
+                var xVel = 0, yVel = 0, delta = 0;
                 // Figure out the total velocity and difference in velocity changes for the X axis and
                 // the Y axis by going through all items in the array and adding in the delta diff
                 // between each one.
@@ -550,6 +547,12 @@ window.game.world = function () {
                         xVel += delta;
                     }
                 }
+                // If the initial position was less than the starting position, then ensure the 
+                // velocity is reversed as we are going in the negative direction
+                if (playerState.xPosWhileHeld[0] > playerState.xPosWhileHeld[xLen-1]) {
+                    xVel *= -1;
+                }
+                
                 for (var ycnt = 0; ycnt < yLen; ycnt++) {
                     if (ycnt === 0) {
                         yVel = playerState.yPosWhileHeld[ycnt];
@@ -558,6 +561,13 @@ window.game.world = function () {
                         yVel += delta;
                     }
                 }
+
+                // If the initial position was less than the starting position, then ensure the 
+                // velocity is reversed as we are going in the negative direction
+                if (playerState.yPosWhileHeld[0] > playerState.yPosWhileHeld[yLen - 1]) {
+                    yVel *= -1;
+                }
+
                 aggregateXVelocity = xVel;
                 aggregateYVelocity = yVel;
             } else {
