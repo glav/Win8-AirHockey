@@ -10,6 +10,12 @@ window.game.board = function () {
     var boardEdgeHalfWidth = 0.5;
     var boardEdgeWidthInPixels = (boardEdgeHalfWidth * 2) * window.game.worldConstants.Scale;
 
+    // The following two ratio settings dictate the size of the bats and the puck
+    // Note: Setting this to window.game.worldConstants.Scale means the puck will have a radius
+    // of 1 (1 metre).
+    var puckRadiusSizeRatio = window.game.worldConstants.Scale * 1.1;
+    var batRadiusSizeRatio = window.game.worldConstants.Scale * 0.85;
+
     var entityType = {
         Generic: 0,
         Player: 1,
@@ -84,7 +90,7 @@ window.game.board = function () {
                 id: window.game.worldConstants.PuckId,
                 x: ctx.canvas.width * 0.8 / window.game.worldConstants.Scale,
                 y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                radius: 1.5,
+                radius: ctx.canvas.width / window.game.worldConstants.Scale / puckRadiusSizeRatio,
                 isStatic: false,
                 density: 1,
                 puckcolor: window.game.worldConstants.BallPuckColour,
@@ -99,13 +105,13 @@ window.game.board = function () {
             id: window.game.worldConstants.PuckId,
             x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
             y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-            radius: 1.5,
+            radius: ctx.canvas.width / window.game.worldConstants.Scale / puckRadiusSizeRatio,
             isStatic: false,
             density: 1,
             puckcolor: window.game.worldConstants.BallPuckColour,
             fixedRotation: true,
             type: entityType.Puck
-        }
+        };
     }
 
     function createBat1InitialSettings() {
@@ -119,7 +125,7 @@ window.game.board = function () {
             halfWidth: 0.9,
             isStatic: false,
             density: 10,
-            radius: 1.9,
+            radius: ctx.canvas.width / window.game.worldConstants.Scale / batRadiusSizeRatio,
             playercolor: window.game.worldConstants.Player1Colour,
             useShadow: true,
             playerName: 'P1',
@@ -138,7 +144,7 @@ window.game.board = function () {
             halfWidth: 0.9,
             isStatic: false,
             density: 10,
-            radius: 1.9,
+            radius: ctx.canvas.width / window.game.worldConstants.Scale / batRadiusSizeRatio,
             playercolor: window.game.worldConstants.Player2Colour,
             useShadow: true,
             playerName: 'P2',
