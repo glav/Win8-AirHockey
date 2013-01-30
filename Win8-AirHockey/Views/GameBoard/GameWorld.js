@@ -24,10 +24,6 @@ window.game.world = function () {
     var settings;
 
     var gameProgress = {
-        scores: {
-            player1: 0,
-            player2: 0
-        },
         gameState: window.game.gameStateType.NotStarted
     };
 
@@ -204,21 +200,21 @@ window.game.world = function () {
             var goalHitId = idA.indexOf("goal") >= 0 ? idA : idB;
             if (goalHitId === gameConst.player1Goal) {
                 message = "Player 2 ";
-                gameProgress.scores.player2 += 1;
+                window.game.stateBag.scores.player2 += 1;
             } else {
                 message = "Player 1 ";
-                gameProgress.scores.player1 += 1;
+                window.game.stateBag.scores.player1 += 1;
             }
 
-            if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || gameProgress.scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+            if (window.game.stateBag.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch || window.game.stateBag.scores.player2 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
                 // end of the match! Someone has won
                 var msg = "Player ";
-                if (gameProgress.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
+                if (window.game.stateBag.scores.player1 >= settings.numberOfGoalsThatSignalsEndOfMatch) {
                     msg += "1";
                 } else {
                     msg += "2";
                 }
-                msg += " wins! Final Score: Player 1: " + gameProgress.scores.player1 + ", Player 2: " + gameProgress.scores.player2;
+                msg += " wins! Final Score: Player 1: " + window.game.stateBag.scores.player1 + ", Player 2: " + window.game.stateBag.scores.player2;
                 window.game.stateBag.inGameMessage.displayText = msg;
                 gameProgress.gameState = window.game.gameStateType.Ended;
                 window.game.newGameDialog.show();
@@ -227,8 +223,8 @@ window.game.world = function () {
                 window.game.stateBag.inGameMessage.displayText = "GOAL! " + message + "scores";
             }
 
-            world[gameConst.Player1Id].setScore(gameProgress.scores.player1);
-            world[gameConst.Player2Id].setScore(gameProgress.scores.player2);
+            world[gameConst.Player1Id].setScore(window.game.stateBag.scores.player1);
+            world[gameConst.Player2Id].setScore(window.game.stateBag.scores.player2);
 
         } else {
             window.game.stateBag.scores.singlePlayerEndTime = new Date();
@@ -705,8 +701,8 @@ window.game.world = function () {
         canvasHeight = ctx.canvas.height;
 
         var initialState = window.game.board.setupAllWorldBodySettings(gameMode);
-        gameProgress.scores.player1 = 0;
-        gameProgress.scores.player2 = 0;
+        window.game.stateBag.scores.player1 = 0;
+        window.game.stateBag.scoresplayer2 = 0;
 
 
         for (var i = 0; i < initialState.length; i++) {
