@@ -3,7 +3,8 @@
 window.game.gameType = {
     singlePlayer: 0,
     twoPlayer: 1,
-    singlePlayerMultiPuck: 2
+    singlePlayerMultiPuck: 2,
+    twoPlayerMultiPuck: 3
 };
 
 window.game.worldConstants = {

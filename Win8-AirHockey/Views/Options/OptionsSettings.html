@@ -54,9 +54,10 @@
                     </div>
 
                     <div class="column">
-                        <span>Game board friction?</span>
-                        <input id="option-board-friction" type="range" class="slider" max="100" min="0" data-update-label="option-board-friction-label" data-win-bind="value: boardFriction" />
-                        <span id="option-board-friction-label" class="range-label" data-win-bind="innerText: boardFriction"></span>
+                         <div id="option-twoplayer-multipuck" data-win-control="WinJS.UI.ToggleSwitch" class="settings"
+                            data-win-options="{title:'Enable Multi-Puck?'}"
+                            data-win-bind="winControl.checked: multiPuckEnabledTwoPlayer">
+                        </div>
                     </div>
                     <div class="column">
                     </div>
@@ -87,7 +88,7 @@
                     <div class="column">
                          <div id="option-singleplayer-multipuck" data-win-control="WinJS.UI.ToggleSwitch" class="settings"
                             data-win-options="{title:'Enable Multi-Puck?'}"
-                            data-win-bind="winControl.checked: multiPuckEnabled">
+                            data-win-bind="winControl.checked: multiPuckEnabledSinglePlayer">
                         </div>
 
                     </div>

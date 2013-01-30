@@ -96,9 +96,9 @@ window.game.board = function () {
                 puckcolor: window.game.worldConstants.BallPuckColour,
                 fixedRotation: true,
                 type: entityType.Puck
-            }
+            };
 
-        }
+        } 
 
         // std two player setup
         return {
@@ -149,19 +149,19 @@ window.game.board = function () {
             useShadow: true,
             playerName: 'P2',
             type: entityType.Player
-        }
+        };
     }
 
     function setupAllWorldBodySettings(gameMode) {
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
-        
+
         if (gameMode === window.game.gameType.singlePlayer || gameMode === window.game.gameType.singlePlayerMultiPuck) {
             var entities = [
                 {
                     id: window.game.worldConstants.groundBottomId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                    y: ctx.canvas.height / window.game.worldConstants.Scale-0.5,
+                    y: ctx.canvas.height / window.game.worldConstants.Scale - 0.5,
                     halfHeight: boardEdgeHalfWidth,
                     halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
                     color: window.game.worldConstants.BoardEdgeColour,
@@ -234,11 +234,11 @@ window.game.board = function () {
             return entities;
 
         } else {
-            return [
+            var entities = [
                 {
                     id: window.game.worldConstants.groundBottomId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                    y: ctx.canvas.height / window.game.worldConstants.Scale-0.5,
+                    y: ctx.canvas.height / window.game.worldConstants.Scale - 0.5,
                     halfHeight: boardEdgeHalfWidth,
                     halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
                     color: window.game.worldConstants.BoardEdgeColour,
@@ -249,7 +249,8 @@ window.game.board = function () {
                 {
                     id: window.game.worldConstants.groundTopId,
                     x: ctx.canvas.width / 2 / window.game.worldConstants.Scale,
-                    y: 0.5, halfHeight: boardEdgeHalfWidth,
+                    y: 0.5,
+                    halfHeight: boardEdgeHalfWidth,
                     halfWidth: ctx.canvas.width / window.game.worldConstants.Scale,
                     color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
@@ -258,9 +259,11 @@ window.game.board = function () {
                 },
                 {
                     id: window.game.worldConstants.groundLeftId,
-                    x: 0.5, y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
+                    x: 0.5,
+                    y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
                     halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfWidth: boardEdgeHalfWidth, color: window.game.worldConstants.BoardEdgeColour,
+                    halfWidth: boardEdgeHalfWidth,
+                    color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
                     type: entityType.Rectangle,
                     requiresRedraw: false
@@ -270,49 +273,65 @@ window.game.board = function () {
                     x: (ctx.canvas.width / window.game.worldConstants.Scale) - 0.5,
                     y: (ctx.canvas.height / 2 / window.game.worldConstants.Scale),
                     halfHeight: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfWidth: boardEdgeHalfWidth, color: window.game.worldConstants.BoardEdgeColour,
+                    halfWidth: boardEdgeHalfWidth,
+                    color: window.game.worldConstants.BoardEdgeColour,
                     isStatic: true,
                     type: entityType.Rectangle,
                     requiresRedraw: false
                 },
-                createPuckInitialSettings(gameMode),
                 createBat1InitialSettings(),
-                createBat2InitialSettings(),
-                {
-                    id: window.game.worldConstants.player1Goal,
-                    x: 1,
-                    y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfHeight: 4.0,
-                    halfWidth: 0.1,
-                    isStatic: true,
-                    density: 1,
-                    color: window.game.worldConstants.GoalColour,
-                    useLeftShadow: false,
-                    useRightShadow: true,
-                    type: entityType.Goal,
-                    visibleHalfHeight: 4.5,
-                    visibleHalfWidth: 0.8
-                },
-                {
-                    id: window.game.worldConstants.player2Goal,
-                    x: ctx.canvas.width / window.game.worldConstants.Scale - 1,
-                    y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
-                    halfHeight: 4.0,
-                    halfWidth: 0.1,
-                    isStatic: true,
-                    density: 1,
-                    color: window.game.worldConstants.GoalColour,
-                    useLeftShadow: true,
-                    useRightShadow: false,
-                    type: entityType.Goal,
-                    visibleHalfHeight: 4.5,
-                    visibleHalfWidth: 0.8
-                }
+                createBat2InitialSettings()];
+            if (gameMode === window.game.gameType.twoPlayerMultiPuck) {
+                var puck1 = createPuckInitialSettings(gameMode);
+                puck1.y = ctx.canvas.height / 4 / window.game.worldConstants.Scale;
+                var puck2 = createPuckInitialSettings(gameMode);
 
-            ];
+                puck2.y = ctx.canvas.height / 1.25 / window.game.worldConstants.Scale;
+                puck2.id = window.game.worldConstants.PuckSecondaryId;
+                entities.push(puck1);
+                entities.push(puck2);
+
+            } else {
+                entities.push(createPuckInitialSettings(gameMode));
+            }
+
+            // We ensure we put the goal as the last entity so that it is drawn last and is therefore drawn
+            // over the top of the puck. Sort of a cheapo z-index
+            entities.push({
+                id: window.game.worldConstants.player1Goal,
+                x: 1,
+                y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                halfHeight: 4.0,
+                halfWidth: 0.1,
+                isStatic: true,
+                density: 1,
+                color: window.game.worldConstants.GoalColour,
+                useLeftShadow: false,
+                useRightShadow: true,
+                type: entityType.Goal,
+                visibleHalfHeight: 4.5,
+                visibleHalfWidth: 0.8
+            });
+            entities.push({
+                id: window.game.worldConstants.player2Goal,
+                x: ctx.canvas.width / window.game.worldConstants.Scale - 1,
+                y: ctx.canvas.height / 2 / window.game.worldConstants.Scale,
+                halfHeight: 4.0,
+                halfWidth: 0.1,
+                isStatic: true,
+                density: 1,
+                color: window.game.worldConstants.GoalColour,
+                useLeftShadow: true,
+                useRightShadow: false,
+                type: entityType.Goal,
+                visibleHalfHeight: 4.5,
+                visibleHalfWidth: 0.8
+            });
         }
 
+        return entities;
     }
+
 
     return {
         entityType: entityType,

@@ -17,6 +17,7 @@
 
     <!--    Game  World-->
     <script src="../../js/worldConstants.js"></script>
+    <script src="window.game.stateBag.js"></script>
     <script src="../../js/Entity.js"></script>
     <script src="../../js/box2dWrapper.js"></script>
     <script src="../../js/Settings.js"></script>
@@ -26,6 +27,7 @@
     <script src="../../js/singlePlayerHandler.js"></script>
     <script src="DrawingHelper.js"></script>
     <script src="positionBoundsManager.js"></script>
+    <script src="window.game.newGameDialog.js"></script>
     <script src="GameWorld.js"></script>
 
 </head>
@@ -36,11 +38,11 @@
                 <canvas id="board" style="z-index: 1;"></canvas>
 
             </div>
-                <div id="single-player-play-again">
+                <div id="option-play-again">
                     <span>Want to play again?</span>
                     <div>
-                        <button id="single-play-yes">Yes</button>
-                        <button id="single-play-no">No</button>
+                        <button id="option-play-yes">Yes</button>
+                        <button id="option-play-no">No</button>
                     </div>
                 </div>
 

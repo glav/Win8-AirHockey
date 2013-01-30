@@ -37,8 +37,9 @@ window.game.positionBoundsManager = function () {
         var p1 = simulator.getBody(gameConst.Player1Id);
         ensureEntityIsWithinBoundsOfPlayingField(p1, screenWidth, screenHeight);
 
-        if (gameMode === window.game.gameType.twoPlayer) {
-            var p2 = simulator.getBody(gameConst.Player2Id);
+        var p2 = null;
+        if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
+            p2 = simulator.getBody(gameConst.Player2Id);
             ensureEntityIsWithinBoundsOfPlayingField(p2, screenWidth, screenHeight);
         }
 
@@ -57,7 +58,7 @@ window.game.positionBoundsManager = function () {
             p1.SetPosition({ x: halfwayLimit, y: p1Pos.y });
         }
 
-        if (gameMode === window.game.gameType.twoPlayer) {
+        if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
             var p2Pos = p2.GetPosition();
             if (p2Pos.x <= halfwayLimit) {
                 p2.SetPosition({ x: halfwayLimit, y: p2Pos.y });
@@ -67,6 +68,6 @@ window.game.positionBoundsManager = function () {
 
     return {
         checkPositionLimits: checkPositionLimits
-    }
+    };
 
 }();
