@@ -36,11 +36,57 @@ window.game.stateBag = function () {
         message: '',
         batIdCollidedWith: null
     };
+    
+    var scores = {
+        player1: 0,
+        player2: 0,
+        singlePlayerStartTime: null,
+        singlePlayerEndTime: null,
+        highScores: null
+    };
+    var countdownState = {
+        started: false,
+        count: 0,
+        timer: null
+    };
+
+    var inGameMessage = {
+        displayText: null,
+        xPos: 0,
+        yPos: 0,
+        incrementValue: 1,
+        clearMessage: function () {
+            this.displayText = null;
+            this.xPos = 0;
+            this.yPos = 0;
+            this.incrementValue = 1;
+        }
+    };
+
+    var playerMovementState = {
+        player1: {
+            isSelected: false,
+            whenSelected: null,
+            xPosWhileHeld: [],
+            yPosWhileHeld: []
+        },
+        player2: {
+            isSelected: false,
+            whenSelected: null,
+            xPosWhileHeld: [],
+            yPosWhileHeld: []
+        }
+    };
+
 
     return {
         ballCollisionState: ballCollisionState,
         canvasUpdateArea: canvasUpdateArea,
-        debugData: debugData
+        debugData: debugData,
+        scores: scores,
+        countdownState: countdownState,
+        inGameMessage: inGameMessage,
+        playerMovementState: playerMovementState
     };
 
 }();
