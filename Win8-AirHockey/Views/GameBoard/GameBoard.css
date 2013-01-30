@@ -43,7 +43,7 @@ div.player {
     left: 45%;
 }
 
-#single-player-play-again {
+#option-play-again {
     height: 80px;
     position:absolute;
     padding: 4px 6px;
@@ -54,10 +54,10 @@ div.player {
     background-color: #e0e7f1;
     box-shadow: #b3c1d1 5px 5px;
 }
-#single-player-play-again div {
+#option-play-again div {
     margin-left:12%;
 }
-#single-player-play-again span {
+#option-play-again span {
     display:block;
     color:#47a327;
     font-weight:bolder;

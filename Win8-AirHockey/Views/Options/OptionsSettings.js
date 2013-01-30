@@ -12,9 +12,11 @@
         settings.numberOfGoalsThatSignalsEndOfMatch = document.getElementById('option-goals-till-endofmatch').value;
         settings.allowPlayersToCrossHalfwayLine = document.getElementById('option-player-allow-halfway').winControl.checked;
         settings.simulatorRestitution = document.getElementById('option-restitution').value;
-        settings.boardFriction = document.getElementById('option-board-friction').value;
+        // DOnt bother allowing user to change friction for now.
+        //settings.boardFriction = document.getElementById('option-board-friction').value;
         settings.singlePlayerDifficulty = document.getElementById('option-singlepower-difficulty').value
-        settings.multiPuckEnabled = document.getElementById('option-singleplayer-multipuck').winControl.checked;
+        settings.multiPuckEnabledSinglePlayer = document.getElementById('option-singleplayer-multipuck').winControl.checked;
+        settings.multiPuckEnabledTwoPlayer = document.getElementById('option-twoplayer-multipuck').winControl.checked;
         window.game.settings.updateCurrent(settings);
     }
 

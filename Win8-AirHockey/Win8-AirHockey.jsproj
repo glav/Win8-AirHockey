@@ -91,6 +91,8 @@
     <Content Include="Views\GameBoard\GameBoard.css" />
     <Content Include="Views\GameBoard\GameBoard.html" />
     <Content Include="Views\GameBoard\GameBoard.js" />
+    <Content Include="Views\GameBoard\window.game.newGameDialog.js" />
+    <Content Include="Views\GameBoard\window.game.stateBag.js" />
     <Content Include="Views\GameBoard\gameBoardRenderer.js" />
     <Content Include="Views\GameBoard\GameWorld.js" />
     <Content Include="Views\GameBoard\positionBoundsManager.js" />

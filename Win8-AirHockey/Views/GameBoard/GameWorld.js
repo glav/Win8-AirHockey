@@ -2,6 +2,8 @@
 /// <reference path="positionBoundsManager.js" />
 /// <reference path="../../js/Settings.js" />
 /// <reference path="../../js/highScoreHandler.js" />
+/// <reference path="window.game.newGameDialog.js" />
+/// <reference path="window.game.stateBag.js" />
 /// <reference path="singlePlayerHandler.js" />
 
 window.game.world = function () {
@@ -15,42 +17,10 @@ window.game.world = function () {
     var simulator = null;
     var canvasWidth, canvasHeight, canvas, ctx;
     var initTimeout = null;
-    var isMouseDown = false;
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
     var mouseX, mouseY;
-    var canvasUpdateArea = {
-        topPos: 0,
-        leftPos: 0,
-        width: 0,
-        height: 0
-    };
-    var ballCollisionState = {
-        hasCollided: false,
-        power: 0,
-        vX: 0,
-        vY: 0,
-        puckIdThatCollided: window.game.worldConstants.PuckId,
-        batIdCollidedWith: null,
-        clear: function () {
-            this.hasCollided = false;
-            this.power = 0;
-            this.vX = 0;
-            this.batIdCollidedWith = null;
-        }
-    };
 
-    var debugData = {
-        enabled: false,
-        batXVelocity: 0,
-        batYVelocity: 0,
-        lastCalculatedPower: 0,
-        lastPowerApplied: 0,
-        lastImpulse: 0,
-        lastEvent: '',
-        message: '',
-        batIdCollidedWith: null
-    };
     var settings;
 
     var gameProgress = {
@@ -126,25 +96,29 @@ window.game.world = function () {
             var puck = simulator.getBody(window.game.worldConstants.PuckId);
             puck.SetAngularVelocity(0);
         }
+        if (gameMode === window.game.gameType.twoPlayerMultiPuck) {
+            var puck2 = simulator.getBody(window.game.worldConstants.PuckSecondaryId);
+            puck2.SetAngularVelocity(0);
+        }
 
-        if (ballCollisionState.hasCollided) {
+        if (window.game.stateBag.ballCollisionState.hasCollided) {
 
-            debugData.batIdCollidedWith = ballCollisionState.batIdCollidedWith;
+            window.game.stateBag.debugData.batIdCollidedWith = window.game.stateBag.ballCollisionState.batIdCollidedWith;
             // Give the puck a little extra kick
-            simulator.applyImpulseVector(ballCollisionState.puckIdThatCollided, { x: ballCollisionState.vX, y: ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
+            simulator.applyImpulseVector(window.game.stateBag.ballCollisionState.puckIdThatCollided, { x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
 
             //simulator.cancelAllMovement(bat);
-            ballCollisionState.clear();
+            window.game.stateBag.ballCollisionState.clear();
         }
 
         if (gameProgress.gameState === window.game.gameStateType.Paused
                 || gameProgress.gameState === window.game.gameStateType.Ended) {
             simulator.cancelAllMovement(simulator.getBody(gameConst.PuckId));
-            if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
+            if (gameMode === window.game.gameType.singlePlayerMultiPuck || gameMode === window.game.gameType.twoPlayerMultiPuck) {
                 simulator.cancelAllMovement(simulator.getBody(gameConst.PuckSecondaryId));
             }
             simulator.cancelAllMovement(simulator.getBody(gameConst.Player1Id));
-            if (gameMode === window.game.gameType.twoPlayer) {
+            if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
                 simulator.cancelAllMovement(simulator.getBody(gameConst.Player2Id));
             }
             simulator.clearForces();
@@ -175,14 +149,16 @@ window.game.world = function () {
             return;
         }
         // Clear the canvas
-        ctx.clearRect(canvasUpdateArea.leftPos, canvasUpdateArea.topPos, canvasUpdateArea.width, canvasUpdateArea.height);
+        //ctx.clearRect(canvasUpdateArea.leftPos, canvasUpdateArea.topPos, canvasUpdateArea.width, canvasUpdateArea.height);
+        ctx.clearRect(window.game.stateBag.canvasUpdateArea.leftPos, window.game.stateBag.canvasUpdateArea.topPos,
+            window.game.stateBag.canvasUpdateArea.width, window.game.stateBag.canvasUpdateArea.height);
 
         // Draw the basic board elements like halfway line and other things that dont interact
         // with the world
         window.game.board.drawBoardMarkings();
 
         // Run through our drawing events
-        window.game.drawHelper.drawCollisionDebugData(ctx, debugData, playerMovementState, ballCollisionState);
+        window.game.drawHelper.drawCollisionDebugData(ctx, window.game.stateBag.debugData, playerMovementState, window.game.stateBag.ballCollisionState);
 
         // This now done within the entity and drawn on the player bats
         //window.game.drawHelper.drawScores(ctx, gameProgress, canvasWidth);
@@ -237,6 +213,9 @@ window.game.world = function () {
                 if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
                     var angle2 = (Math.random() * 90) + 120;
                     simulator.applyImpulse(gameConst.PuckSecondaryId, parseInt(angle2), parseInt(power))
+                } else if (gameMode === window.game.gameType.twoPlayerMultiPuck) {
+                    var angle2 = (Math.random() * 360) + 120;
+                    simulator.applyImpulse(gameConst.PuckSecondaryId, parseInt(angle2), parseInt(power))
                 }
                 gameProgress.gameState = window.game.gameStateType.InProgress;
             }
@@ -255,13 +234,13 @@ window.game.world = function () {
             return;
         }
 
-        if (debugData.enabled !== true) {
+        if (window.game.stateBag.debugData.enabled !== true) {
             gameProgress.gameState = window.game.gameStateType.Paused;
         }
 
         // SO who scored?
         var message;
-        if (gameMode === window.game.gameType.twoPlayer) {
+        if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
             var goalHitId = idA.indexOf("goal") >= 0 ? idA : idB;
             if (goalHitId === gameConst.player1Goal) {
                 message = "Player 2 ";
@@ -282,6 +261,7 @@ window.game.world = function () {
                 msg += " wins! Final Score: Player 1: " + gameProgress.scores.player1 + ", Player 2: " + gameProgress.scores.player2;
                 inGameMessage.displayText = msg;
                 gameProgress.gameState = window.game.gameStateType.Ended;
+                window.game.newGameDialog.show();
             } else {
                 // continue playing....
                 inGameMessage.displayText = "GOAL! " + message + "scores";
@@ -300,13 +280,16 @@ window.game.world = function () {
             }
             inGameMessage.displayText = message;
 
+            window.game.newGameDialog.show();
             // Show the options to restart the game or end it when in single player mode
-            var buttonContainer = document.getElementById("single-player-play-again");
-            buttonContainer.style.display = "block";
+            //var buttonContainer = document.getElementById("option-play-again");
+            //buttonContainer.style.display = "block";
         }
 
-        if (debugData.enabled !== true) {
-            if (gameMode === window.game.gameType.twoPlayer) {
+        if (window.game.stateBag.debugData.enabled !== true) {
+            if (gameProgress.gameState !== window.game.gameStateType.Ended &&
+                    (gameMode === window.game.gameType.twoPlayer
+                        || gameMode === window.game.gameType.twoPlayerMultiPuck)) {
                 setTimeout(function () {
                     inGameMessage.clearMessage();
                     gameProgress.gameState = window.game.gameStateType.InProgress;
@@ -411,7 +394,7 @@ window.game.world = function () {
                     return;
                 }
 
-                debugData.message = "setting body position: x:" + mouseX + ", y:" + mouseY;
+                window.game.stateBag.debugData.message = "setting body position: x:" + mouseX + ", y:" + mouseY;
 
                 // If the user has their touch point held down on the player bat, then we
                 // need to cancel the velocity of the bat otherwise inertia comes into play
@@ -509,7 +492,7 @@ window.game.world = function () {
                 batId = idB;
             }
             bat = simulator.getBody(batId);
-            ballCollisionState.batIdCollidedWith = batId;
+            window.game.stateBag.ballCollisionState.batIdCollidedWith = batId;
 
             var playerState = playerMovementState.player1;
             if (batId === window.game.worldConstants.Player2Id) {
@@ -521,7 +504,7 @@ window.game.world = function () {
 
             var puckIdThatCollided = gameConst.PuckId;
 
-            if (gameMode === window.game.gameType.singlePlayerMultiPuck) {
+            if (gameMode === window.game.gameType.singlePlayerMultiPuck || gameMode === window.game.gameType.twoPlayerMultiPuck) {
                 if (idA === window.game.worldConstants.PuckSecondaryId || idB === window.game.worldConstants.PuckSecondaryId) {
                     puckIdThatCollided = window.game.worldConstants.PuckSecondaryId;
                 }
@@ -581,28 +564,21 @@ window.game.world = function () {
                 // out if going opposite dir. Same for Y dir
                 aggregateYVelocity = batVelocity.y + ballVelocity.y;// / 2;
                 aggregateXVelocity = batVelocity.x + ballVelocity.x;// / 2;
-                debugData.batXVelocity = batVelocity.x;
-                debugData.batYVelocity = batVelocity.y;
+                window.game.stateBag.debugData.batXVelocity = batVelocity.x;
+                window.game.stateBag.debugData.batYVelocity = batVelocity.y;
             }
 
             // put a cap on the intertia
             //var batInertia = bat.GetInertia();
             //batInertia = batInertia > 5000 ? batInertia = 5000 : batInertia;
 
-            ballCollisionState.hasCollided = true;
-            ballCollisionState.puckIdThatCollided = puckIdThatCollided;
-            ballCollisionState.vX = aggregateXVelocity;
-            ballCollisionState.vY = aggregateYVelocity;
+            window.game.stateBag.ballCollisionState.hasCollided = true;
+            window.game.stateBag.ballCollisionState.puckIdThatCollided = puckIdThatCollided;
+            window.game.stateBag.ballCollisionState.vX = aggregateXVelocity;
+            window.game.stateBag.ballCollisionState.vY = aggregateYVelocity;
 
-            //Since we are not using inertia and power for calculations now, commenting out to improve perf
-            // set debug data
-            //ballCollisionState.power = batInertia;
-            //debugData.lastCalculatedPower = batInertia;
-            //if (batInertia !== 0) {
-            //    debugData.lastPowerApplied = batInertia;
-            //}
             if (impulse !== 0) {
-                debugData.lastImpulse = impulse;
+                window.game.stateBag.debugData.lastImpulse = impulse;
             }
 
         }
@@ -625,7 +601,7 @@ window.game.world = function () {
 
         var b1Settings = window.game.board.createBat1InitialSettings();
 
-        if (gameMode == window.game.gameType.singlePlayerMultiPuck) {
+        if (gameMode == window.game.gameType.singlePlayerMultiPuck || gameMode == window.game.gameType.twoPlayerMultiPuck) {
             var ballSettings = window.game.board.createPuckInitialSettings(gameMode);
             var ball = simulator.getBody(gameConst.PuckId);
             ball.SetPosition({ x: ballSettings.x, y: ctx.canvas.height / 4 / window.game.worldConstants.Scale });
@@ -639,7 +615,7 @@ window.game.world = function () {
         // ball.SetPosition({ x: 25, y: ballSettings.y });
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
 
-        if (gameMode === window.game.gameType.twoPlayer) {
+        if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
             var bat2 = simulator.getBody(gameConst.Player2Id);
             var b2Settings = window.game.board.createBat2InitialSettings();
             bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
@@ -652,13 +628,13 @@ window.game.world = function () {
 
         // Pre-calculate the area on the canvas that we need to clear and
         // update frequently to draw upon
-        canvasUpdateArea.leftPos = world[gameConst.groundLeftId].halfWidth * 2 * gameConst.Scale;
-        canvasUpdateArea.topPos = world[gameConst.groundTopId].halfHeight * 2 * gameConst.Scale;
+        window.game.stateBag.canvasUpdateArea.leftPos = world[gameConst.groundLeftId].halfWidth * 2 * gameConst.Scale;
+        window.game.stateBag.canvasUpdateArea.topPos = world[gameConst.groundTopId].halfHeight * 2 * gameConst.Scale;
         var rightBorderWidth = world[gameConst.groundRightId].halfWidth * 2 * gameConst.Scale;
         var bottomBorderHeight = world[gameConst.groundBottomId].halfHeight * 2 * gameConst.Scale;
 
-        canvasUpdateArea.width = canvasWidth - (canvasUpdateArea.leftPos + rightBorderWidth);
-        canvasUpdateArea.height = canvasHeight - (canvasUpdateArea.topPos + bottomBorderHeight);
+        window.game.stateBag.canvasUpdateArea.width = canvasWidth - (window.game.stateBag.canvasUpdateArea.leftPos + rightBorderWidth);
+        window.game.stateBag.canvasUpdateArea.height = canvasHeight - (window.game.stateBag.canvasUpdateArea.topPos + bottomBorderHeight);
 
         startCountDown();
     }
@@ -667,7 +643,7 @@ window.game.world = function () {
     /**************** USING MS GESTURE HANDLING *******************/
 
     function handleMSPointerDownEvent(e) {
-        debugData.lastEvent = 'onMSPointerDown';
+        window.game.stateBag.debugData.lastEvent = 'onMSPointerDown';
         if (e.target === this) {
             //  Attach first contact and track device.
             if (this.gesture.pointerType === null) {
@@ -700,13 +676,13 @@ window.game.world = function () {
         handleMouseMove(e);
     }
     function handleMSPointerUpEvent(e) {
-        debugData.lastEvent = 'onMSPointerUp';
+        window.game.stateBag.debugData.lastEvent = 'onMSPointerUp';
         // We dont need this routine for now. Retaining just in case we need to know when a player is selected
         // held
         handlePointerInitiatedOrReleased(e, true);
     }
     function handleMSPointerMoveEvent(e) {
-        debugData.lastEvent = 'onMSPointerMove';
+        window.game.stateBag.debugData.lastEvent = 'onMSPointerMove';
 
         handlePointerInitiatedOrReleased(e);
         //Important Note: Handling a mouse move in this event is not strictly correct and causes
@@ -720,34 +696,34 @@ window.game.world = function () {
         handleMouseMove(e);
     }
     function handleMSPointerCancelEvent(e) {
-        debugData.lastEvent = 'onMSPointerCancel';
+        window.game.stateBag.debugData.lastEvent = 'onMSPointerCancel';
     }
     function handleMSLostPointerCaptureEvent(e) {
-        debugData.lastEvent = 'onMSLostPointerCapture';
+        window.game.stateBag.debugData.lastEvent = 'onMSLostPointerCapture';
     }
 
     function handleMSGestureChangeEvent(e) {
-        debugData.lastEvent = 'onMSGestureChange';
+        window.game.stateBag.debugData.lastEvent = 'onMSGestureChange';
         handleMouseMove(e);
         handleGestureChangeForPlayerVelocity(e, window.game.gestureType.change);
     }
     function handleMSGestureTapEvent(e) {
-        debugData.lastEvent = 'onMSGestureTap';
+        window.game.stateBag.debugData.lastEvent = 'onMSGestureTap';
     }
     function handleMSGestureEndEvent(e) {
-        debugData.lastEvent = 'onMSGestureEnd';
+        window.game.stateBag.debugData.lastEvent = 'onMSGestureEnd';
         handleGestureChangeForPlayerVelocity(e, window.game.gestureType.end);
     }
     function handleMSGestureHoldEvent(e) {
-        debugData.lastEvent = 'onMSGestureHold';
+        window.game.stateBag.debugData.lastEvent = 'onMSGestureHold';
         handleGestureChangeForPlayerVelocity(e, window.game.gestureType.hold);
     }
     function handleMSGestureStartEvent(e) {
-        debugData.lastEvent = 'onMSGestureStart';
+        window.game.stateBag.debugData.lastEvent = 'onMSGestureStart';
         handleGestureChangeForPlayerVelocity(e, window.game.gestureType.start);
     }
     function handleMSInertiaStartEvent(e) {
-        debugData.lastEvent = 'onMSInertiaStart';
+        window.game.stateBag.debugData.lastEvent = 'onMSInertiaStart';
         // We dont need this routine for now. Retaining just in case we need to know when a player is selected
         // held
         handlePointerInitiatedOrReleased(e, true);
@@ -786,20 +762,28 @@ window.game.world = function () {
         simulator = new window.game.simulator.box2dWrapper(30, false, canvasWidth, canvasHeight, window.game.worldConstants.Scale, gameMode);
         simulator.setBodies(world, true);
 
-        window.game.entities.setDebugMode(debugData.enabled);
+        window.game.entities.setDebugMode(window.game.stateBag.debugData.enabled);
 
+        window.game.newGameDialog.initialise(function () {
+            // User presses yes
+            initStartGameSequence();
+        }, function () {
+            // user presses no
+            stopGame();
+            nav.navigate('/Views/TitleScreen/TitleControl.html');
+        });
         // Bind our single player yes/no buttons
-        if (gameMode !== window.game.gameType.twoPlayer) {
-            document.getElementById("single-play-yes").addEventListener('click', function () {
-                document.getElementById("single-player-play-again").style.display = "none";
-                initStartGameSequence();
-            }, false);
-            document.getElementById("single-play-no").addEventListener('click', function () {
-                document.getElementById("single-player-play-again").style.display = "none";
-                stopGame();
-                nav.navigate('/Views/TitleScreen/TitleControl.html');
-            }, false);
-        }
+        //if (gameMode !== window.game.gameType.twoPlayer && gameMode !== window.game.gameType.twoPlayerMultiPuck) {
+        //    document.getElementById("option-play-yes").addEventListener('click', function () {
+        //        document.getElementById("option-play-again").style.display = "none";
+        //        initStartGameSequence();
+        //    }, false);
+        //    document.getElementById("option-play-no").addEventListener('click', function () {
+        //        document.getElementById("option-play-again").style.display = "none";
+        //        stopGame();
+        //        nav.navigate('/Views/TitleScreen/TitleControl.html');
+        //    }, false);
+        //}
 
         gestureHandler.addMovementEventListeners({
             element: canvas,
@@ -825,7 +809,7 @@ window.game.world = function () {
             EndContact: function (idA, idB) {
             },
             PostSolve: function (idA, idB, impulse) {
-                if (ballCollisionState.hasCollided === true) {
+                if (window.game.stateBag.ballCollisionState.hasCollided === true) {
                     return;
                 }
 

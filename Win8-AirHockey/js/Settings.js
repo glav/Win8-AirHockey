@@ -45,8 +45,9 @@
             simulatorRestitution: 60,  // Note: This value is divided by 100 when applied to simulator restitituion
             boardFriction: 2,
             singlePlayerDifficulty: 2,
-            multiPuckEnabled: false
-        };
+            multiPuckEnabledSinglePlayer: false,
+            multiPuckEnabledTwoPlayer: false
+    };
         return settingsData;
     }
 

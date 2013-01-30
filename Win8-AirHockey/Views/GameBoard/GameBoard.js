@@ -11,10 +11,15 @@
 
     function startGame(gameType) {
         /** Requires GameWorld.js to be included *****/
+        var settings = window.game.settings.getCurrent();
         if (gameType === window.game.gameType.singlePlayer) {
-            var settings = window.game.settings.getCurrent();
-            if (typeof settings.multiPuckEnabled !== 'undefined' && settings.multiPuckEnabled === true) {
+            if (typeof settings.multiPuckEnabledSinglePlayer !== 'undefined' && settings.multiPuckEnabledSinglePlayer === true) {
                 gameType = window.game.gameType.singlePlayerMultiPuck;
+            }
+        }
+        if (gameType === window.game.gameType.twoPlayer) {
+            if (typeof settings.multiPuckEnabledTwoPlayer !== 'undefined' && settings.multiPuckEnabledTwoPlayer === true) {
+                gameType = window.game.gameType.twoPlayerMultiPuck;
             }
         }
         window.game.world.initGameBodies(gameType);  // for Box 2d impulse/gameworld
