@@ -6,41 +6,38 @@ window.game.newGameDialog = function () {
     var _optionYesCallback, _optionNoCallback;
 
     function initialise(optionYesCallback, optionNoCallback) {
-        _buttonContainer = document.getElementById("option-play-again");
+        //_buttonContainer = document.getElementById("option-play-again");
         
         if (typeof optionYesCallback !== 'undefined') {
             _optionYesCallback = optionYesCallback;
-            document.getElementById("option-play-yes").addEventListener('click', handleYesOption, false);
         }
         if (typeof optionNoCallback !== 'undefined') {
-            document.getElementById("option-play-no").addEventListener('click', handleNoOption, false);
             _optionNoCallback = optionNoCallback;
         }
     }
     
-    function handleYesOption() {
-        hide();
-        _optionYesCallback();
+    function show(message, yesCallback, noCallback) {
+        if (typeof yesCallback !== 'undefined') {
+            _optionYesCallback = yesCallback;
+        }
+        if (typeof noCallback !== 'undefined') {
+            _optionNoCallback = noCallback;
+        }
+
+        var displayMessage = "Want to play again?";
+        if (typeof message !== 'undefined' && message !== '') {
+            displayMessage = message + " - " + displayMessage;
+        }
+        var msgPopup = new Windows.UI.Popups.MessageDialog(displayMessage);
+        msgPopup.commands.push(new Windows.UI.Popups.UICommand("Yes",_optionYesCallback));
+        msgPopup.commands.push(new Windows.UI.Popups.UICommand("No",_optionNoCallback));
+        var promise = msgPopup.showAsync();
     }
     
-    function handleNoOption() {
-        hide();
-        _optionNoCallback();
-    }
-    function show() {
-        // Show the options to restart the game or end it when in single player mode
-        _buttonContainer.style.display = "block";
-    }
-    
-    function hide() {
-        // Show the options to restart the game or end it when in single player mode
-        _buttonContainer.style.display = "none";
-    }
 
     return {
         initialise: initialise,
-        show: show,
-        hide:hide
+        show: show
     };
 
 }();
