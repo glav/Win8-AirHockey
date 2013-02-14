@@ -4,8 +4,9 @@ window.game.board = function () {
     "use strict";
 
     // Setup our common variables
-    var screenHeight = window.innerHeight;
-    var screenWidth = window.innerWidth;
+    var screenHeight, screenWidth;
+    
+
 
     var boardEdgeHalfWidth = 0.5;
     var boardEdgeWidthInPixels = (boardEdgeHalfWidth * 2) * window.game.worldConstants.Scale;
@@ -37,6 +38,10 @@ window.game.board = function () {
 
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
+
+        screenHeight = window.innerHeight;
+        screenWidth = window.innerWidth;
+
         boardCanvas.width = screenWidth;
         boardCanvas.height = screenHeight;
         drawBoardMarkings();
@@ -98,7 +103,7 @@ window.game.board = function () {
                 type: entityType.Puck
             };
 
-        } 
+        }
 
         // std two player setup
         return {
