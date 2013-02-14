@@ -21,7 +21,7 @@ window.game.newGameDialog = function () {
             _optionYesCallback = yesCallback;
         }
         if (typeof noCallback !== 'undefined') {
-            _optionNoCallback = noCallback;
+            _optionNoCaloutlback = noCallback;
         }
 
         var displayMessage = "Want to play again?";
