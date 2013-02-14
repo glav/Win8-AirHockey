@@ -215,9 +215,8 @@ window.game.world = function () {
                     msg += "2";
                 }
                 msg += " wins! Final Score: Player 1: " + window.game.stateBag.scores.player1 + ", Player 2: " + window.game.stateBag.scores.player2;
-                window.game.stateBag.inGameMessage.displayText = msg;
                 gameProgress.gameState = window.game.gameStateType.Ended;
-                window.game.newGameDialog.show();
+                window.game.newGameDialog.show(msg);
             } else {
                 // continue playing....
                 window.game.stateBag.inGameMessage.displayText = "GOAL! " + message + "scores";
@@ -234,12 +233,7 @@ window.game.world = function () {
                 message += " New High Score!";
                 window.game.stateBag.scores.highScores = window.game.highScoreHandler.updateHighScores(singlePlayerLastedDuration.durationInMilliseconds, settings);
             }
-            window.game.stateBag.inGameMessage.displayText = message;
-
-            window.game.newGameDialog.show();
-            // Show the options to restart the game or end it when in single player mode
-            //var buttonContainer = document.getElementById("option-play-again");
-            //buttonContainer.style.display = "block";
+            window.game.newGameDialog.show(message);
         }
 
         if (window.game.stateBag.debugData.enabled !== true) {
