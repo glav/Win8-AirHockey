@@ -19,7 +19,6 @@ window.game.world = function () {
     var initTimeout = null;
     var screenHeight = window.innerHeight;
     var screenWidth = window.innerWidth;
-    var mouseX, mouseY;
 
     var settings;
 
@@ -48,14 +47,15 @@ window.game.world = function () {
         }
         // Cancelany rotation and angular velocity as a puck typically does not
         // exhibit this behaviour
-        if (gameMode === window.game.gameType.twoPlayer) {
-            var puck = simulator.getBody(window.game.worldConstants.PuckId);
-            puck.SetAngularVelocity(0);
-        }
-        if (gameMode === window.game.gameType.twoPlayerMultiPuck) {
-            var puck2 = simulator.getBody(window.game.worldConstants.PuckSecondaryId);
-            puck2.SetAngularVelocity(0);
-        }
+
+        //if (gameMode === window.game.gameType.twoPlayer) {
+        //    var puck = simulator.getBody(window.game.worldConstants.PuckId);
+        //    puck.SetAngularVelocity(0);
+        //}
+        //if (gameMode === window.game.gameType.twoPlayerMultiPuck) {
+        //    var puck2 = simulator.getBody(window.game.worldConstants.PuckSecondaryId);
+        //    puck2.SetAngularVelocity(0);
+        //}
 
         if (window.game.stateBag.ballCollisionState.hasCollided) {
 
@@ -96,6 +96,7 @@ window.game.world = function () {
 
         for (var id in bodiesState) {
             var entity = world[id];
+
             if (entity) entity.update(bodiesState[id]);
         }
     }
@@ -106,9 +107,9 @@ window.game.world = function () {
         }
         // Clear the canvas
         //ctx.clearRect(canvasUpdateArea.leftPos, canvasUpdateArea.topPos, canvasUpdateArea.width, canvasUpdateArea.height);
+
         ctx.clearRect(window.game.stateBag.canvasUpdateArea.leftPos, window.game.stateBag.canvasUpdateArea.topPos,
             window.game.stateBag.canvasUpdateArea.width, window.game.stateBag.canvasUpdateArea.height);
-
         // Draw the basic board elements like halfway line and other things that dont interact
         // with the world
         window.game.board.drawBoardMarkings();
@@ -255,15 +256,24 @@ window.game.world = function () {
         }
     }
 
+    function getMouseAndBodyDataFromMouseDownEvent(e) {
+        var xPos = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
+        var yPos = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
+        var selectedBody = simulator.getBodyAt(xPos, yPos);
+        return { body: selectedBody, mouseX: xPos, mouseY: yPos };
+    }
+
     function handlePointerInitiatedOrReleased(e, isReleased) {
         if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
 
-        mouseX = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
-        mouseY = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
+        //mouseX = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
+        //mouseY = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
+        //var selectedBody = simulator.getBodyAt(mouseX, mouseY);
 
-        var selectedBody = simulator.getBodyAt(mouseX, mouseY);
+        var eventData = getMouseAndBodyDataFromMouseDownEvent(e);
+        var selectedBody = eventData.body;
         if (typeof selectedBody !== 'undefined' && selectedBody !== null) {
 
             var selectedId = selectedBody.GetUserData();
@@ -302,8 +312,8 @@ window.game.world = function () {
                         playerState.yPosWhileHeld.shift();
                         newYPosInArray = (maxPositionItems - 1);
                     }
-                    playerState.xPosWhileHeld.push(mouseX);
-                    playerState.yPosWhileHeld.push(mouseY);
+                    playerState.xPosWhileHeld.push(eventData.mouseX);
+                    playerState.yPosWhileHeld.push(eventData.mouseY);
                 } else {
                     playerState.whenSelected = null;
                     playerState.xPosWhileHeld = [];
@@ -321,11 +331,13 @@ window.game.world = function () {
             return;
         }
 
-        var boundingClientRect = canvas.getBoundingClientRect();
-        mouseX = (e.clientX - boundingClientRect.left) / window.game.worldConstants.Scale;
-        mouseY = (e.clientY - boundingClientRect.top) / window.game.worldConstants.Scale;
+        //var boundingClientRect = canvas.getBoundingClientRect();
+        //mouseX = (e.clientX - boundingClientRect.left) / window.game.worldConstants.Scale;
+        //mouseY = (e.clientY - boundingClientRect.top) / window.game.worldConstants.Scale;
+        //var selectedBody = simulator.getBodyAt(mouseX, mouseY);
+        var eventData = getMouseAndBodyDataFromMouseDownEvent(e);
+        var selectedBody = eventData.body;
 
-        var selectedBody = simulator.getBodyAt(mouseX, mouseY);
         if (typeof selectedBody !== 'undefined' && selectedBody !== null) {
 
             var selectedId = selectedBody.GetUserData();
@@ -338,13 +350,13 @@ window.game.world = function () {
                     radius = entity.radius;
                 }
 
-                if (mouseX <= radius || mouseY <= radius
-                        || mouseY >= ((screenHeight / gameConst.Scale) - radius)
-                        || mouseX >= ((screenWidth / gameConst.Scale) - radius)) {
+                if (eventData.mouseX <= radius || eventData.mouseY <= radius
+                        || eventData.mouseY >= ((screenHeight / gameConst.Scale) - radius)
+                        || eventData.mouseX >= ((screenWidth / gameConst.Scale) - radius)) {
                     return;
                 }
 
-                window.game.stateBag.debugData.message = "setting body position: x:" + mouseX + ", y:" + mouseY;
+                window.game.stateBag.debugData.message = "setting body position: x:" + eventData.mouseX + ", y:" + eventData.mouseY;
 
                 // If the user has their touch point held down on the player bat, then we
                 // need to cancel the velocity of the bat otherwise inertia comes into play
@@ -361,7 +373,7 @@ window.game.world = function () {
                         selectedBody.SetAngularVelocity(0);
                     }, 1000 / 60);
                 }
-                selectedBody.SetPosition({ x: mouseX, y: mouseY });
+                selectedBody.SetPosition({ x: eventData.mouseX, y: eventData.mouseY });
 
                 // Not sure if this required.
                 //var entityState = simulator.getState()[selectedId];
@@ -389,10 +401,12 @@ window.game.world = function () {
             return;
         }
 
-        mouseX = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
-        mouseY = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
+        var eventData = getMouseAndBodyDataFromMouseDownEvent(e);
+        //mouseX = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
+        //mouseY = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
+        //var selectedBody = simulator.getBodyAt(mouseX, mouseY);
+        var selectedBody = eventData.body;
 
-        var selectedBody = simulator.getBodyAt(mouseX, mouseY);
         if (typeof selectedBody !== 'undefined' && selectedBody !== null) {
 
             var selectedId = selectedBody.GetUserData();
@@ -482,10 +496,10 @@ window.game.world = function () {
                 }
                 // If the initial position was less than the starting position, then ensure the 
                 // velocity is reversed as we are going in the negative direction
-                if (playerState.xPosWhileHeld[0] > playerState.xPosWhileHeld[xLen-1]) {
+                if (playerState.xPosWhileHeld[0] > playerState.xPosWhileHeld[xLen - 1]) {
                     xVel *= -1;
                 }
-                
+
                 for (var ycnt = 0; ycnt < yLen; ycnt++) {
                     if (ycnt === 0) {
                         yVel = playerState.yPosWhileHeld[ycnt];
@@ -593,6 +607,8 @@ window.game.world = function () {
     /**************** USING MS GESTURE HANDLING *******************/
 
     function handleMSPointerDownEvent(e) {
+
+
         window.game.stateBag.debugData.lastEvent = 'onMSPointerDown';
         if (e.target === this) {
             //  Attach first contact and track device.
