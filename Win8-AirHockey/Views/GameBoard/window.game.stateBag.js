@@ -26,7 +26,7 @@ window.game.stateBag = function () {
     };
 
     var debugData = {
-        enabled: false,
+        enabled: true,
         batXVelocity: 0,
         batYVelocity: 0,
         lastCalculatedPower: 0,
@@ -75,7 +75,36 @@ window.game.stateBag = function () {
             whenSelected: null,
             xPosWhileHeld: [],
             yPosWhileHeld: []
+        },
+        movementCheckTimer: null,
+
+        // Items to manage player movement state
+        _maxPositionItems: 5,
+        clearPlayerState: function (isPlayer1) {
+            var playerState = isPlayer1 && isPlayer1 === true ? this.player1 : this.player2;
+            playerState.whenSelected = null;
+            playerState.xPosWhileHeld = [];
+            playerState.yPosWhileHeld = [];
+        },
+        pushMovementStateForPlayer: function (isPlayer1, xPos, yPos) {
+            var playerState = isPlayer1 && isPlayer1 === true ? this.player1 :this.player2;
+            if (playerState.xPosWhileHeld.length === 0) {
+                playerState.whenSelected = new Date().getTime();
+            }
+            var newXPosInArray = playerState.xPosWhileHeld.length;
+            if (newXPosInArray > (this._maxPositionItems - 1)) {
+                playerState.xPosWhileHeld.shift();
+                newXPosInArray = (this._maxPositionItems - 1);
+            }
+            var newYPosInArray = playerState.yPosWhileHeld.length;
+            if (newYPosInArray > (this._maxPositionItems - 1)) {
+                playerState.yPosWhileHeld.shift();
+                newYPosInArray = (this._maxPositionItems - 1);
+            }
+            playerState.xPosWhileHeld.push(xPos);
+            playerState.yPosWhileHeld.push(yPos);
         }
+
     };
 
 
