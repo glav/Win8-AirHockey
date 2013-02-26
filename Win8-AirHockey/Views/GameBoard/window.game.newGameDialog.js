@@ -30,8 +30,10 @@ window.game.newGameDialog = function () {
         }
         var msgPopup = new Windows.UI.Popups.MessageDialog(displayMessage);
         msgPopup.commands.push(new Windows.UI.Popups.UICommand("Yes",_optionYesCallback));
-        msgPopup.commands.push(new Windows.UI.Popups.UICommand("No",_optionNoCallback));
-        var promise = msgPopup.showAsync();
+        msgPopup.commands.push(new Windows.UI.Popups.UICommand("No", _optionNoCallback));
+        try {
+            var promise = msgPopup.showAsync();
+        } catch {}
     }
     
 

@@ -268,10 +268,6 @@ window.game.world = function () {
             return;
         }
 
-        //mouseX = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
-        //mouseY = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
-        //var selectedBody = simulator.getBodyAt(mouseX, mouseY);
-
         var eventData = getMouseAndBodyDataFromMouseDownEvent(e);
         var selectedBody = eventData.body;
         if (typeof selectedBody !== 'undefined' && selectedBody !== null) {
@@ -281,15 +277,16 @@ window.game.world = function () {
             // Set player movement state if required
             if (doesIdRepresentPlayerBat(selectedId)) {
                 var playerState = window.game.stateBag.playerMovementState.player1;
+                var isPlayer1 = true;
                 if (selectedId === gameConst.Player2Id) {
+                    isPlayer1 = false;
                     playerState = window.game.stateBag.playerMovementState.player2;
                 }
 
                 var newstate = isReleased === true ? false : true;
                 if (playerState.isSelected !== newstate) {
-                    playerState.whenSelected = null;
-                    playerState.xPosWhileHeld = [];
-                    playerState.yPosWhileHeld = [];
+
+                    window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
                 }
 
                 playerState.isSelected = newstate;
@@ -297,27 +294,9 @@ window.game.world = function () {
                 // If the player is selected, then begin recording its x and y positions
                 // while it is being held down
                 if (playerState.isSelected) {
-                    var maxPositionItems = 5;
-
-                    if (playerState.xPosWhileHeld.length === 0) {
-                        playerState.whenSelected = new Date().getTime();
-                    }
-                    var newXPosInArray = playerState.xPosWhileHeld.length;
-                    if (newXPosInArray > (maxPositionItems - 1)) {
-                        playerState.xPosWhileHeld.shift();
-                        newXPosInArray = (maxPositionItems - 1);
-                    }
-                    var newYPosInArray = playerState.yPosWhileHeld.length;
-                    if (newYPosInArray > (maxPositionItems - 1)) {
-                        playerState.yPosWhileHeld.shift();
-                        newYPosInArray = (maxPositionItems - 1);
-                    }
-                    playerState.xPosWhileHeld.push(eventData.mouseX);
-                    playerState.yPosWhileHeld.push(eventData.mouseY);
+                    window.game.stateBag.playerMovementState.pushMovementStateForPlayer(isPlayer1, eventData.mouseX, eventData.mouseY);
                 } else {
-                    playerState.whenSelected = null;
-                    playerState.xPosWhileHeld = [];
-                    playerState.yPosWhileHeld = [];
+                    window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
                 }
 
             }
@@ -331,10 +310,6 @@ window.game.world = function () {
             return;
         }
 
-        //var boundingClientRect = canvas.getBoundingClientRect();
-        //mouseX = (e.clientX - boundingClientRect.left) / window.game.worldConstants.Scale;
-        //mouseY = (e.clientY - boundingClientRect.top) / window.game.worldConstants.Scale;
-        //var selectedBody = simulator.getBodyAt(mouseX, mouseY);
         var eventData = getMouseAndBodyDataFromMouseDownEvent(e);
         var selectedBody = eventData.body;
 
@@ -402,9 +377,6 @@ window.game.world = function () {
         }
 
         var eventData = getMouseAndBodyDataFromMouseDownEvent(e);
-        //mouseX = (e.clientX - canvas.getBoundingClientRect().left) / window.game.worldConstants.Scale;
-        //mouseY = (e.clientY - canvas.getBoundingClientRect().top) / window.game.worldConstants.Scale;
-        //var selectedBody = simulator.getBodyAt(mouseX, mouseY);
         var selectedBody = eventData.body;
 
         if (typeof selectedBody !== 'undefined' && selectedBody !== null) {
@@ -478,14 +450,18 @@ window.game.world = function () {
 
             // Only do this special condition if both players are selected as we dont get
             // proper velocity when two pointer events are fired together
-            if (window.game.stateBag.playerMovementState.player1.isSelected && window.game.stateBag.playerMovementState.player2.isSelected) {
+            // If we dont do this, when the bat hits the puck, there is not much velocity or bounce generated
+            //if (window.game.stateBag.playerMovementState.player1.isSelected && window.game.stateBag.playerMovementState.player2.isSelected) {
 
-                var xLen = playerState.xPosWhileHeld.length;
+              // do it for 2 player since we removed the gesture handling in 2 player
+             if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
+                 var xLen = playerState.xPosWhileHeld.length;
                 var yLen = playerState.yPosWhileHeld.length;
                 var xVel = 0, yVel = 0, delta = 0;
                 // Figure out the total velocity and difference in velocity changes for the X axis and
                 // the Y axis by going through all items in the array and adding in the delta diff
-                // between each one.
+                 // between each one.
+
                 for (var xcnt = 0; xcnt < xLen; xcnt++) {
                     if (xcnt === 0) {
                         xVel = playerState.xPosWhileHeld[xcnt];
@@ -504,7 +480,7 @@ window.game.world = function () {
                     if (ycnt === 0) {
                         yVel = playerState.yPosWhileHeld[ycnt];
                     } else {
-                        delta = playerState.yPosWhileHeld[ycnt] - playerState.xPosWhileHeld[ycnt - 1];
+                        delta = playerState.yPosWhileHeld[ycnt] - playerState.yPosWhileHeld[ycnt - 1];
                         yVel += delta;
                     }
                 }
@@ -583,6 +559,9 @@ window.game.world = function () {
             var bat2 = simulator.getBody(gameConst.Player2Id);
             var b2Settings = window.game.board.createBat2InitialSettings();
             bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
+            // Setup timer that will check whether a player (in 2 player mode) is moving or stationary
+            // even if both players have their finger down on the bat
+            window.game.stateBag.playerMovementState.movementCheckTimer = setInterval(checkTwoPlayerMovementState, 1 / 15);
         } else {
             window.game.singlePlayerHandler.initialiseSinglePlayerState(gameProgress, simulator);
         }
@@ -603,6 +582,41 @@ window.game.world = function () {
         startCountDown();
     }
 
+    // This function is intended to clear the player movement array if a user has selected a bat with their
+    //finger but is stationary. This will prevent the values that exist in the player movement array
+    // from coming into effect when calculating velocity as these values will be old from when
+    // they were moving and the values being stored within the mouse move event. Since no movement is
+    // occuring and the player has not released their finger from the bat, no event is fired so we
+    // need to periodically check and clear our velocity and movement values if this is the case.
+    // Note:This only applies in 2 player mode
+    function checkTwoPlayerMovementState() {
+        var player1State = window.game.stateBag.playerMovementState.player1;
+        var player2State = window.game.stateBag.playerMovementState.player2;
+
+        if (!player1State.isSelected && !player2State.isSelected) {
+            // If neither player is selected, then dont bother 
+            // as the events being captured will take care of this
+            return;
+        }
+
+        // If the player is selected, then begin recording its x and y positions
+        // while it is being held down
+        if (player1State.isSelected) {
+            var p1BodyPosition = simulator.getBody(window.game.worldConstants.Player1Id).GetPosition();
+            window.game.stateBag.playerMovementState.pushMovementStateForPlayer(true, p1BodyPosition.x, p1BodyPosition.y);
+        } else {
+            window.game.stateBag.playerMovementState.clearPlayerState(true);
+        }
+
+        if (player2State.isSelected) {
+            var p2BodyPosition = simulator.getBody(window.game.worldConstants.Player2Id).GetPosition();
+            window.game.stateBag.playerMovementState.pushMovementStateForPlayer(false, p2BodyPosition.x, p2BodyPosition.y);
+        } else {
+            window.game.stateBag.playerMovementState.clearPlayerState(false);
+        }
+
+    }
+
 
     /**************** USING MS GESTURE HANDLING *******************/
 
@@ -610,28 +624,34 @@ window.game.world = function () {
 
 
         window.game.stateBag.debugData.lastEvent = 'onMSPointerDown';
-        if (e.target === this) {
-            //  Attach first contact and track device.
-            if (this.gesture.pointerType === null) {
-                this.gesture.addPointer(e.pointerId);
-                this.gesture.pointerType = e.pointerType;
-            }
-                // Attach subsequent contacts from same device.
-            else if (e.pointerType === this.gesture.pointerType) {
-                this.gesture.addPointer(e.pointerId);
-            }
+        if (gameMode === window.game.gameType.singlePlayerMultiPuck || gameMode === window.game.gameType.singlePlayer) {
+            if (e.target === this) {
+                //  Attach first contact and track device.
+                if (this.gesture.pointerType === null) {
+                    console.log("this.gesture.pointerType = " + this.gesture.pointerType);
 
-                //GLAV NOTE: The section below is included with the sample but seems to lose
-                // the gesture events sometimes when u swipe and then swipe mid way through
-                // translation
+                    this.gesture.addPointer(e.pointerId);
+                    this.gesture.pointerType = e.pointerType;
+                }
+                    // Attach subsequent contacts from same device.
+                else if (e.pointerType === this.gesture.pointerType) {
+                    console.log("this.gesture.pointerType = e.pointerType");
+                    this.gesture.addPointer(e.pointerId);
+                }
 
-                // New gesture recognizer for new pointer type.
-            else {
-                var msGesture = new MSGesture();
-                msGesture.target = e.target;
-                e.target.gesture = msGesture;
-                e.target.gesture.pointerType = e.pointerType;
-                e.target.gesture.addPointer(e.pointerId);
+                    //GLAV NOTE: The section below is included with the sample but seems to lose
+                    // the gesture events sometimes when u swipe and then swipe mid way through
+                    // translation
+
+                    // New gesture recognizer for new pointer type.
+                else {
+                    console.log("this.gesture.pointerType = NEITHER");
+                    var msGesture = new MSGesture();
+                    msGesture.target = e.target;
+                    e.target.gesture = msGesture;
+                    e.target.gesture.pointerType = e.pointerType;
+                    e.target.gesture.addPointer(e.pointerId);
+                }
             }
         }
 
@@ -738,18 +758,6 @@ window.game.world = function () {
             stopGame();
             nav.navigate('/Views/TitleScreen/TitleControl.html');
         });
-        // Bind our single player yes/no buttons
-        //if (gameMode !== window.game.gameType.twoPlayer && gameMode !== window.game.gameType.twoPlayerMultiPuck) {
-        //    document.getElementById("option-play-yes").addEventListener('click', function () {
-        //        document.getElementById("option-play-again").style.display = "none";
-        //        initStartGameSequence();
-        //    }, false);
-        //    document.getElementById("option-play-no").addEventListener('click', function () {
-        //        document.getElementById("option-play-again").style.display = "none";
-        //        stopGame();
-        //        nav.navigate('/Views/TitleScreen/TitleControl.html');
-        //    }, false);
-        //}
 
         gestureHandler.addMovementEventListeners({
             element: canvas,
@@ -818,6 +826,8 @@ window.game.world = function () {
         canvas = null;
         ctx = null;
         initTimeout = null;
+        clearInterval(window.game.stateBag.playerMovementState.movementCheckTimer);
+        window.game.stateBag.playerMovementState.movementCheckTimer = null;
     }
 
     // returns the interface to the consumers
