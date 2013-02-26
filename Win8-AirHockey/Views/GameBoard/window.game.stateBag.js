@@ -79,7 +79,7 @@ window.game.stateBag = function () {
         movementCheckTimer: null,
 
         // Items to manage player movement state
-        _maxPositionItems: 5,
+        _maxPositionItems: 10,
         clearPlayerState: function (isPlayer1) {
             var playerState = isPlayer1 && isPlayer1 === true ? this.player1 : this.player2;
             playerState.whenSelected = null;

@@ -33,7 +33,9 @@ window.game.newGameDialog = function () {
         msgPopup.commands.push(new Windows.UI.Popups.UICommand("No", _optionNoCallback));
         try {
             var promise = msgPopup.showAsync();
-        } catch {}
+        } catch (e) {
+
+        }
     }
     
 
