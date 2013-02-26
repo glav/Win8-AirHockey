@@ -114,7 +114,7 @@ fieldset legend {
     font-weight:normal;
 }
 .settings.win-toggleswitch.win-off, .settings.win-toggleswitch.win-on {
-    margin:0;
+    margin:0px;
     padding:0;
 }
 .settings.win-toggleswitch .win-switch::-ms-fill-lower
@@ -127,7 +127,6 @@ fieldset legend {
 }
 .settings.win-toggleswitch .win-switch::-ms-track
 {
-    width: auto;
     height: 14px;
     border-color: rgb(100, 100, 100);
     background-image: linear-gradient(to bottom, rgb(44, 44, 44) 0%, rgb(99, 99, 99) 100%);
@@ -140,6 +139,7 @@ fieldset legend {
 .settings.win-toggleswitch .win-switch
 {
     margin-left:0px;
+    margin-right: 0px;
     height:1.1em;
 }
 
@@ -148,7 +148,6 @@ fieldset legend {
     background-color: rgb(220, 220, 220);
     background-image: linear-gradient(to bottom, rgb(233, 233, 233) 0%, rgb(196, 196, 196) 100%);
     height: 1.2em;
-    width: 95%;
     margin-right: 4px;
     margin-left: 4px;
     border: 2px solid rgb(220, 220, 220);
