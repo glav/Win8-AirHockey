@@ -493,6 +493,8 @@ window.game.world = function () {
 
                 aggregateXVelocity = xVel;
                 aggregateYVelocity = yVel;
+                window.game.stateBag.debugData.batXVelocity = xVel;
+                window.game.stateBag.debugData.batYVelocity = yVel;
             } else {
 
                 var centreBallPosition = puckBody.GetWorldCenter();
