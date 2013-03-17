@@ -1,4 +1,5 @@
-﻿window.game = {};  // setup our container namespace
+﻿window.game = window.game || {};  // setup our container namespace
+window.game.ui = window.game.ui || {};
 
 window.game.gameType = {
     singlePlayer: 0,

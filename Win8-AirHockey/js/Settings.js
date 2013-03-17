@@ -1,4 +1,4 @@
-﻿window.game.settings = function() {
+﻿window.game.settings = function () {
 
     function getCurrent() {
         var myStore = Windows.Storage.ApplicationData.current.localSettings.createContainer("AppSettings", Windows.Storage.ApplicationDataCreateDisposition.always);
@@ -17,8 +17,7 @@
         // validate that it is a proper settings object
         if (!currentSettings
                 || typeof currentSettings === 'undefined'
-                || typeof currentSettings.numberTimesAppStarted === 'undefined')
-        {
+                || typeof currentSettings.numberTimesAppStarted === 'undefined') {
             throw new Exception("Error in settings");
         }
 
@@ -31,9 +30,28 @@
         this.updateCurrent(currentSettings);
     }
 
-    function resetToDefault() {
+    function resetAllToDefault() {
         var defaultOptions = _newSettings();
         updateCurrent(defaultOptions);
+    }
+
+    function resetSinglePlayerToDefault() {
+        var current = getCurrent();
+        var defaultOptions = _newSettings();
+        current.singlePlayerDifficulty = defaultOptions.singlePlayerDifficulty;
+        current.multiPuckEnabledSinglePlayer = defaultOptions.multiPuckEnabledSinglePlayer;
+        updateCurrent(current);
+    }
+    function resetTwoPlayerToDefault() {
+        var current = getCurrent();
+        var defaultOptions = _newSettings();
+        current.powerToApplyOnPuckCollision = defaultOptions.powerToApplyOnPuckCollision;
+        current.allowPlayersToCrossHalfwayLine = defaultOptions.allowPlayersToCrossHalfwayLine;
+        current.numberOfGoalsThatSignalsEndOfMatch = defaultOptions.numberOfGoalsThatSignalsEndOfMatch;
+        current.simulatorRestitution = defaultOptions.simulatorRestitution;
+        current.multiPuckEnabledTwoPlayer = defaultOptions.multiPuckEnabledTwoPlayer;
+        current.boardFriction = defaultOptions.boardFriction;
+        updateCurrent(current);
     }
 
     function _newSettings() {
@@ -47,14 +65,40 @@
             singlePlayerDifficulty: 2,
             multiPuckEnabledSinglePlayer: false,
             multiPuckEnabledTwoPlayer: false
-    };
+        };
         return settingsData;
+    }
+
+    function getDifficultyLevelDescription(level) {
+        var description = "Medium";
+        var intLevel = parseInt(level, 10);
+        if (isNaN(intLevel)) {
+            intLevel = 2;
+        }
+        if (typeof level !== 'undefined') {
+            switch (intLevel) {
+                case 1:
+                    description = "Easy";
+                    break;
+                case 2:
+                    description = "Medium";
+                    break;
+                case 3:
+                    description = "Hard";
+                    break;
+            }
+        }
+
+        return description;
     }
 
     return {
         getCurrent: getCurrent,
         updateCurrent: updateCurrent,
         incrementStartCounter: incrementStartCounter,
-        resetToDefault: resetToDefault
+        resetAllToDefault: resetAllToDefault,
+        getDifficultyLevelDescription: getDifficultyLevelDescription,
+        resetSinglePlayerToDefault: resetSinglePlayerToDefault,
+        resetTwoPlayerToDefault: resetTwoPlayerToDefault
     };
 }();

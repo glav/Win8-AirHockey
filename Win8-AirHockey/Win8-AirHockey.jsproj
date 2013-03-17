@@ -86,6 +86,7 @@
     <Content Include="js\highScoreHandler.js" />
     <Content Include="js\navigator.js" />
     <Content Include="js\Settings.js" />
+    <Content Include="js\window.game.options.js" />
     <Content Include="js\worldConstants.js" />
     <Content Include="Views\GameBoard\DrawingHelper.js" />
     <Content Include="Views\GameBoard\GameBoard.css" />
@@ -97,8 +98,12 @@
     <Content Include="Views\GameBoard\GameWorld.js" />
     <Content Include="Views\GameBoard\positionBoundsManager.js" />
     <Content Include="Views\Options\OptionsSettings.css" />
-    <Content Include="Views\Options\OptionsSettings.html" />
-    <Content Include="Views\Options\OptionsSettings.js" />
+    <Content Include="Views\Options\GameOptions.css" />
+    <Content Include="Views\Options\SinglePlayerOptions.html" />
+    <Content Include="Views\Options\SinglePlayerOptions.js" />
+    <Content Include="Views\Options\TwoPlayerOptions.html" />
+    <Content Include="Views\Options\TwoPlayerOptions.js" />
+    <Content Include="Views\Options\window.game.ui.settings.js" />
     <Content Include="Views\TitleScreen\TitleControl.css" />
     <Content Include="Views\TitleScreen\TitleControl.html" />
     <Content Include="Views\TitleScreen\TitleControl.js" />
