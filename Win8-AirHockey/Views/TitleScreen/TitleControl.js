@@ -38,8 +38,7 @@
             nav.navigate("/Views/GameBoard/GameBoard.html", window.game.gameType.singlePlayer);
         }, false);
         document.getElementById("settings-button").addEventListener("click", function () {
-            var host = document.getElementById("body");
-            nav.navigate("/Views/Options/OptionsSettings.html");
+            WinJS.UI.SettingsFlyout.show();
         }, false);
         document.getElementById("reset-high-scores").addEventListener("click", function () {
             var button = this;

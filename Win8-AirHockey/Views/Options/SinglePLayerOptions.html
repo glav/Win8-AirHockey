@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>SinglePlayerOptions</title>
+
+    <!-- WinJS references -->
+    <link href="//Microsoft.WinJS.1.0/css/ui-light.css" rel="stylesheet" />
+    <script src="//Microsoft.WinJS.1.0/js/base.js"></script>
+    <script src="//Microsoft.WinJS.1.0/js/ui.js"></script>
+
+    <link href="GameOptions.css" rel="stylesheet" />
+    <script src="../../js/jquery-1.8.3.min.js"></script>
+    <script src="window.game.ui.settings.js"></script>
+    <script src="SinglePlayerOptions.js"></script>
+
+</head>
+<body>
+    <div class="SinglePlayerOptions fragment player-options">
+        <div id="singlePlayerFlyout" data-win-control="WinJS.UI.SettingsFlyout" class="win-ui-dark player-options-flyout">
+            <div class="win-header">
+                <button class="win-backbutton" id="single-flyout-panel-back" aria-label="Back" type="button"></button>
+                <header aria-label="Header content" role="banner">
+                    <h2 class="win-type-ellipses">
+                        <span>Single player</span>
+                    </h2>
+                </header>
+                <section aria-label="Main content" role="main">
+                    <fieldset>
+                        <div id="option-singleplayer-multipuck" data-win-control="WinJS.UI.ToggleSwitch" class="settings row-option"
+                            data-win-options="{title:'Enable Multi-Puck?'}"
+                            data-win-bind="winControl.checked: settings.multiPuckEnabledSinglePlayer">
+                        </div>
+                        <div class="row-option">
+                            <span>Difficulty Level?</span>
+                            <input id="option-singlepower-difficulty" class="slider" type="range" max="3" min="1" data-update-label="option-singlepower-difficulty-label" data-win-bind="value: settings.singlePlayerDifficulty" />
+                            <span id="option-singlepower-difficulty-label" class="range-label" data-win-bind="innerText: settings.singlePlayerDifficulty window.game.settings.difficultyLevelConverter">?</span>
+                        </div>
+                    </fieldset>
+                    <button id="reset-single-options">Reset To Default</button>
+                </section>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>
