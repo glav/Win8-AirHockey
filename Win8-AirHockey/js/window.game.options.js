@@ -5,7 +5,9 @@
 	WinJS.Application.onsettings = function (e) {
 		e.detail.applicationcommands = {
 		    singlePlayerFlyout: { title: 'Single Player', href: '/Views/Options/SinglePlayerOptions.html' },
-			twoPlayerFlyout: { title: 'Two Player', href: '/Views/Options/TwoPlayerOptions.html' }
+		    twoPlayerFlyout: { title: 'Two Player', href: '/Views/Options/TwoPlayerOptions.html' },
+		    scoringOptionsFlyout: { title: 'Scoring', href: '/Views/Options/ScoringOptions.html' }
+
 		};
 
 		WinJS.UI.SettingsFlyout.populateSettings(e);
