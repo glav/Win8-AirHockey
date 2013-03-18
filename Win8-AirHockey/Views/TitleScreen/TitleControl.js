@@ -23,9 +23,8 @@
 
     function setResetScoresButtonToNormal() {
         var button = document.getElementById("reset-high-scores");
-        button.innerText = "Reset High Scores";
+        button.innerText = "Reset Your Local High Scores";
         button.style.color = "#7a7eb2";
-        button.style.opacity = 0.6;
     }
 
     function bindButtonsHandlers() {
@@ -54,7 +53,7 @@
                 updateHighScoreTable();
             } else {
                 // present warning to use
-                button.innerText = "Are you sure?";
+                button.innerText = "Are you sure? Press again to confirm.";
                 button.style.color = "red";
                 button.style.opacity = 1;
                 // Give the user 5 seconds to press the button again
