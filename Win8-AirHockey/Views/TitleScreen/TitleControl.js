@@ -38,33 +38,18 @@
         }, false);
         document.getElementById("settings-button").addEventListener("click", function () {
             WinJS.UI.SettingsFlyout.show();
+            
         }, false);
-        document.getElementById("reset-high-scores").addEventListener("click", function () {
-            var button = this;
-            if (resetScoresOptionPressedOnce === true) {
-                // reset high scores
-                if (resetScoreTimer !== null) {
-                    clearTimeout(resetScoreTimer);
-                    resetScoreTimer = null;
-                }
-                window.game.highScoreHandler.resetHighScores();
-                setResetScoresButtonToNormal();
-                resetScoresOptionPressedOnce = false;
-                updateHighScoreTable();
-            } else {
-                // present warning to use
-                button.innerText = "Are you sure? Press again to confirm.";
-                button.style.color = "red";
-                button.style.opacity = 1;
-                // Give the user 5 seconds to press the button again
-                resetScoreTimer = setTimeout(function () {
-                    resetScoresOptionPressedOnce = false;
-                    setResetScoresButtonToNormal();
-                }, 5000);
-                resetScoresOptionPressedOnce = true;
-            }
 
-        }, false);
+        // Message event listener which will update the high score table if the resetHighScores message was posted from the options
+        window.addEventListener("message", function (event) {
+            if (typeof event !== 'undefined' && event.data) {
+                var messageData = event.data;
+                if (messageData.resetHighScores && messageData.resetHighScores === true) {
+                    updateHighScoreTable();
+                }
+            }
+        });
 
     }
 

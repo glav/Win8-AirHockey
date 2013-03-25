@@ -12,6 +12,8 @@
     <link href="GameOptions.css" rel="stylesheet" />
     <script src="../../js/jquery-1.8.3.min.js"></script>
     <script src="window.game.ui.settings.js"></script>
+    <script src="../../js/window.game.dialog.js"></script>
+    <script src="../../js/highScoreHandler.js"></script>
 
     <script src="ScoringOptions.js"></script>
 </head>
@@ -26,7 +28,10 @@
                     </h2>
                 </header>
                 <section aria-label="Main content" role="main">
-                    <button id="reset-high-scores-options">Reset Your Local High Scores</button>
+                        <div class="settings row-option">
+                            <span>Do you want to reset your locally stored high score table?</span>
+                            <button id="reset-high-scores-options">Reset High Scores</button>
+                        </div>
                 </section>
             </div>
 

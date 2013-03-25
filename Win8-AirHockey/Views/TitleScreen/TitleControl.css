@@ -103,9 +103,3 @@ body {
         border-right: 1px solid #d4d2d2;
     }
 
-#reset-high-scores {
-    font-size: 0.60em;
-    color: #7a7eb2;
-    height: 40%;
-    transition: opacity 800ms ease;
-}

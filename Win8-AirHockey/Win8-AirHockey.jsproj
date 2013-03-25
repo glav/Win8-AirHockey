@@ -86,13 +86,13 @@
     <Content Include="js\highScoreHandler.js" />
     <Content Include="js\navigator.js" />
     <Content Include="js\Settings.js" />
+    <Content Include="js\window.game.dialog.js" />
     <Content Include="js\window.game.options.js" />
     <Content Include="js\worldConstants.js" />
     <Content Include="Views\GameBoard\DrawingHelper.js" />
     <Content Include="Views\GameBoard\GameBoard.css" />
     <Content Include="Views\GameBoard\GameBoard.html" />
     <Content Include="Views\GameBoard\GameBoard.js" />
-    <Content Include="Views\GameBoard\window.game.newGameDialog.js" />
     <Content Include="Views\GameBoard\window.game.stateBag.js" />
     <Content Include="Views\GameBoard\gameBoardRenderer.js" />
     <Content Include="Views\GameBoard\GameWorld.js" />
