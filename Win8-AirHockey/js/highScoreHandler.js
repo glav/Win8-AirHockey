@@ -56,7 +56,7 @@
         // Grab the score object from the array
         var highScoreEntry = currentScores.singlePlayerLocalDurationLasted[highScoreTableIndex];
         // Now get the score from the score object dependencing on whether multi puck is enabled or not
-        var scoreToCompare = currentSettings.multiPuckEnabled === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
+        var scoreToCompare = currentSettings.multiPuckEnabledSinglePlayer === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
 
         if (singlePlayerDuration > scoreToCompare.score) {
             return true;
@@ -83,7 +83,7 @@
             var highScoreEntry = currentScores.singlePlayerLocalDurationLasted[highScoreTableIndex];
             // Now get the score from the score object dependencing on whether multi puck is enabled or not
             
-            var scoreEntry = currentSettings.multiPuckEnabled === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
+            var scoreEntry = currentSettings.multiPuckEnabledSinglePlayer === true ? highScoreEntry.multiPuck : highScoreEntry.singlePuck;
 
             scoreEntry.score = singlePlayerLocalDurationLasted;
             scoreEntry.who = window.game.singlePlayerHandler.playerName;

@@ -2,7 +2,7 @@
 /// <reference path="positionBoundsManager.js" />
 /// <reference path="../../js/Settings.js" />
 /// <reference path="../../js/highScoreHandler.js" />
-/// <reference path="window.game.newGameDialog.js" />
+/// <reference path="../../js/window.game.dialog.js" />
 /// <reference path="window.game.stateBag.js" />
 /// <reference path="singlePlayerHandler.js" />
 
@@ -217,7 +217,7 @@ window.game.world = function () {
                 }
                 msg += " wins! Final Score: Player 1: " + window.game.stateBag.scores.player1 + ", Player 2: " + window.game.stateBag.scores.player2;
                 gameProgress.gameState = window.game.gameStateType.Ended;
-                window.game.newGameDialog.show(msg);
+                window.game.dialog.show(msg + " Want to play again?");
             } else {
                 // continue playing....
                 window.game.stateBag.inGameMessage.displayText = "GOAL! " + message + "scores";
@@ -234,7 +234,7 @@ window.game.world = function () {
                 message += " New High Score!";
                 window.game.stateBag.scores.highScores = window.game.highScoreHandler.updateHighScores(singlePlayerLastedDuration.durationInMilliseconds, settings);
             }
-            window.game.newGameDialog.show(message);
+            window.game.dialog.show(message + " Want to play again?");
         }
 
         if (window.game.stateBag.debugData.enabled !== true) {
@@ -752,7 +752,7 @@ window.game.world = function () {
 
         window.game.entities.setDebugMode(window.game.stateBag.debugData.enabled);
 
-        window.game.newGameDialog.initialise(function () {
+        window.game.dialog.initialise(function () {
             // User presses yes
             initStartGameSequence();
         }, function () {

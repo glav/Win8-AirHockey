@@ -13,6 +13,17 @@
                 WinJS.UI.SettingsFlyout.show();
             }, false);
 
+            document.getElementById('reset-high-scores-options').addEventListener('click', function () {
+                window.game.dialog.show("Are you sure you want to reset your high scores?", function () {
+                    window.game.highScoreHandler.resetHighScores();
+                    window.postMessage({ resetHighScores: true },"*");
+                }, function () {
+                    //No, do nothing
+                });
+            }, false);
+
+          
+
         },
 
         unload: function () {

@@ -1,6 +1,6 @@
 ﻿/// <reference path="../../js/worldConstants.js" />
 
-window.game.newGameDialog = function () {
+window.game.dialog = function () {
     "use strict";
     var _buttonContainer;
     var _optionYesCallback, _optionNoCallback;
@@ -21,14 +21,10 @@ window.game.newGameDialog = function () {
             _optionYesCallback = yesCallback;
         }
         if (typeof noCallback !== 'undefined') {
-            _optionNoCaloutlback = noCallback;
+            _optionNoCallback = noCallback;
         }
 
-        var displayMessage = "Want to play again?";
-        if (typeof message !== 'undefined' && message !== '') {
-            displayMessage = message + " - " + displayMessage;
-        }
-        var msgPopup = new Windows.UI.Popups.MessageDialog(displayMessage);
+        var msgPopup = new Windows.UI.Popups.MessageDialog(message);
         msgPopup.commands.push(new Windows.UI.Popups.UICommand("Yes",_optionYesCallback));
         msgPopup.commands.push(new Windows.UI.Popups.UICommand("No", _optionNoCallback));
         try {

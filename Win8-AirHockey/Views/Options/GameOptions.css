@@ -29,9 +29,13 @@ div.player-options-flyout fieldset {
     border:none;
 }
 
-div.player-options-flyout fieldset span {
+div.player-options-flyout fieldset span, div.player-options-flyout div.row-option span {
     font-size:0.7em;
 }
+
+ div.player-options-flyout div.row-option button {
+     margin-top: 10%;
+ }
 
 div.player-options-flyout fieldset div.row-option {
     margin-top: 20%;
