@@ -117,12 +117,6 @@ window.game.world = function () {
         // Run through our drawing events
         window.game.drawHelper.drawCollisionDebugData(ctx, window.game.stateBag.debugData, window.game.stateBag.playerMovementState, window.game.stateBag.ballCollisionState);
 
-        // This now done within the entity and drawn on the player bats
-        //window.game.drawHelper.drawScores(ctx, gameProgress, canvasWidth);
-
-        window.game.drawHelper.drawInGameMessage(ctx, window.game.stateBag.inGameMessage, canvasWidth, canvasHeight);
-        window.game.drawHelper.drawCountDown(ctx, window.game.stateBag.countdownState, screenWidth, screenHeight);
-
         //Now update the actual entities in the world
         for (var id in world) {
             var entity = world[id];
@@ -140,9 +134,11 @@ window.game.world = function () {
             //window.clearInterval(window.game.stateBag.countdownState.timer);
             window.game.stateBag.countdownState.started = false;
             window.game.stateBag.countdownState.count = 0;
+            window.game.drawHelper.clearCountdownDisplay();
             countdownCompletedEvent();
         } else {
             // haven't reached the countdown yet so let the timer do another tick
+            window.game.drawHelper.drawCountDown(window.game.stateBag.countdownState, screenWidth, screenHeight);
             window.setTimeout(countdownTickEvent, 1000);
         }
     }
@@ -183,6 +179,8 @@ window.game.world = function () {
     function startCountDown() {
         window.game.stateBag.countdownState.count = 3;
         window.game.stateBag.countdownState.started = true;
+        window.game.drawHelper.drawCountDown(window.game.stateBag.countdownState, screenWidth, screenHeight);
+
         window.setTimeout(countdownTickEvent, 1000);
     }
 
@@ -220,13 +218,19 @@ window.game.world = function () {
                 window.game.dialog.show(msg + " Want to play again?");
             } else {
                 // continue playing....
-                window.game.stateBag.inGameMessage.displayText = "GOAL! " + message + "scores";
+                window.game.stateBag.inGameMessage.showMessage("GOAL! " + message + "scores");
+                //window.game.stateBag.inGameMessage.displayText = "GOAL! " + message + "scores";
             }
 
             world[gameConst.Player1Id].setScore(window.game.stateBag.scores.player1);
             world[gameConst.Player2Id].setScore(window.game.stateBag.scores.player2);
 
         } else {
+            if (window.game.stateBag.debugData.enabled === true) {
+                return;
+            }
+
+
             window.game.stateBag.scores.singlePlayerEndTime = new Date();
             var singlePlayerLastedDuration = window.game.singlePlayerHandler.handlePlayerDuration(window.game.stateBag.scores.singlePlayerStartTime, window.game.stateBag.scores.singlePlayerEndTime);
             message = "Computer scored! You lasted " + singlePlayerLastedDuration.durationDescription;
@@ -268,6 +272,11 @@ window.game.world = function () {
             return;
         }
 
+        // Dont need to process the down/up if its single player
+        if (gameMode === window.game.gameType.singlePlayer || gameMode === window.game.gameType.singlePlayerMultiPuck) {
+            window.game.stateBag.playerMovementState.player1.isSelected = (isReleased === false);
+        }
+
         var eventData = getMouseAndBodyDataFromMouseDownEvent(e);
         var selectedBody = eventData.body;
         if (typeof selectedBody !== 'undefined' && selectedBody !== null) {
@@ -283,21 +292,24 @@ window.game.world = function () {
                     playerState = window.game.stateBag.playerMovementState.player2;
                 }
 
-                var newstate = isReleased === true ? false : true;
-                if (playerState.isSelected !== newstate) {
+                setTimeout(function () {
+                    var newstate = isReleased === true ? false : true;
+                    if (playerState.isSelected !== newstate) {
 
-                    window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
-                }
+                        window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
+                    }
 
-                playerState.isSelected = newstate;
+                    playerState.isSelected = newstate;
 
-                // If the player is selected, then begin recording its x and y positions
-                // while it is being held down
-                if (playerState.isSelected) {
-                    window.game.stateBag.playerMovementState.pushMovementStateForPlayer(isPlayer1, eventData.mouseX, eventData.mouseY);
-                } else {
-                    window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
-                }
+                    // If the player is selected, then begin recording its x and y positions
+                    // while it is being held down
+                    if (playerState.isSelected) {
+                        window.game.stateBag.playerMovementState.pushMovementStateForPlayer(isPlayer1, eventData.mouseX, eventData.mouseY);
+                    } else {
+                        window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
+                    }
+
+                }, 1000 / 120);
 
             }
         }
@@ -601,6 +613,10 @@ window.game.world = function () {
             return;
         }
 
+        // Can happen if game is ended but the timer event gets fired a millisecond later that calls this routine
+        if (simulator === null) {
+            return;
+        }
         // If the player is selected, then begin recording its x and y positions
         // while it is being held down
         if (player1State.isSelected) {

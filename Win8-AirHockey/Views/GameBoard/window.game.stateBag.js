@@ -1,4 +1,5 @@
 ﻿/// <reference path="../../js/worldConstants.js" />
+/// <reference path="../../js/jquery-1.7.1-vsdoc.js" />
 
 window.game.stateBag = function () {
     "use strict";
@@ -51,15 +52,54 @@ window.game.stateBag = function () {
     };
 
     var inGameMessage = {
+        messageElementSelector: '#game-message-content',
         displayText: null,
         xPos: 0,
         yPos: 0,
-        incrementValue: 1,
         clearMessage: function () {
+            $(this.messageElementSelector).css('display', 'none');
+
             this.displayText = null;
             this.xPos = 0;
             this.yPos = 0;
-            this.incrementValue = 1;
+        },
+        showMessage: function (message, completionCallback, xPos, yPos) {
+            var msgEl = $(this.messageElementSelector);
+            var textEl = $('span.main-message', msgEl);
+            textEl.text(message);
+            textEl.show();
+            $('div.countdown-message', msgEl).hide();
+
+            if (typeof xPos === 'undefined' && typeof yPos === 'undefined') {
+                // No xor y positions were specified so attempt to calc the centre
+                var msgWidth = msgEl.width();
+                var msgHeight = msgEl.height();
+                var screenHeight = window.innerHeight;
+                var screenWidth = window.innerWidth;
+
+                this.xPos = (screenWidth / 2) - (msgWidth / 2);
+                this.yPos = (screenHeight / 4);
+
+            } else {
+                if (typeof xPos !== 'undefined') {
+                    var x = parseInt(xPos, 10);
+                    if (!isNaN(x)) {
+                        this.xPos = x;
+                    }
+                }
+                if (typeof yPos !== 'undefined') {
+                    var y = parseInt(yPos, 10);
+                    if (!isNaN(y)) {
+                        this.yPos = y;
+                    }
+                }
+            }
+            msgEl.css('top', this.yPos + 'px').css('left', this.xPos + 'px');
+            msgEl.show();
+            if (typeof completionCallback !== 'undefined' && completionCallback !== null) {
+                completionCallback();
+            }
+
         }
     };
 
