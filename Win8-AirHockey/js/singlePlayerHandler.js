@@ -12,9 +12,12 @@ window.game.singlePlayerHandler = function () {
     
     function pulseTimerHandler() {
         if (gameProgress.gameState === window.game.gameStateType.InProgress) {
-            var power = Math.random() * (settings.singlePlayerDifficulty * 500) + 500;
-            var angle = (Math.random() * 90) + 120;
-            simulator.applyImpulse(window.game.worldConstants.PuckId, parseInt(angle), parseInt(power));
+            var randomNumber = Math.random();
+            var power = randomNumber * (settings.singlePlayerDifficulty * 500) + 500;
+            var angle = (randomNumber * 90) + 120;
+            window.setTimeout(function () {
+                simulator.applyImpulse(window.game.worldConstants.PuckId, parseInt(angle,10), parseInt(power,10));
+            }, 10);
         }
 
         if (gameProgress.gameState !== window.game.gameStateType.Quit

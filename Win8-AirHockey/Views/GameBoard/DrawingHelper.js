@@ -1,4 +1,6 @@
-﻿window.game.drawHelper = function () {
+﻿/// <reference path="../../js/jquery-1.7.1-vsdoc.js" />
+
+window.game.drawHelper = function () {
     "use strict";
 
     function drawCollisionDebugData(ctx, debugData, playerMovementState, ballCollisionState) {
@@ -59,47 +61,36 @@
         ctx.restore();
     }
 
-    function drawInGameMessage(ctx, inGameMessage, canvasWidth, canvasHeight) {
-        if (inGameMessage.displayText !== null) {
-            ctx.save();
-            ctx.font = "30px Arial";
-            ctx.strokeStyle = "#000000";
-            ctx.fillStyle = '#000000';
-
-            ctx.shadowOffsetX = 7;
-            ctx.shadowOffsetY = 7;
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'rgba(10, 10, 10, 0.5)';
-
-            var msgLen = inGameMessage.displayText.length;
-            var xPos = (canvasWidth / 2) - (msgLen/4 * 30);
-
-            inGameMessage.xPos = xPos;
-            inGameMessage.yPos = canvasHeight / 4;
-
-            ctx.fillText(inGameMessage.displayText, inGameMessage.xPos, inGameMessage.yPos);
-            ctx.stroke();
-            ctx.restore();
-
-        }
+    function clearCountdownDisplay() {
+        var msgContainer = $("#game-message-content");
+        var msgTextEl = $("div.countdown-message", msgContainer);
+        msgTextEl.empty();
     }
 
-    function drawCountDown(ctx, countdownState, screenWidth, screenHeight) {
+    // Draws the 3,2,1 countdown series of elements in the centreof the screen based on the current
+    // countdown state
+    function drawCountDown(countdownState, screenWidth, screenHeight) {
         if (countdownState.started) {
-            var centreX = screenWidth / 2 - 15;
-            var centreY = screenHeight / 2 - 15;
-            ctx.save();
-            ctx.font = "80px Arial";
-            ctx.strokeStyle = "red";
-            ctx.fillStyle = "red";
-            ctx.shadowOffsetX = 7;
-            ctx.shadowOffsetY = 7;
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'rgba(10, 10, 10, 0.5)';
 
-            ctx.fillText(countdownState.count, centreX - (centreX / 4), centreY - (centreY / 4));
-            ctx.fillText(countdownState.count, centreX + (centreX / 4), centreY - (centreY / 4));
-            ctx.restore();
+            var msgContainer = $("#game-message-content");
+            var msgTextEl = $("div.countdown-message", msgContainer);
+
+            var mainMessage = $('span.main-message', msgContainer);
+            mainMessage.text("").show();
+
+            var countdownElement = "<span class='count-90'>" + countdownState.count + "</span>"
+                        + "<span class='count-0'>" + countdownState.count + "</span>"
+                        + "<span class='count-270'>" + countdownState.count + "</span>";
+            msgTextEl.empty().html(countdownElement);
+            msgTextEl.show();
+            var msgWidth = msgContainer.width();
+            var msgHeight = msgContainer.height();
+
+            var xPos = (screenWidth / 2) - (msgWidth / 2);
+            var yPos = (screenHeight / 2) - (msgHeight / 2);
+
+            msgContainer.css('top', yPos + 'px').css('left', xPos + 'px');
+            msgContainer.show();
         }
 
     }
@@ -107,8 +98,8 @@
     return {
         drawCollisionDebugData: drawCollisionDebugData,
         drawScores: drawScores,
-        drawInGameMessage: drawInGameMessage,
-        drawCountDown: drawCountDown
+        drawCountDown: drawCountDown,
+        clearCountdownDisplay: clearCountdownDisplay
     }
 
 
