@@ -74,20 +74,8 @@
                 var yPos = this.center.y * window.game.worldConstants.Scale - 5;
                 ctx.fillText(this.innerText.text, xPos, yPos);
             }
-            if (typeof this.innerText.score !== 'undefined') {
-                ctx.font = this.innerText.font !== null ? this.innerText.font : "24px Arial";
-                ctx.strokeStyle = this.innerText.color !== null ? this.innerText.color : "white";
-                ctx.fillStyle = ctx.strokeStyle;
-                var xPos = this.center.x * window.game.worldConstants.Scale - 5;
-                var yPos = this.center.y * window.game.worldConstants.Scale + 15;
-                ctx.fillText(this.innerText.score, xPos, yPos);
-
-            }
         }
 
-    };
-    Entity.prototype.setScore = function (score) {
-        this.innerText.score = score;
     };
 
     //*****************************************************
@@ -175,7 +163,7 @@
     //*****************************************************
     // Player
     //*****************************************************
-    function PlayerEntity(id, x, y, angle, center, playercolor, radius, isStatic, density, useShadow, playerName) {
+    function PlayerEntity(id, x, y, angle, center, playercolor, radius, isStatic, density, useShadow, playerName,useAlternateImage) {
         var color = playercolor || 'aqua';
         Entity.call(this, id, x, y, angle, center, color, isStatic, density, useShadow);
         this.image = new Image();
@@ -184,12 +172,15 @@
         this.image.onload = function () {
             self.imageLoaded = true;
         }
-        this.image.src = '/images/player.png';
         this.angle = angle;
         this.radius = radius;
         this.innerText.text = playerName;
         this.innerText.inset = 0.6;
-        this.innerText.score = 0;  //extra prop
+        if (typeof useAlternateImage !== 'undefined' && useAlternateImage === true) {
+            this.image.src = '/images/PlayerBatAlternate.png';
+        } else {
+            this.image.src = '/images/PlayerBat.png';
+        }
 
         // These properties are calculated ones so we do it here and store as member
         // variables so we dont have to keep doing it later
@@ -436,9 +427,11 @@
     // Assumes an entity is a polygon if a 'polys' property is present.
     function buildEntity(def) {
         if (def.type === window.game.board.entityType.Player) {
-            return new PlayerEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.playercolor, def.radius, def.isStatic, def.density, def.useShadow, def.playerName);
+            return new PlayerEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.playercolor, def.radius, def.isStatic, def.density, def.useShadow, def.playerName, false);
+        } else if (def.type === window.game.board.entityType.PlayerAlternateImage) {
+            return new PlayerEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.playercolor, def.radius, def.isStatic, def.density, def.useShadow, def.playerName, true);
         } else if (def.type === window.game.board.entityType.Goal) {
-            return new GoalEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.color, def.halfWidth, def.halfHeight, def.visibleHalfWidth, def.visibleHalfHeight, def.isStatic, def.density, def.useLeftShadow,def.useRightShadow, def.angularDamping);
+            return new GoalEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.color, def.halfWidth, def.halfHeight, def.visibleHalfWidth, def.visibleHalfHeight, def.isStatic, def.density, def.useLeftShadow, def.useRightShadow, def.angularDamping);
         } else if (def.type === window.game.board.entityType.Puck) {
             return new PuckEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.puckcolor, def.radius, def.isStatic, def.density, def.useShadow, def.angularDamping);
         } else if (def.type === window.game.board.entityType.Circle) {

@@ -20,11 +20,12 @@ window.game.board = function () {
     var entityType = {
         Generic: 0,
         Player: 1,
-        Puck: 2,
-        Goal: 3,
-        Rectangle: 4,
-        Circle: 5,
-        Polygon: 6
+        PlayerAlternateImage: 2,
+        Puck: 3,
+        Goal: 4,
+        Rectangle:54,
+        Circle: 6,
+        Polygon: 7
     }
 
     function resizePlayingField(isInLandscapeMode, isNewBoard) {
@@ -153,7 +154,7 @@ window.game.board = function () {
             playercolor: window.game.worldConstants.Player2Colour,
             useShadow: true,
             playerName: 'P2',
-            type: entityType.Player
+            type: entityType.PlayerAlternateImage
         };
     }
 
