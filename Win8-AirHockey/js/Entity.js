@@ -424,7 +424,6 @@
 
     // Utility function to create an entity based on the properties in the definition.
     // Assumes an entity is a circle if a 'radius' property is present.
-    // Assumes an entity is a polygon if a 'polys' property is present.
     function buildEntity(def) {
         if (def.type === window.game.board.entityType.Player) {
             return new PlayerEntity(def.id, def.x, def.y, def.angle, window.game.worldConstants.NullCenter, def.playercolor, def.radius, def.isStatic, def.density, def.useShadow, def.playerName, false);
