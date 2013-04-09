@@ -222,8 +222,7 @@ window.game.world = function () {
                 //window.game.stateBag.inGameMessage.displayText = "GOAL! " + message + "scores";
             }
 
-            world[gameConst.Player1Id].setScore(window.game.stateBag.scores.player1);
-            world[gameConst.Player2Id].setScore(window.game.stateBag.scores.player2);
+            window.game.drawHelper.drawScores();
 
         } else {
             if (window.game.stateBag.debugData.enabled === true) {
@@ -546,6 +545,7 @@ window.game.world = function () {
         hasBoardBeenInitiallyDrawn = false;
         window.game.stateBag.inGameMessage.clearMessage();
         gameProgress.gameState = window.game.gameStateType.NotStarted;
+        window.game.drawHelper.drawScores();
 
         if (simulator == null) {
             return;
