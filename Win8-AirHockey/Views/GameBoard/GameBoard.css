@@ -15,6 +15,48 @@
     background-color:#a1c9fa;
 }
 
+#game-scores, #game-scores div {
+    /*display:none;*/
+    position:fixed;
+    z-index: 1000;
+	color:#99eeff;
+    border:3px solid #6b6b6b;
+}
+    #player-one, #player-two {
+        width: 5em;
+        border-radius:9px;
+        background-color: #ababab;
+		padding: .1em .3em;
+		box-shadow: 4px 4px 10px #3b3b3b,
+			-4px -4px 10px #3b3b3b,
+			4px 0px 7px #3b3b3b,
+			0px 4px 7px #3b3b3b;
+			text-align:centre;
+			margin:auto;
+
+    }
+    #player-one {
+        top: 1em;
+        left: 2em;
+    }
+    #player-two {
+        top: 1em;
+        left: 20em;
+    }
+	   #game-scores div span, #game-scores div label {
+	        display:block;
+			background-color: #ababab;
+		}
+	   #game-scores div label {
+			border-bottom: 2px solid #aa0000;
+			padding-left:.45em;
+			border-radius-top-left: 7px;
+		}
+	   #game-scores div span.score {
+			padding-left:40%;
+		}
+
+
 #game-message-content {
     display:none;
     z-index:999;
@@ -63,27 +105,6 @@ div.player {
     height:1px;
     z-index: 2;
     border-radius: 10px;
-}
-
-#player-one {
-    background-color:black;
-    top: 40%;
-    left: 5%;
-}
-#player-two {
-    background-color:green;
-    top: 40%;
-    right: 5%;
-}
-
-#hockey-puck {
-    position:absolute;
-    width: 1px;
-    height: 1px;
-    border-radius: 60px;
-    background-color: green;
-    top: 350px;
-    left: 45%;
 }
 
 #option-play-again {

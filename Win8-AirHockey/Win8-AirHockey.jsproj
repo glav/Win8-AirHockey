@@ -58,7 +58,8 @@
     <Content Include="images\HockeyPuck.png" />
     <Content Include="images\HockeyPuck2.png" />
     <Content Include="images\HockeyPuck2.gif" />
-    <Content Include="images\player.png" />
+    <Content Include="images\PlayerBat.png" />
+    <Content Include="images\PlayerBatAlternate.png" />
     <Content Include="images\puck.png" />
     <Content Include="images\PucksAndBatsTitleImage.png" />
     <Content Include="images\PucksAndBatsTitleImage_30x30.png" />
