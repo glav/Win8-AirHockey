@@ -38,27 +38,9 @@ window.game.drawHelper = function () {
         ctx.restore();
     }
 
-    function drawScores(ctx, gameProgress, canvasWidth) {
-        ctx.save();
-        ctx.font = "20px Arial";
-        ctx.strokeStyle = "#000000";4
-        ctx.fillStyle = '#000000';
-        ctx.fillText("P1: " + gameProgress.scores.player1, 30, 55);
-        ctx.fillText("P2: " + gameProgress.scores.player2, canvasWidth - 80, 55);
-
-        ctx.stroke();
-
-        ctx.save();
-        ctx.moveTo(0, 0);
-        ctx.rotate(180);
-        ctx.lineTo(200, 300);
-        ctx.font = "40px Arial";
-
-        ctx.fillText("P1: " + gameProgress.scores.player1, 100, 100);
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.restore();
+    function drawScores() {
+        $("#player-one span.score").text(window.game.stateBag.scores.player1);
+        $("#player-two span.score").text(window.game.stateBag.scores.player2);
     }
 
     function clearCountdownDisplay() {
