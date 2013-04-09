@@ -1,0 +1,39 @@
+﻿body {
+    width: 100%;
+    height: 100%;
+    color:#5a99e6;
+    font-size:1.4em;
+    font-family:Verdana, 'Arial Narrow', 'Nimbus Sans L', sans-serif;
+    margin: 40px;
+}
+
+@media screen and (-ms-view-state: fullscreen-landscape) {
+}
+
+@media screen and (-ms-view-state: filled) {
+}
+
+@media screen and (-ms-view-state: snapped) {
+}
+
+@media screen and (-ms-view-state: fullscreen-portrait) {
+}
+
+#title-content {
+    
+}
+
+.win-backbutton {
+    color:black;
+}
+
+
+/*.pagetitle {
+	font-size: 1.8em;
+	font-family: Arial;
+	text-align: center;
+	color: #5EE57C;
+	text-shadow: 4px 4px #555555;
+}*/
+
+

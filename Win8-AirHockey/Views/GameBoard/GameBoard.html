@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>GameBoard</title>
+
+    <!-- WinJS references -->
+    <link href="//Microsoft.WinJS.1.0/css/ui-light.css" rel="stylesheet" />
+    <script src="//Microsoft.WinJS.1.0/js/base.js"></script>
+    <script src="//Microsoft.WinJS.1.0/js/ui.js"></script>
+
+    <link href="GameBoard.css" rel="stylesheet" />
+    <script src="GameBoard.js"></script>
+    <script src="../../js/Box2D.js"></script>
+
+    <script src="../../js/gestureHandler.js"></script>
+
+    <!--    Game  World-->
+    <script src="../../js/worldConstants.js"></script>
+    <script src="window.game.stateBag.js"></script>
+    <script src="../../js/Entity.js"></script>
+    <script src="../../js/box2dWrapper.js"></script>
+    <script src="../../js/Settings.js"></script>
+    <script src="../../js/threadWorker.js"></script>
+    <script src="../../js/highScoreHandler.js"></script>
+    <script src="gameBoardRenderer.js"></script>
+    <script src="../../js/singlePlayerHandler.js"></script>
+    <script src="DrawingHelper.js"></script>
+    <script src="positionBoundsManager.js"></script>
+    <script src="../../js/window.game.dialog.js"></script>
+    <script src="GameWorld.js"></script>
+
+</head>
+<body>
+    <div class="game-board fragment">
+        <div data-win-control="WinJS.UI.ViewBox">
+            <div class="game-board-layout">
+                <canvas id="board" style="z-index: 1;"></canvas>
+
+
+            </div>
+        </div>
+
+        <div id="game-message-content">
+            <span class="main-message">Some Test message</span>
+            <div class="countdown-message">
+                <span class='count-90'>3</span>
+                <span class='count-0'>3</span>
+                <span class='count-270'>3</span>
+            </div>
+        </div>
+
+        <div id="appbar" data-win-control="WinJS.UI.AppBar">
+            <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'homeAppButton', label:'Home', icon:'&#xE10F;'}" type="button"></button>
+            <button data-win-control="WinJS.UI.AppBarCommand" data-win-options="{id:'restartAppButton', label:'Restart', icon:'&#xE117;'}" type="button"></button>
+        </div>
+    </div>
+</body>
+</html>

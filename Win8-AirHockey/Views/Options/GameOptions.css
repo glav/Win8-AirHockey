@@ -1,0 +1,86 @@
+﻿.player-options section[role=main] {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+@media screen and (-ms-view-state: snapped) {
+    .player-options section[role=main] {
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+}
+
+@media screen and (-ms-view-state: fullscreen-portrait) {
+    .player-options section[role=main] {
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+}
+
+div.player-options-flyout header {
+    margin-left: 20%;
+}
+
+div.player-options-flyout section {
+    margin: 10% 0;
+}
+
+div.player-options-flyout fieldset {
+    border:none;
+}
+
+div.player-options-flyout fieldset span, div.player-options-flyout div.row-option span {
+    font-size:0.7em;
+}
+
+ div.player-options-flyout div.row-option button {
+     margin-top: 10%;
+ }
+
+div.player-options-flyout fieldset div.row-option {
+    margin-top: 20%;
+    margin-bottom:15%;
+    border-bottom:dotted 1px silver;
+}
+
+.settings.win-toggleswitch.win-off, .settings.win-toggleswitch.win-on {
+    margin: 0px;
+    padding: 0;
+}
+
+    .settings.win-toggleswitch.win-off .win-label,
+    .settings.win-toggleswitch.win-on .win-label {
+        font-size: 0.7em;
+        font-weight: normal;
+        margin: 0;
+    }
+.settings.win-toggleswitch .win-label {
+    vertical-align: top;
+}
+
+.settings.win-toggleswitch .win-label {
+    vertical-align: top;
+}
+
+.settings.win-toggleswitch .win-switch {
+    margin-left: 0px;
+    margin-right: 0px;
+    height: 1.8em;
+    margin-top: 0;
+    margin-bottom:5%;
+    padding: 0;
+}
+
+
+    .settings.win-toggleswitch .win-switch::-ms-fill-lower {
+        background-color: #87e45f;
+    }
+
+    .settings.win-toggleswitch .win-switch::-ms-fill-upper {
+        background-color: #d0d3d3;
+    }
+
+    input[type=range].slider {
+        width: 60%;
+    }
+
