@@ -38,9 +38,21 @@ window.game.drawHelper = function () {
         ctx.restore();
     }
 
+    function hideScores() {
+        $("#game-scores").hide();
+    }
+    function showScores(screenWidth) {
+        //var p2ScoresElement = $("#player-two");
+        //p2ScoresElement.css('right',)
+        $("#game-scores").show();
+    }
     function drawScores() {
+        $("#player-one, #player-two").css('opacity', '1');
         $("#player-one span.score").text(window.game.stateBag.scores.player1);
         $("#player-two span.score").text(window.game.stateBag.scores.player2);
+        setTimeout(function () {
+            $("#player-one, #player-two").css('opacity', '0.8');
+        }, 2900);  // just less than countdown
     }
 
     function clearCountdownDisplay() {
@@ -79,6 +91,8 @@ window.game.drawHelper = function () {
 
     return {
         drawCollisionDebugData: drawCollisionDebugData,
+        showScores: showScores,
+        hideScores: hideScores,
         drawScores: drawScores,
         drawCountDown: drawCountDown,
         clearCountdownDisplay: clearCountdownDisplay

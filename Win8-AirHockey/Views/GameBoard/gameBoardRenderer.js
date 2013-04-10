@@ -134,7 +134,7 @@ window.game.board = function () {
             radius: ctx.canvas.width / window.game.worldConstants.Scale / batRadiusSizeRatio,
             playercolor: window.game.worldConstants.Player1Colour,
             useShadow: true,
-            playerName: 'P1',
+            playerName: null,
             type: entityType.Player
         }
     }
@@ -153,7 +153,7 @@ window.game.board = function () {
             radius: ctx.canvas.width / window.game.worldConstants.Scale / batRadiusSizeRatio,
             playercolor: window.game.worldConstants.Player2Colour,
             useShadow: true,
-            playerName: 'P2',
+            playerName: null,
             type: entityType.PlayerAlternateImage
         };
     }
@@ -229,7 +229,7 @@ window.game.board = function () {
                 halfWidth: 0.1,
                 isStatic: true,
                 density: 1,
-                color: window.game.worldConstants.GoalColour,
+                color: window.game.worldConstants.GoalColourPlayer1,
                 useLeftShadow: false,
                 useRightShadow: true,
                 type: entityType.Goal,
@@ -311,7 +311,7 @@ window.game.board = function () {
                 halfWidth: 0.1,
                 isStatic: true,
                 density: 1,
-                color: window.game.worldConstants.GoalColour,
+                color: window.game.worldConstants.GoalColourPlayer1,
                 useLeftShadow: false,
                 useRightShadow: true,
                 type: entityType.Goal,
@@ -326,7 +326,7 @@ window.game.board = function () {
                 halfWidth: 0.1,
                 isStatic: true,
                 density: 1,
-                color: window.game.worldConstants.GoalColour,
+                color: window.game.worldConstants.GoalColourPlayer2,
                 useLeftShadow: true,
                 useRightShadow: false,
                 type: entityType.Goal,
