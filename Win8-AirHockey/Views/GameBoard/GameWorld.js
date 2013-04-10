@@ -545,7 +545,6 @@ window.game.world = function () {
         hasBoardBeenInitiallyDrawn = false;
         window.game.stateBag.inGameMessage.clearMessage();
         gameProgress.gameState = window.game.gameStateType.NotStarted;
-        window.game.drawHelper.drawScores();
 
         if (simulator == null) {
             return;
@@ -569,7 +568,11 @@ window.game.world = function () {
         // ball.SetPosition({ x: 25, y: ballSettings.y });
         bat1.SetPosition({ x: b1Settings.x, y: b1Settings.y });
 
+        clearInterval(window.game.stateBag.playerMovementState.movementCheckTimer);
+
         if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
+            window.game.drawHelper.showScores(screenWidth);
+            window.game.drawHelper.drawScores();
             var bat2 = simulator.getBody(gameConst.Player2Id);
             var b2Settings = window.game.board.createBat2InitialSettings();
             bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
@@ -577,6 +580,7 @@ window.game.world = function () {
             // even if both players have their finger down on the bat
             window.game.stateBag.playerMovementState.movementCheckTimer = setInterval(checkTwoPlayerMovementState, 1 / 15);
         } else {
+            window.game.drawHelper.hideScores();
             window.game.singlePlayerHandler.initialiseSinglePlayerState(gameProgress, simulator);
         }
 
