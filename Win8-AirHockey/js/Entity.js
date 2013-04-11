@@ -115,17 +115,20 @@
         this.imageYCentre = (this.y - this.radius) * window.game.worldConstants.Scale;
     };
     PuckEntity.prototype.draw = function (ctx) {
-        ctx.save();
+        //ctx.save();
 
         if (debugMode !== true) {
-            if (this.imageLoaded === true) {
-                ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
-            }
             if (this.enableShadow === true) {
                 ctx.shadowOffsetX = 10;
                 ctx.shadowOffsetY = 10;
                 ctx.shadowBlur = 4;
                 ctx.shadowColor = 'rgba(190, 190, 190, 0.5)';
+            } else {
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
+            if (this.imageLoaded === true) {
+                ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
             }
         } else {
 
@@ -154,7 +157,7 @@
             Entity.prototype.draw.call(this, ctx);
         }
 
-        ctx.restore();
+        //ctx.restore();
     };
     //*****************************************************
     // END Puck
@@ -202,17 +205,20 @@
 
     };
     PlayerEntity.prototype.draw = function (ctx) {
-        ctx.save();
+        //ctx.save();
 
         if (debugMode !== true) {
-            if (this.imageLoaded === true) {
-                ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
-            }
             if (this.enableShadow === true) {
                 ctx.shadowOffsetX = 20;
                 ctx.shadowOffsetY = 20;
                 ctx.shadowBlur = 4;
                 ctx.shadowColor = 'rgba(190, 190, 190, 0.5)';
+            } else {
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+            }
+            if (this.imageLoaded === true) {
+                ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
             }
         } else {
             ctx.translate(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale);
@@ -240,7 +246,7 @@
             Entity.prototype.draw.call(this, ctx);
         }
 
-        ctx.restore();
+        //ctx.restore();
         Entity.prototype.drawInnerText.call(this,ctx);
     };
     //*****************************************************
@@ -268,12 +274,15 @@
     };
 
     CircleEntity.prototype.draw = function (ctx) {
-        ctx.save();
+        //ctx.save();
         if (this.enableShadow === true) {
             ctx.shadowOffsetX = 10;
             ctx.shadowOffsetY = 10;
             ctx.shadowBlur = 4;
             ctx.shadowColor = 'rgba(190, 190, 190, 0.5)';
+        } else {
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
         }
 
         ctx.translate(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale);
@@ -294,7 +303,7 @@
         ctx.fill();
         ctx.stroke();
 
-        ctx.restore();
+        //ctx.restore();
 
         Entity.prototype.draw.call(this, ctx);
     };
