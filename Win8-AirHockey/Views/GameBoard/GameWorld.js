@@ -308,7 +308,7 @@ window.game.world = function () {
                         window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
                     }
 
-                }, 1000 / 120);
+                }, 1);
 
             }
         }
@@ -354,10 +354,8 @@ window.game.world = function () {
                 // hitting the puck and causes weird bounce behaviour.
                 if ((selectedId === window.game.worldConstants.Player1Id && window.game.stateBag.playerMovementState.player1.isSelected)
                         || (selectedId === window.game.worldConstants.Player2Id && window.game.stateBag.playerMovementState.player2.isSelected)) {
-                    setTimeout(function () {
-                        selectedBody.SetLinearVelocity({ x: 0, y: 0 });
-                        selectedBody.SetAngularVelocity(0);
-                    }, 1000 / 60);
+                    selectedBody.SetLinearVelocity({ x: 0, y: 0 });
+                    selectedBody.SetAngularVelocity(0);
                 }
                 selectedBody.SetPosition({ x: eventData.mouseX, y: eventData.mouseY });
 
@@ -464,14 +462,14 @@ window.game.world = function () {
             // If we dont do this, when the bat hits the puck, there is not much velocity or bounce generated
             //if (window.game.stateBag.playerMovementState.player1.isSelected && window.game.stateBag.playerMovementState.player2.isSelected) {
 
-              // do it for 2 player since we removed the gesture handling in 2 player
-             if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
-                 var xLen = playerState.xPosWhileHeld.length;
+            // do it for 2 player since we removed the gesture handling in 2 player
+            if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
+                var xLen = playerState.xPosWhileHeld.length;
                 var yLen = playerState.yPosWhileHeld.length;
                 var xVel = 0, yVel = 0, delta = 0;
                 // Figure out the total velocity and difference in velocity changes for the X axis and
                 // the Y axis by going through all items in the array and adding in the delta diff
-                 // between each one.
+                // between each one.
 
                 for (var xcnt = 0; xcnt < xLen; xcnt++) {
                     if (xcnt === 0) {
@@ -650,14 +648,11 @@ window.game.world = function () {
             if (e.target === this) {
                 //  Attach first contact and track device.
                 if (this.gesture.pointerType === null) {
-                    console.log("this.gesture.pointerType = " + this.gesture.pointerType);
-
                     this.gesture.addPointer(e.pointerId);
                     this.gesture.pointerType = e.pointerType;
                 }
                     // Attach subsequent contacts from same device.
                 else if (e.pointerType === this.gesture.pointerType) {
-                    console.log("this.gesture.pointerType = e.pointerType");
                     this.gesture.addPointer(e.pointerId);
                 }
 
@@ -667,7 +662,6 @@ window.game.world = function () {
 
                     // New gesture recognizer for new pointer type.
                 else {
-                    console.log("this.gesture.pointerType = NEITHER");
                     var msGesture = new MSGesture();
                     msGesture.target = e.target;
                     e.target.gesture = msGesture;

@@ -5,6 +5,16 @@ window.game.board = function () {
 
     // Setup our common variables
     var screenHeight, screenWidth;
+    var boardCentreCircleData = {
+        middleX: 0,
+        middleY: 0,
+        scaledRadius: 0,
+        endAngle: 0
+    };
+    var halfWayLineData = {
+        xPos: 0,
+        yPos: 0
+    };
     
 
 
@@ -46,46 +56,41 @@ window.game.board = function () {
         boardCanvas.width = screenWidth;
         boardCanvas.height = screenHeight;
         drawBoardMarkings();
+        initBoardMarkingCalculations();
+    }
+
+    function initBoardMarkingCalculations() {
+        var xPos = screenWidth / 2 / window.game.worldConstants.Scale;
+        var yPos = screenHeight / 2 / window.game.worldConstants.Scale;
+        var radius = 4;
+
+        boardCentreCircleData.middleX = xPos * window.game.worldConstants.Scale;
+        boardCentreCircleData.middleY = yPos * window.game.worldConstants.Scale;
+        boardCentreCircleData.scaledRadius = radius * window.game.worldConstants.Scale;
+        boardCentreCircleData.endAngle = Math.PI * 2;
+
+        halfWayLineData.xPos = boardCentreCircleData.middleX;
+        halfWayLineData.yPos = screenHeight - boardEdgeWidthInPixels;
+
     }
 
     function drawBoardMarkings() {
         var boardCanvas = document.getElementById(window.game.worldConstants.CanvasElementId);
         var ctx = boardCanvas.getContext("2d");
-        var xPos = screenWidth / 2 / window.game.worldConstants.Scale;
-        var yPos = screenHeight / 2 / window.game.worldConstants.Scale;
-        var radius = 4;
-        var angle = 0;
-
-        ctx.save();
 
         // Halfway circle
         ctx.strokeStyle = 'blue';
         ctx.beginPath();
-        var middleX = xPos * window.game.worldConstants.Scale;
-        ctx.arc(middleX, yPos * window.game.worldConstants.Scale, radius * window.game.worldConstants.Scale, 0, Math.PI * 2, true);
+        ctx.arc(boardCentreCircleData.middleX, boardCentreCircleData.middleY, boardCentreCircleData.scaledRadius, 0, boardCentreCircleData.endAngle, true);
         ctx.lineWidth = 10;
         ctx.closePath();
         ctx.stroke();
 
 
         // Halfway line        
-        ctx.moveTo(middleX, boardEdgeWidthInPixels);
-        ctx.lineTo(middleX, screenHeight - boardEdgeWidthInPixels);
+        ctx.moveTo(halfWayLineData.xPos, boardEdgeWidthInPixels);
+        ctx.lineTo(halfWayLineData.xPos, halfWayLineData.yPos);
         ctx.stroke();
-
-        //ctx.lineWidth = 2;
-        //ctx.strokeStyle = "grey";
-        //for (var xPoint = 0; xPoint < screenWidth; xPoint += 100) {
-        //    for (var yPoint = 0; yPoint < screenHeight; yPoint += 100) {
-        //        ctx.moveTo(xPoint, yPoint);
-        //        ctx.lineTo(xPoint + 1, yPoint + 1);
-        //        ctx.stroke();
-
-        //    }
-        //}
-
-        ctx.restore();
-
     }
 
     function createPuckInitialSettings(gameMode) {
@@ -133,7 +138,7 @@ window.game.board = function () {
             density: 10,
             radius: ctx.canvas.width / window.game.worldConstants.Scale / batRadiusSizeRatio,
             playercolor: window.game.worldConstants.Player1Colour,
-            useShadow: true,
+            useShadow: false,
             playerName: null,
             type: entityType.Player
         }
@@ -152,7 +157,7 @@ window.game.board = function () {
             density: 10,
             radius: ctx.canvas.width / window.game.worldConstants.Scale / batRadiusSizeRatio,
             playercolor: window.game.worldConstants.Player2Colour,
-            useShadow: true,
+            useShadow: false,
             playerName: null,
             type: entityType.PlayerAlternateImage
         };
