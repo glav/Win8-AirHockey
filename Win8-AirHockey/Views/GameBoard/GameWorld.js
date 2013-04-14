@@ -291,24 +291,21 @@ window.game.world = function () {
                     playerState = window.game.stateBag.playerMovementState.player2;
                 }
 
-                setTimeout(function () {
-                    var newstate = isReleased === true ? false : true;
-                    if (playerState.isSelected !== newstate) {
+                var newstate = isReleased === true ? false : true;
+                if (playerState.isSelected !== newstate) {
 
-                        window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
-                    }
+                    window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
+                }
 
-                    playerState.isSelected = newstate;
+                playerState.isSelected = newstate;
 
-                    // If the player is selected, then begin recording its x and y positions
-                    // while it is being held down
-                    if (playerState.isSelected) {
-                        window.game.stateBag.playerMovementState.pushMovementStateForPlayer(isPlayer1, eventData.mouseX, eventData.mouseY);
-                    } else {
-                        window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
-                    }
-
-                }, 1);
+                // If the player is selected, then begin recording its x and y positions
+                // while it is being held down
+                if (playerState.isSelected) {
+                    window.game.stateBag.playerMovementState.pushMovementStateForPlayer(isPlayer1, eventData.mouseX, eventData.mouseY);
+                } else {
+                    window.game.stateBag.playerMovementState.clearPlayerState(isPlayer1);
+                }
 
             }
         }
@@ -354,8 +351,10 @@ window.game.world = function () {
                 // hitting the puck and causes weird bounce behaviour.
                 if ((selectedId === window.game.worldConstants.Player1Id && window.game.stateBag.playerMovementState.player1.isSelected)
                         || (selectedId === window.game.worldConstants.Player2Id && window.game.stateBag.playerMovementState.player2.isSelected)) {
-                    selectedBody.SetLinearVelocity({ x: 0, y: 0 });
-                    selectedBody.SetAngularVelocity(0);
+                    setTimeout(function () {
+                        selectedBody.SetLinearVelocity({ x: 0, y: 0 });
+                        selectedBody.SetAngularVelocity(0);
+                    }, 10);
                 }
                 selectedBody.SetPosition({ x: eventData.mouseX, y: eventData.mouseY });
 
@@ -392,20 +391,18 @@ window.game.world = function () {
 
             var selectedId = selectedBody.GetUserData();
 
+            // If a gesture end, then the player has stopped so clear the movement state
+            if (gestureType === window.game.gestureType.end) {
+                window.game.stateBag.playerMovementState.clearPlayerState(selectedId === window.game.worldConstants.Player1Id);
+                return;
+            }
+
             // We need to guage how fast the user is moving the bat so we can tell
             // Box2D how fast the object is going so it can calculate collission properly
             // otherwise Box2D does not know about the bat's velocity since the MSGesture and
             // MSPointerEvents happen outside its scope
             if (doesIdRepresentPlayerBat(selectedId)) {
-                // Dont cancel inertia or movement on release for now
-                //if (gestureType === window.game.gestureType.change) {
-                //    if (selectedId === window.game.worldConstants.Player1Id && !window.game.stateBag.playerMovementState.isPlayer1Selected
-                //            || selectedId === window.game.worldConstants.Player2Id && !window.game.stateBag.playerMovementState.isPlayer2Selected) {
-                //        simulator.cancelAllMovement(selectedBody);
-                //    }
-                //} else {
                 selectedBody.SetLinearVelocity({ x: e.velocityX * gameConst.Scale, y: e.velocityY * gameConst.Scale });
-                //}
             }
 
         }
@@ -456,6 +453,10 @@ window.game.world = function () {
             }
 
             var puckBody = simulator.getBody(puckIdThatCollided);
+            // Clear the angle so rotation stops. Otherwise the puck can hit a bit
+            // while spinning a lot and at looks like a completely unnatural
+            // bounce off since the puck spins and rebounds at an odd angle.
+            puckBody.SetAngle(0);
 
             // Only do this special condition if both players are selected as we dont get
             // proper velocity when two pointer events are fired together
@@ -471,10 +472,10 @@ window.game.world = function () {
                 // the Y axis by going through all items in the array and adding in the delta diff
                 // between each one.
 
-                for (var xcnt = 0; xcnt < xLen; xcnt++) {
-                    if (xcnt === 0) {
-                        xVel = playerState.xPosWhileHeld[xcnt];
-                    } else {
+                if (xLen <= 1) {
+                    xVel = 0;
+                } else {
+                    for (var xcnt = 1; xcnt < xLen; xcnt++) {
                         delta = playerState.xPosWhileHeld[xcnt] - playerState.xPosWhileHeld[xcnt - 1];
                         xVel += delta;
                     }
@@ -485,10 +486,10 @@ window.game.world = function () {
                     xVel *= -1;
                 }
 
-                for (var ycnt = 0; ycnt < yLen; ycnt++) {
-                    if (ycnt === 0) {
-                        yVel = playerState.yPosWhileHeld[ycnt];
-                    } else {
+                if (yLen <= 1) {
+                    yVel = 0;
+                } else {
+                    for (var ycnt = 1; ycnt < yLen; ycnt++) {
                         delta = playerState.yPosWhileHeld[ycnt] - playerState.yPosWhileHeld[ycnt - 1];
                         yVel += delta;
                     }
@@ -498,6 +499,15 @@ window.game.world = function () {
                 // velocity is reversed as we are going in the negative direction
                 if (playerState.yPosWhileHeld[0] > playerState.yPosWhileHeld[yLen - 1]) {
                     yVel *= -1;
+                }
+
+                // Finally, if both pucks are held down (player 1 and 2) then add a little
+                // kick to the velocity since we cannot rely on inertia and gesture
+                // calculation since we cancel all that when both are
+                // selected
+                if (window.game.stateBag.playerMovementState.player1.isSelected && window.game.stateBag.playerMovementState.player2.isSelected) {
+                    xVel *= 2;
+                    yVel *= 2;
                 }
 
                 aggregateXVelocity = xVel;
@@ -622,6 +632,7 @@ window.game.world = function () {
         // If the player is selected, then begin recording its x and y positions
         // while it is being held down
         if (player1State.isSelected) {
+            console.log('recording p1 stats');
             var p1BodyPosition = simulator.getBody(window.game.worldConstants.Player1Id).GetPosition();
             window.game.stateBag.playerMovementState.pushMovementStateForPlayer(true, p1BodyPosition.x, p1BodyPosition.y);
         } else {
@@ -629,6 +640,7 @@ window.game.world = function () {
         }
 
         if (player2State.isSelected) {
+            console.log('recording p2 stats');
             var p2BodyPosition = simulator.getBody(window.game.worldConstants.Player2Id).GetPosition();
             window.game.stateBag.playerMovementState.pushMovementStateForPlayer(false, p2BodyPosition.x, p2BodyPosition.y);
         } else {
@@ -644,38 +656,36 @@ window.game.world = function () {
 
 
         window.game.stateBag.debugData.lastEvent = 'onMSPointerDown';
-        if (gameMode === window.game.gameType.singlePlayerMultiPuck || gameMode === window.game.gameType.singlePlayer) {
-            if (e.target === this) {
-                //  Attach first contact and track device.
-                if (this.gesture.pointerType === null) {
-                    this.gesture.addPointer(e.pointerId);
-                    this.gesture.pointerType = e.pointerType;
-                }
-                    // Attach subsequent contacts from same device.
-                else if (e.pointerType === this.gesture.pointerType) {
-                    this.gesture.addPointer(e.pointerId);
-                }
+        //if (gameMode === window.game.gameType.singlePlayerMultiPuck || gameMode === window.game.gameType.singlePlayer) {
+        if (e.target === this) {
+            //  Attach first contact and track device.
+            if (this.gesture.pointerType === null) {
+                this.gesture.addPointer(e.pointerId);
+                this.gesture.pointerType = e.pointerType;
+            }
+                // Attach subsequent contacts from same device.
+            else if (e.pointerType === this.gesture.pointerType) {
+                this.gesture.addPointer(e.pointerId);
+            }
 
-                    //GLAV NOTE: The section below is included with the sample but seems to lose
-                    // the gesture events sometimes when u swipe and then swipe mid way through
-                    // translation
+                //GLAV NOTE: The section below is included with the sample but seems to lose
+                // the gesture events sometimes when u swipe and then swipe mid way through
+                // translation
 
-                    // New gesture recognizer for new pointer type.
-                else {
-                    var msGesture = new MSGesture();
-                    msGesture.target = e.target;
-                    e.target.gesture = msGesture;
-                    e.target.gesture.pointerType = e.pointerType;
-                    e.target.gesture.addPointer(e.pointerId);
-                }
+                // New gesture recognizer for new pointer type.
+            else {
+                var msGesture = new MSGesture();
+                msGesture.target = e.target;
+                e.target.gesture = msGesture;
+                e.target.gesture.pointerType = e.pointerType;
+                e.target.gesture.addPointer(e.pointerId);
             }
         }
+        //}
 
-        // We dont need this routine for now. Retaining just in case we need to know when a player is selected
-        // held
         handlePointerInitiatedOrReleased(e, false);
 
-        handleMouseMove(e);
+        //handleMouseMove(e);
     }
     function handleMSPointerUpEvent(e) {
         window.game.stateBag.debugData.lastEvent = 'onMSPointerUp';
@@ -686,7 +696,7 @@ window.game.world = function () {
     function handleMSPointerMoveEvent(e) {
         window.game.stateBag.debugData.lastEvent = 'onMSPointerMove';
 
-        handlePointerInitiatedOrReleased(e);
+        // handlePointerInitiatedOrReleased(e);
         //Important Note: Handling a mouse move in this event is not strictly correct and causes
         // the player to move the puck when simply moving the mouse over the puck without holding
         // down the mouse button.

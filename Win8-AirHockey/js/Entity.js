@@ -115,8 +115,6 @@
         this.imageYCentre = (this.y - this.radius) * window.game.worldConstants.Scale;
     };
     PuckEntity.prototype.draw = function (ctx) {
-        //ctx.save();
-
         if (debugMode !== true) {
             if (this.enableShadow === true) {
                 ctx.shadowOffsetX = 10;
@@ -131,7 +129,7 @@
                 ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
             }
         } else {
-
+            ctx.save();
             ctx.translate(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale);
             ctx.rotate(this.angle);
             ctx.translate(-(this.x) * window.game.worldConstants.Scale, -(this.y) * window.game.worldConstants.Scale);
@@ -155,9 +153,8 @@
             ctx.closePath();
             ctx.stroke();
             Entity.prototype.draw.call(this, ctx);
+            ctx.restore();
         }
-
-        //ctx.restore();
     };
     //*****************************************************
     // END Puck
@@ -205,8 +202,6 @@
 
     };
     PlayerEntity.prototype.draw = function (ctx) {
-        //ctx.save();
-
         if (debugMode !== true) {
             if (this.enableShadow === true) {
                 ctx.shadowOffsetX = 20;
@@ -221,6 +216,7 @@
                 ctx.drawImage(this.image, this.imageXCentre, this.imageYCentre, this.imageWidth, this.imageHeight);
             }
         } else {
+            ctx.save();
             ctx.translate(this.x * window.game.worldConstants.Scale, this.y * window.game.worldConstants.Scale);
             ctx.rotate(this.angle);
             ctx.translate(-(this.x) * window.game.worldConstants.Scale, -(this.y) * window.game.worldConstants.Scale);
@@ -244,9 +240,9 @@
             ctx.closePath();
             ctx.stroke();
             Entity.prototype.draw.call(this, ctx);
+            ctx.restore();
         }
 
-        //ctx.restore();
         Entity.prototype.drawInnerText.call(this,ctx);
     };
     //*****************************************************
