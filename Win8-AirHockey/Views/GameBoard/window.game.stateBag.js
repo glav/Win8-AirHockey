@@ -27,7 +27,7 @@ window.game.stateBag = function () {
     };
 
     var debugData = {
-        enabled: false,
+        enabled: true,
         batXVelocity: 0,
         batYVelocity: 0,
         lastCalculatedPower: 0,
@@ -120,7 +120,7 @@ window.game.stateBag = function () {
 
         // Items to manage player movement state
         // The more items here, the more accurate but also velocity is greater
-        _maxPositionItems: 15,
+        _maxPositionItems: 10,
 
         clearPlayerState: function (isPlayer1) {
             var playerState = isPlayer1 && isPlayer1 === true ? this.player1 : this.player2;
