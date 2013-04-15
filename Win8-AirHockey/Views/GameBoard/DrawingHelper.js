@@ -31,8 +31,8 @@ window.game.drawHelper = function () {
         ctx.fillText("Actual Impulse Applied: " + debugData.actualImpulseForceApplied, startXPos, (startYPos += 30));
         ctx.fillText("Player1Selected: " + playerMovementState.player1.isSelected, startXPos, (startYPos += 30));
         ctx.fillText("Player2Selected: " + playerMovementState.player2.isSelected, startXPos, (startYPos += 30));
-        ctx.fillText("Player1WhenSelected: " + playerMovementState.player1.whenSelected, startXPos, (startYPos += 30));
-        ctx.fillText("Player1XPosSelectedArray: " + playerMovementState.player1.xPosWhileHeld.length, startXPos, (startYPos += 30));
+        //ctx.fillText("Player1WhenSelected: " + playerMovementState.player1.whenSelected, startXPos, (startYPos += 30));
+        //ctx.fillText("Player1XPosSelectedArray: " + playerMovementState.player1.xPosWhileHeld.length, startXPos, (startYPos += 30));
 
 
         ctx.fillText("LastEvent: " + debugData.lastEvent, startXPos, (startYPos += 30));

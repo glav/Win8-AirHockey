@@ -108,15 +108,9 @@ window.game.stateBag = function () {
     var playerMovementState = {
         player1: {
             isSelected: false,
-            whenSelected: null,
-            xPosWhileHeld: [],
-            yPosWhileHeld: []
         },
         player2: {
             isSelected: false,
-            whenSelected: null,
-            xPosWhileHeld: [],
-            yPosWhileHeld: []
         },
         movementCheckTimer: null,
 

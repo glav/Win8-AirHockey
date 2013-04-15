@@ -57,7 +57,7 @@
     function _newSettings() {
         var settingsData = {
             numberTimesAppStarted: 0,
-            powerToApplyOnPuckCollision: 1,
+            powerToApplyOnPuckCollision: 50,
             allowPlayersToCrossHalfwayLine: false,
             numberOfGoalsThatSignalsEndOfMatch: 6,
             simulatorRestitution: 60,  // Note: This value is divided by 100 when applied to simulator restitituion
