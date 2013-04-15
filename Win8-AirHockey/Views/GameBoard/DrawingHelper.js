@@ -11,6 +11,10 @@ window.game.drawHelper = function () {
         var startYPos = 50;
         var startXPos = 110;
 
+        if (ballCollisionState.impulse !== 0) {
+            debugData.lastImpulse = ballCollisionState.impulse;
+        }
+
         ctx.save();
         ctx.font = "20px Arial";
         ctx.clearRect(10, 10, 200, 80);
@@ -23,7 +27,8 @@ window.game.drawHelper = function () {
         // not really using these values now so dont bother showing them
         //ctx.fillText("PowerApplied: " + debugData.lastPowerApplied, startXPos, (startYPos += 30));
         //ctx.fillText("ActualPowerCalced: " + debugData.lastCalculatedPower, startXPos, (startYPos += 30));
-        //ctx.fillText("Impulse: " + debugData.lastImpulse, startXPos, (startYPos += 30));
+        ctx.fillText("Last Impulse: " + debugData.lastImpulse, startXPos, (startYPos += 30));
+        ctx.fillText("Actual Impulse Applied: " + debugData.actualImpulseForceApplied, startXPos, (startYPos += 30));
         ctx.fillText("Player1Selected: " + playerMovementState.player1.isSelected, startXPos, (startYPos += 30));
         ctx.fillText("Player2Selected: " + playerMovementState.player2.isSelected, startXPos, (startYPos += 30));
         ctx.fillText("Player1WhenSelected: " + playerMovementState.player1.whenSelected, startXPos, (startYPos += 30));

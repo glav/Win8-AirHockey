@@ -45,25 +45,29 @@ window.game.world = function () {
         if (gameProgress.gameState === window.game.gameStateType.Quit) {
             return;
         }
-        // Cancelany rotation and angular velocity as a puck typically does not
-        // exhibit this behaviour
-
-        //if (gameMode === window.game.gameType.twoPlayer) {
-        //    var puck = simulator.getBody(window.game.worldConstants.PuckId);
-        //    puck.SetAngularVelocity(0);
-        //}
-        //if (gameMode === window.game.gameType.twoPlayerMultiPuck) {
-        //    var puck2 = simulator.getBody(window.game.worldConstants.PuckSecondaryId);
-        //    puck2.SetAngularVelocity(0);
-        //}
 
         if (window.game.stateBag.ballCollisionState.hasCollided) {
 
             window.game.stateBag.debugData.batIdCollidedWith = window.game.stateBag.ballCollisionState.batIdCollidedWith;
             // Give the puck a little extra kick
-            simulator.applyImpulseVector(window.game.stateBag.ballCollisionState.puckIdThatCollided, { x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
+            //simulator.applyImpulseVector(window.game.stateBag.ballCollisionState.puckIdThatCollided, { x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
 
-            //simulator.cancelAllMovement(bat);
+            //We calculate the impulse based on velocity so that we can apply
+            // either the impulse value or the impulseBasedOnvelocity value, which ever
+            // is greater. Sometimes, we get really small values for impulse when 2 players areholding
+            // their bats even though they move at reasonable velocity so we just use which ever is greater.
+            var impulseBasedOnVelocity = (Math.abs(window.game.stateBag.ballCollisionState.vX) + Math.abs(window.game.stateBag.ballCollisionState.vX));
+            var impulseForceToApply = Math.max(window.game.stateBag.ballCollisionState.impulse, impulseBasedOnVelocity);
+            if (impulseForceToApply > 0) {
+                simulator.applyImpulseVector(window.game.stateBag.ballCollisionState.puckIdThatCollided, { x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY }, impulseForceToApply);
+                window.game.stateBag.debugData.actualImpulseForceApplied = impulseForceToApply;
+            }
+
+            // Get the bat/body that has collided and set its velocity. This way, Box2D is aware of
+            // the velocity when its being moved manually by the user and it can re-act accordingly
+            // applying all the correct physics.
+            var playerBody = simulator.getBody(window.game.stateBag.ballCollisionState.batIdCollidedWith);
+            playerBody.SetLinearVelocity({ x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY });
             window.game.stateBag.ballCollisionState.clear();
         }
 
@@ -216,6 +220,9 @@ window.game.world = function () {
                 msg += " wins! Final Score: Player 1: " + window.game.stateBag.scores.player1 + ", Player 2: " + window.game.stateBag.scores.player2;
                 gameProgress.gameState = window.game.gameStateType.Ended;
                 window.game.dialog.show(msg + " Want to play again?");
+                window.game.stateBag.scores.player1 = 0;
+                window.game.stateBag.scores.player2 = 0;
+
             } else {
                 // continue playing....
                 window.game.stateBag.inGameMessage.showMessage("GOAL! " + message + "scores");
@@ -482,9 +489,9 @@ window.game.world = function () {
                 }
                 // If the initial position was less than the starting position, then ensure the 
                 // velocity is reversed as we are going in the negative direction
-                if (playerState.xPosWhileHeld[0] > playerState.xPosWhileHeld[xLen - 1]) {
-                    xVel *= -1;
-                }
+                //if (playerState.xPosWhileHeld[0] > playerState.xPosWhileHeld[xLen - 1]) {
+                //    xVel *= -1;
+                //}
 
                 if (yLen <= 1) {
                     yVel = 0;
@@ -497,17 +504,17 @@ window.game.world = function () {
 
                 // If the initial position was less than the starting position, then ensure the 
                 // velocity is reversed as we are going in the negative direction
-                if (playerState.yPosWhileHeld[0] > playerState.yPosWhileHeld[yLen - 1]) {
-                    yVel *= -1;
-                }
+                //if (playerState.yPosWhileHeld[0] > playerState.yPosWhileHeld[yLen - 1]) {
+                //    yVel *= -1;
+                //}
 
                 // Finally, if both pucks are held down (player 1 and 2) then add a little
                 // kick to the velocity since we cannot rely on inertia and gesture
                 // calculation since we cancel all that when both are
                 // selected
                 if (window.game.stateBag.playerMovementState.player1.isSelected && window.game.stateBag.playerMovementState.player2.isSelected) {
-                    xVel *= 2;
-                    yVel *= 2;
+                    xVel *= (impulse / window.game.worldConstants.Scale);
+                    yVel *= (impulse / window.game.worldConstants.Scale);
                 }
 
                 aggregateXVelocity = xVel;
@@ -537,10 +544,7 @@ window.game.world = function () {
             window.game.stateBag.ballCollisionState.puckIdThatCollided = puckIdThatCollided;
             window.game.stateBag.ballCollisionState.vX = aggregateXVelocity;
             window.game.stateBag.ballCollisionState.vY = aggregateYVelocity;
-
-            if (impulse !== 0) {
-                window.game.stateBag.debugData.lastImpulse = impulse;
-            }
+            window.game.stateBag.ballCollisionState.impulse = impulse;
 
         }
     }
@@ -595,6 +599,7 @@ window.game.world = function () {
         settings = window.game.settings.getCurrent();
         window.game.stateBag.scores.highScores = window.game.highScoreHandler.getHighScores();
 
+
         // Pre-calculate the area on the canvas that we need to clear and
         // update frequently to draw upon
         window.game.stateBag.canvasUpdateArea.leftPos = world[gameConst.groundLeftId].halfWidth * 2 * gameConst.Scale;
@@ -632,7 +637,6 @@ window.game.world = function () {
         // If the player is selected, then begin recording its x and y positions
         // while it is being held down
         if (player1State.isSelected) {
-            console.log('recording p1 stats');
             var p1BodyPosition = simulator.getBody(window.game.worldConstants.Player1Id).GetPosition();
             window.game.stateBag.playerMovementState.pushMovementStateForPlayer(true, p1BodyPosition.x, p1BodyPosition.y);
         } else {
@@ -640,7 +644,6 @@ window.game.world = function () {
         }
 
         if (player2State.isSelected) {
-            console.log('recording p2 stats');
             var p2BodyPosition = simulator.getBody(window.game.worldConstants.Player2Id).GetPosition();
             window.game.stateBag.playerMovementState.pushMovementStateForPlayer(false, p2BodyPosition.x, p2BodyPosition.y);
         } else {
