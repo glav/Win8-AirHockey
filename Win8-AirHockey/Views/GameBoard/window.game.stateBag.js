@@ -18,6 +18,7 @@ window.game.stateBag = function () {
         vY: 0,
         puckIdThatCollided: window.game.worldConstants.PuckId,
         batIdCollidedWith: null,
+        impulse: 0,
         clear: function () {
             this.hasCollided = false;
             this.power = 0;
@@ -33,6 +34,7 @@ window.game.stateBag = function () {
         lastCalculatedPower: 0,
         lastPowerApplied: 0,
         lastImpulse: 0,
+        actualImpulseForceApplied: 0,
         lastEvent: '',
         message: '',
         batIdCollidedWith: null
