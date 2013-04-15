@@ -52,22 +52,25 @@ window.game.world = function () {
             // Give the puck a little extra kick
             //simulator.applyImpulseVector(window.game.stateBag.ballCollisionState.puckIdThatCollided, { x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY }, settings.powerToApplyOnPuckCollision);
 
-            //We calculate the impulse based on velocity so that we can apply
+            // We calculate the impulse based on velocity so that we can apply
             // either the impulse value or the impulseBasedOnvelocity value, which ever
             // is greater. Sometimes, we get really small values for impulse when 2 players areholding
             // their bats even though they move at reasonable velocity so we just use which ever is greater.
+            // Also, normally we want box2D to take care of the physics however we want a really dynamic play
+            // area and since we also cancel out the bat velocities every now and then, we need to compensate
+            // the bounce of the puck.
             var impulseBasedOnVelocity = (Math.abs(window.game.stateBag.ballCollisionState.vX) + Math.abs(window.game.stateBag.ballCollisionState.vX));
-            var impulseForceToApply = Math.max(window.game.stateBag.ballCollisionState.impulse, impulseBasedOnVelocity);
+            var impulseForceToApply = Math.max(window.game.stateBag.ballCollisionState.impulse, impulseBasedOnVelocity) * (settings.powerToApplyOnPuckCollision/100);
             if (impulseForceToApply > 0) {
                 simulator.applyImpulseVector(window.game.stateBag.ballCollisionState.puckIdThatCollided, { x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY }, impulseForceToApply);
                 window.game.stateBag.debugData.actualImpulseForceApplied = impulseForceToApply;
             }
 
-            // Get the bat/body that has collided and set its velocity. This way, Box2D is aware of
-            // the velocity when its being moved manually by the user and it can re-act accordingly
-            // applying all the correct physics.
+            // Get the bat/body that has collided and set its velocity to 0.Normally, box2D needs the
+            // body updated with the correct velocity *HOWEVER* if we do this, box2D wants to bounce the
+            // player bats around in response to hitting the puck so clear itslinear velocity
             var playerBody = simulator.getBody(window.game.stateBag.ballCollisionState.batIdCollidedWith);
-            playerBody.SetLinearVelocity({ x: window.game.stateBag.ballCollisionState.vX, y: window.game.stateBag.ballCollisionState.vY });
+            playerBody.SetLinearVelocity({ x: 0, y: 0 });
             window.game.stateBag.ballCollisionState.clear();
         }
 
@@ -356,8 +359,8 @@ window.game.world = function () {
                 // rather than directly so any collisions against the puck can still work and be 
                 // scheduled approriately. Doing it directly in line has the effect of NOT
                 // hitting the puck and causes weird bounce behaviour.
-                if ((selectedId === window.game.worldConstants.Player1Id && window.game.stateBag.playerMovementState.player1.isSelected)
-                        || (selectedId === window.game.worldConstants.Player2Id && window.game.stateBag.playerMovementState.player2.isSelected)) {
+                if ((selectedId === window.game.worldConstants.Player1Id)
+                        || (selectedId === window.game.worldConstants.Player2Id)) {
                     setTimeout(function () {
                         selectedBody.SetLinearVelocity({ x: 0, y: 0 });
                         selectedBody.SetAngularVelocity(0);
@@ -470,75 +473,18 @@ window.game.world = function () {
             // If we dont do this, when the bat hits the puck, there is not much velocity or bounce generated
             //if (window.game.stateBag.playerMovementState.player1.isSelected && window.game.stateBag.playerMovementState.player2.isSelected) {
 
-            // do it for 2 player since we removed the gesture handling in 2 player
-            if (gameMode === window.game.gameType.twoPlayer || gameMode === window.game.gameType.twoPlayerMultiPuck) {
-                var xLen = playerState.xPosWhileHeld.length;
-                var yLen = playerState.yPosWhileHeld.length;
-                var xVel = 0, yVel = 0, delta = 0;
-                // Figure out the total velocity and difference in velocity changes for the X axis and
-                // the Y axis by going through all items in the array and adding in the delta diff
-                // between each one.
 
-                if (xLen <= 1) {
-                    xVel = 0;
-                } else {
-                    for (var xcnt = 1; xcnt < xLen; xcnt++) {
-                        delta = playerState.xPosWhileHeld[xcnt] - playerState.xPosWhileHeld[xcnt - 1];
-                        xVel += delta;
-                    }
-                }
-                // If the initial position was less than the starting position, then ensure the 
-                // velocity is reversed as we are going in the negative direction
-                //if (playerState.xPosWhileHeld[0] > playerState.xPosWhileHeld[xLen - 1]) {
-                //    xVel *= -1;
-                //}
+            var centreBallPosition = puckBody.GetWorldCenter();
+            var ballVelocity = puckBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
+            var centreBatPosition = bat.GetWorldCenter();
+            var batVelocity = bat.GetLinearVelocityFromWorldPoint(centreBatPosition);
 
-                if (yLen <= 1) {
-                    yVel = 0;
-                } else {
-                    for (var ycnt = 1; ycnt < yLen; ycnt++) {
-                        delta = playerState.yPosWhileHeld[ycnt] - playerState.yPosWhileHeld[ycnt - 1];
-                        yVel += delta;
-                    }
-                }
-
-                // If the initial position was less than the starting position, then ensure the 
-                // velocity is reversed as we are going in the negative direction
-                //if (playerState.yPosWhileHeld[0] > playerState.yPosWhileHeld[yLen - 1]) {
-                //    yVel *= -1;
-                //}
-
-                // Finally, if both pucks are held down (player 1 and 2) then add a little
-                // kick to the velocity since we cannot rely on inertia and gesture
-                // calculation since we cancel all that when both are
-                // selected
-                if (window.game.stateBag.playerMovementState.player1.isSelected && window.game.stateBag.playerMovementState.player2.isSelected) {
-                    xVel *= (impulse / window.game.worldConstants.Scale);
-                    yVel *= (impulse / window.game.worldConstants.Scale);
-                }
-
-                aggregateXVelocity = xVel;
-                aggregateYVelocity = yVel;
-                window.game.stateBag.debugData.batXVelocity = xVel;
-                window.game.stateBag.debugData.batYVelocity = yVel;
-            } else {
-
-                var centreBallPosition = puckBody.GetWorldCenter();
-                var ballVelocity = puckBody.GetLinearVelocityFromWorldPoint(centreBallPosition);
-                var centreBatPosition = bat.GetWorldCenter();
-                var batVelocity = bat.GetLinearVelocityFromWorldPoint(centreBatPosition);
-
-                // add both X velocity for ball and bat together. They should cancel each other
-                // out if going opposite dir. Same for Y dir
-                aggregateYVelocity = batVelocity.y + ballVelocity.y;// / 2;
-                aggregateXVelocity = batVelocity.x + ballVelocity.x;// / 2;
-                window.game.stateBag.debugData.batXVelocity = batVelocity.x;
-                window.game.stateBag.debugData.batYVelocity = batVelocity.y;
-            }
-
-            // put a cap on the intertia
-            //var batInertia = bat.GetInertia();
-            //batInertia = batInertia > 5000 ? batInertia = 5000 : batInertia;
+            // add both X velocity for ball and bat together. They should cancel each other
+            // out if going opposite dir. Same for Y dir
+            aggregateYVelocity = batVelocity.y + ballVelocity.y;// / 2;
+            aggregateXVelocity = batVelocity.x + ballVelocity.x;// / 2;
+            window.game.stateBag.debugData.batXVelocity = batVelocity.x;
+            window.game.stateBag.debugData.batYVelocity = batVelocity.y;
 
             window.game.stateBag.ballCollisionState.hasCollided = true;
             window.game.stateBag.ballCollisionState.puckIdThatCollided = puckIdThatCollided;
@@ -588,9 +534,6 @@ window.game.world = function () {
             var bat2 = simulator.getBody(gameConst.Player2Id);
             var b2Settings = window.game.board.createBat2InitialSettings();
             bat2.SetPosition({ x: b2Settings.x, y: b2Settings.y });
-            // Setup timer that will check whether a player (in 2 player mode) is moving or stationary
-            // even if both players have their finger down on the bat
-            window.game.stateBag.playerMovementState.movementCheckTimer = setInterval(checkTwoPlayerMovementState, 1 / 15);
         } else {
             window.game.drawHelper.hideScores();
             window.game.singlePlayerHandler.initialiseSinglePlayerState(gameProgress, simulator);
@@ -612,46 +555,6 @@ window.game.world = function () {
 
         startCountDown();
     }
-
-    // This function is intended to clear the player movement array if a user has selected a bat with their
-    //finger but is stationary. This will prevent the values that exist in the player movement array
-    // from coming into effect when calculating velocity as these values will be old from when
-    // they were moving and the values being stored within the mouse move event. Since no movement is
-    // occuring and the player has not released their finger from the bat, no event is fired so we
-    // need to periodically check and clear our velocity and movement values if this is the case.
-    // Note:This only applies in 2 player mode
-    function checkTwoPlayerMovementState() {
-        var player1State = window.game.stateBag.playerMovementState.player1;
-        var player2State = window.game.stateBag.playerMovementState.player2;
-
-        if (!player1State.isSelected && !player2State.isSelected) {
-            // If neither player is selected, then dont bother 
-            // as the events being captured will take care of this
-            return;
-        }
-
-        // Can happen if game is ended but the timer event gets fired a millisecond later that calls this routine
-        if (simulator === null) {
-            return;
-        }
-        // If the player is selected, then begin recording its x and y positions
-        // while it is being held down
-        if (player1State.isSelected) {
-            var p1BodyPosition = simulator.getBody(window.game.worldConstants.Player1Id).GetPosition();
-            window.game.stateBag.playerMovementState.pushMovementStateForPlayer(true, p1BodyPosition.x, p1BodyPosition.y);
-        } else {
-            window.game.stateBag.playerMovementState.clearPlayerState(true);
-        }
-
-        if (player2State.isSelected) {
-            var p2BodyPosition = simulator.getBody(window.game.worldConstants.Player2Id).GetPosition();
-            window.game.stateBag.playerMovementState.pushMovementStateForPlayer(false, p2BodyPosition.x, p2BodyPosition.y);
-        } else {
-            window.game.stateBag.playerMovementState.clearPlayerState(false);
-        }
-
-    }
-
 
     /**************** USING MS GESTURE HANDLING *******************/
 
